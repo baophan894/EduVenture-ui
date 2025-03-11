@@ -49,7 +49,7 @@ const CourseScreen = () => {
             <span
               onClick={() => setTopicFilter("")}
               key="all"
-              className="p-[16px] whitespace-nowrap hover:text-[#469B74] cursor-pointer"
+              className="p-[16px]  whitespace-nowrap hover:text-[#469B74] cursor-pointer"
             >
               All
             </span>
@@ -57,7 +57,7 @@ const CourseScreen = () => {
               <span
                 onClick={() => setTopicFilter(topic.id)}
                 key={topic.id}
-                className="p-[16px] whitespace-nowrap hover:text-[#469B74] cursor-pointer"
+                className="p-[16px]  whitespace-nowrap hover:text-[#469B74] cursor-pointer"
               >
                 {topic.name}
               </span>

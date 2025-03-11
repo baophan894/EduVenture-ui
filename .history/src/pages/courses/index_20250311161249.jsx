@@ -13,10 +13,10 @@ const CourseScreen = () => {
     setPage(page);
   };
   const experts = useAllUser();
-  const findExpertById = (id) => {
-    return experts?.find((expert) => expert.id == id);
-  };
-  const { courses } = useAllPublicCourse();
+  const findExpertById = (id)=>{
+    return experts?.find(expert => expert.id == id);
+  }
+  const {courses} = useAllPublicCourse();
   const topics = useAllTopic();
   const [topicFilter, setTopicFilter] = useState();
   const [search, setSearch] = useState("");
@@ -39,9 +39,7 @@ const CourseScreen = () => {
     setDisplayCourses(filteredCourses?.slice(startIndex, endIndex));
   }, [courses, page, topicFilter, search]);
   const isDataReady = experts && courses && topics;
-  return !isDataReady ? (
-    <Loading />
-  ) : (
+  return !isDataReady ?  <Loading/> : (
     <div className="min-h-[100vh] px-[50px]  ">
       <div className="fixed z-20 border-1  inset-x-0 top-[59px] border-2  ">
         <div className="flex justify-between bg-white items-center border-b">
@@ -49,7 +47,7 @@ const CourseScreen = () => {
             <span
               onClick={() => setTopicFilter("")}
               key="all"
-              className="p-[16px] whitespace-nowrap hover:text-[#469B74] cursor-pointer"
+              className="p-[16px] hover:bg-slate-200 whitespace-nowrap"
             >
               All
             </span>
@@ -57,7 +55,7 @@ const CourseScreen = () => {
               <span
                 onClick={() => setTopicFilter(topic.id)}
                 key={topic.id}
-                className="p-[16px] whitespace-nowrap hover:text-[#469B74] cursor-pointer"
+                className="p-[16px] hover:bg-slate-200 whitespace-nowrap"
               >
                 {topic.name}
               </span>
@@ -70,10 +68,7 @@ const CourseScreen = () => {
         {displayCourses?.map((course) => {
           return (
             <Col key={course.id} className="gutter-row" xs={24} sm={12} md={6}>
-              <CourseCard
-                expert={findExpertById(course.expertId)}
-                course={course}
-              />
+              <CourseCard expert={findExpertById(course.expertId)} course={course} />
             </Col>
           );
         })}

@@ -21,7 +21,6 @@ import FlashCardDetailScreen from "../pages/flashcard/subScreen/flashcardetail";
 import PostScreen from "../pages/posts";
 import PostDetail from "../pages/posts/components/postDetail";
 import TestLibraryScreen from "../pages/testLibrary";
-import TestDetailScreen from "../pages/testDetail";
 const RouterManagement = () => {
   return (
     <Routes>
@@ -52,10 +51,6 @@ const RouterManagement = () => {
           element={<FlashCardDetailScreen />}
         ></Route>
         <Route path="/test-library" element={<TestLibraryScreen />}></Route>
-        <Route
-          path="/test-library/detail/:id"
-          element={<TestDetailScreen />}
-        ></Route>
 
         <Route path="/forum" element={<PostScreen />}></Route>
       </Route>

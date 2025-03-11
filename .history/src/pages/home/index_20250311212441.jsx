@@ -291,10 +291,10 @@ const HomePage = () => {
               Test Library
             </h3>
             <Row gutter={[24, 40]} className="pt-2">
-              {testData?.slice(0, 4).map((test, index) => {
+              {courses?.slice(0, 4).map((course, index) => {
                 return (
                   <Col
-                    key={test.id}
+                    key={course.id}
                     className={`gutter-row transition-all duration-700 ${
                       animatedSections.courses
                         ? "opacity-100 translate-y-0"
@@ -305,7 +305,7 @@ const HomePage = () => {
                     sm={12}
                     md={6}
                   >
-                    <TestCard test={test}></TestCard>
+                    <TestCard test></TestCard>
                   </Col>
                 );
               })}
