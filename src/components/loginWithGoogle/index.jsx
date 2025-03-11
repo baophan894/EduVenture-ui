@@ -27,7 +27,7 @@ const LoginWithGoogleButton = () => {
   return (
     <div
       onClick={loginWithGoogle}
-      className="flex items-center justify-center  bg-gray-100 "
+      className="flex items-center justify-center  "
     >
       <button className="flex items-center bg-white  border border-gray-300 rounded-lg shadow-md px-6 py-3 text-sm font-medium text-gray-800  hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ">
         <svg

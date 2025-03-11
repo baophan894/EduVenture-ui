@@ -1,30 +1,95 @@
-import { Button, Form, Input, notification } from "antd";
-import { useMutation } from "@tanstack/react-query";
-import { Link, useNavigate } from "react-router-dom";
-import SigninStyle from "./Signin.style";
-import api from "../../api/http";
-import LoginWithGoogleButton from "../../components/loginWithGoogle";
-const SignInScreen = () => {
-  const navigate = useNavigate();
+import { Button, Form, Input, notification } from "antd"
+import { useMutation } from "@tanstack/react-query"
+import { Link, useNavigate } from "react-router-dom"
+import styled from "styled-components"
+import LoginWithGoogleButton from "../../components/loginWithGoogle"
+import api from "../../api/http"
 
-  const formItemLayout = {
-    labelCol: {
-      xs: { span: 24 },
-      sm: { span: 8 },
-    },
-  };
+const SignInWrapper = styled.div`
+  min-height: 100vh;
+  display: flex;
+  justify-content: flex-end;
+  background-image: url('/cover-login.png');
+  background-size: cover;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 40px;
+    background: rgb(255, 255, 255);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 2px solid #469B74;
+    border-radius: 8px;
+    margin: 40px;
+    margin-right: 200px;
+    
+  }
+
+  .form-title {
+    font-size: 40px;
+    font-weight: 800;
+    color: #469B74;
+    margin-bottom: 20px;
+  }
+
+  .ant-form-item-label {
+    text-align: left;
+  }
+
+  .ant-input, .ant-input-password {
+    height: 50px;
+    
+  }
+
+  .ant-btn {
+    height: 50px;
+    font-size: 18px;
+  }
+
+  @media (max-width: 768px) {
+    justify-content: center;
+    
+    .form-container {
+      max-width: 100%;
+    }
+  }
+`
+
+const SignInScreen = () => {
+  const navigate = useNavigate()
 
   const loginMutation = useMutation({
     mutationFn: (formData) => {
-      return api.post("login", formData);
+      return api.post("login", formData)
     },
-  });
+  })
+
   const reverifyMutation = useMutation({
     mutationFn: (formData) => {
-      return api.post("reverify", formData);
+      return api.post("reverify", formData)
     },
-  });
-  const onfinish = (body) => {
+  })
+
+  const onFinish = (body) => {
     loginMutation.mutate(body, {
       onError(data) {
         if (data.response.data.message === "not_verify_yet") {
@@ -32,93 +97,87 @@ const SignInScreen = () => {
             { email: body.email },
             {
               onSuccess() {
-                navigate(`/verify?email=${body.email}`);
+                navigate(`/verify?email=${body.email}`)
               },
-            }
-          );
+            },
+          )
         }
-        notification.error({ message: data.response.data.message });
+        notification.error({ message: data.response.data.message })
       },
-    });
-  };
+    })
+  }
 
   return (
-    <SigninStyle>
-      <div className="signup">
-        <div className="image ">hello</div>
-        <div className="signup_content ">
-          <span className="signup_content_title">Sign In</span>
-          <div className="social mt-3">
-            <LoginWithGoogleButton />
-          </div>
-          <span>Or Email</span>
-          <Form
-            onFinish={onfinish}
-            layout="vertical"
-            {...formItemLayout}
-            name="register"
-            scrollToFirstError
-          >
-            <Form.Item
-              name="email"
-              label="E-mail"
-              rules={[
-                {
-                  type: "email",
-                  message: "The input is not valid E-mail!",
-                },
-                {
-                  required: true,
-                  message: "Please input your E-mail!",
-                },
-              ]}
-            >
-              <Input placeholder="Enter your email" />
-            </Form.Item>
-            <Form.Item
-              name="password"
-              label="Password"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your password!",
-                },
-              ]}
-              hasFeedback
-            >
-              <Input.Password placeholder="Enter your password" />
-            </Form.Item>
-            <Form.Item className="right">
-              <Link style={{ color: "blue" }} to="/forgot-password">
-                Forgot password
-              </Link>
-            </Form.Item>
-
-            <Form.Item>
-              {loginMutation.isPending ? (
-                <Button loading style={{ textAlign: "center" }}>
-                  Sign in
-                </Button>
-              ) : (
-                <Button
-                  size="large"
-                  htmlType="submit"
-                  style={{ textAlign: "center" }}
-                >
-                  Sign in
-                </Button>
-              )}
-            </Form.Item>
-            <Form.Item>
-              <span>You don not have account? </span>{" "}
-              <Link style={{ color: "blue" }} to={"/register"}>
-                Sign up
-              </Link>
-            </Form.Item>
-          </Form>
+    <SignInWrapper>
+      <div className="form-container">
+        <div className="text-center">
+          <h1 className="form-title">Sign In</h1>
+          <p className="text-gray-600">Sign in to your account</p>
         </div>
+
+        <div className="social mt-6 mb-6">
+          <LoginWithGoogleButton />
+        </div>
+
+        <div className="text-center mb-6">Or Email</div>
+
+        <Form onFinish={onFinish} layout="vertical" name="signin" scrollToFirstError>
+          <Form.Item
+            name="email"
+            label="E-mail"
+            rules={[
+              {
+                type: "email",
+                message: "The input is not valid E-mail!",
+              },
+              {
+                required: true,
+                message: "Please input your E-mail!",
+              },
+            ]}
+          >
+            <Input placeholder="Enter your email" />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label="Password"
+            rules={[
+              {
+                required: true,
+                message: "Please input your password!",
+              },
+            ]}
+            hasFeedback
+          >
+            <Input.Password placeholder="Enter your password" />
+          </Form.Item>
+          <Form.Item className="text-right">
+            <Link className="text-[#469B74] hover:underline" to="/forgot-password">
+              Forgot password
+            </Link>
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="w-full bg-[#469B74] text-white hover:bg-[#3a8963]"
+              loading={loginMutation.isPending}
+            >
+              {loginMutation.isPending ? "Signing in..." : "Sign in"}
+            </Button>
+          </Form.Item>
+          <Form.Item className="text-center">
+            <span>You don`t have an account? </span>{" "}
+            <Link className="text-[#469B74] hover:underline" to="/register">
+              Sign up
+            </Link>
+          </Form.Item>
+        </Form>
       </div>
-    </SigninStyle>
-  );
-};
-export default SignInScreen;
+    </SignInWrapper>
+  )
+}
+
+export default SignInScreen
+

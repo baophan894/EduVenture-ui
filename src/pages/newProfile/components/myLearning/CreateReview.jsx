@@ -108,7 +108,7 @@ const CreateReview = ({ course, isShowCreate=true }) => {
             );
           })}
         </div>
-        { show ==5 ? <span onClick={()=> setShow(10000)} className="font-bold hover:text-[#7F00FF] ml-3">Show more....</span>:  <span onClick={()=> setShow(5)} className="font-bold hover:text-[#7F00FF] ml-3">Show less....</span>}
+        { show ==5 ? <span onClick={()=> setShow(10000)} className="font-bold hover:text-[#469B74] ml-3">Show more....</span>:  <span onClick={()=> setShow(5)} className="font-bold hover:text-[#469B74] ml-3">Show less....</span>}
       </div>)}
      
     </div>

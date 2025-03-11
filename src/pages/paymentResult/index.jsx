@@ -4,7 +4,7 @@ const PaymentResult = () => {
   const [searchParams] = useSearchParams();
   const state = searchParams.get("state");
   const isSuccess = state == "success";
-  const textColor = isSuccess ? "#7F00FF" : "";
+  const textColor = isSuccess ? "#469B74" : "";
   return (
     <div className="relative flex min-h-[90vh] flex-col items-center justify-center overflow-hidden py-6 sm:py-12 bg-[white]">
       <div className="max-w-xl px-5 text-center">
@@ -21,7 +21,7 @@ const PaymentResult = () => {
           {isSuccess ? (
             <div>
               Let check{" "}
-              <Link className="text-[#7F00FF]" to={"/profile#learn"}>
+              <Link className="text-[#469B74]" to={"/profile#learn"}>
                 Your learning
               </Link>
             </div>

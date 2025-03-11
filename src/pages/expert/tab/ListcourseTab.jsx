@@ -277,13 +277,13 @@ const ListCourseTab = () => {
         <div className="flex justify-between w-full items-center">
           <Button
             onClick={() => setCourse(null)}
-            className="w-[150px] mt-4 mb-3  text-white bg-[#7F00FF]"
+            className="w-[150px] mt-4 mb-3  text-white bg-[#469B74]"
           >
             &larr; Back
           </Button>
           <button
             onClick={() => setIsViewLessonModal(true)}
-            className="mr-5 p-2 rounded hover:bg-[#7F00FF] hover:text-[white]"
+            className="mr-5 p-2 rounded hover:bg-[#469B74] hover:text-[white]"
           >
             {" "}
             <span className="mr-[3px]">Add Lesson</span> <PlusCircleOutlined />

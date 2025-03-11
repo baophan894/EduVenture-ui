@@ -46,7 +46,7 @@ const CourseBought = () => {
           onClick={() => {
             setActiveLesson(lesson), setIsView(true);
           }}
-          className="ml-3 hover:text-[#7F00FF] cursor-pointer"
+          className="ml-3 hover:text-[#469B74] cursor-pointer"
         >
           {lesson?.lessonOrder}. {lesson?.name}{" "}
         </p>
