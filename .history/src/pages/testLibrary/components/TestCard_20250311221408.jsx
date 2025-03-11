@@ -23,7 +23,7 @@ const TestCard = ({ test }) => {
         <img
           src={test.coverImg}
           alt="Test Image"
-          className="h-full w-full object-cover bg-gray-300"
+          className="h-full w-full object-cover bg-gray-300 mb-2"
         />
       </div>
 

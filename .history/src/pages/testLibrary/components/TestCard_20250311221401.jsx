@@ -21,10 +21,10 @@ const TestCard = ({ test }) => {
       {/* Test Image */}
       <div className="relative h-[180px] bg-gray-300 mb-2">
         <img
-          src={test.coverImg}
+          src={test.img}
           alt="Test Image"
-          className="h-full w-full object-cover bg-gray-300"
-        />
+          className="h-full w-full object-cover bg-gray-300 mb-2"
+        />{" "}
       </div>
 
       {/* Test Title */}

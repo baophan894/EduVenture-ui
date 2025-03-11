@@ -15,7 +15,7 @@ const testData = [
     participants: 100,
     duration: 120,
     tag: "#TOEIC #Reading",
-    coverImg: "/Test (402 x 256 px)/1.png",
+    coverImg: "../../Test (402 x 256 px)/1.png",
   },
   {
     id: 2,

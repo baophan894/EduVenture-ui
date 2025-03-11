@@ -7,7 +7,7 @@ const Sidebar = ({ test }) => {
           Ready to Start?
         </h3>
         <p className="mb-6 font-shopee">
-          Take this complete {test.type} Academic test simulation to assess your
+          Take this complete IELTS Academic test simulation to assess your
           current level and identify areas for improvement.
         </p>
 
@@ -22,7 +22,7 @@ const Sidebar = ({ test }) => {
         {test.targetBands && (
           <div className="mt-6 pt-6 border-t border-gray-200">
             <h4 className="font-semibold mb-3 font-shopee">
-              Target {test.type} Bands:
+              Target IELTS Bands:
             </h4>
             <div className="flex flex-wrap gap-2">
               {test.targetBands.map((band, index) => (

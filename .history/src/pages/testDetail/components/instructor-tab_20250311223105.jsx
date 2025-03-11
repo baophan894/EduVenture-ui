@@ -22,8 +22,7 @@ const InstructorTab = ({ test }) => {
             <div className="mb-4">
               <h4 className="font-semibold mb-2 font-shopee">Experience:</h4>
               <p className="font-shopee">
-                {test.instructor.experience} of {test.type} examination and
-                training
+                {test.instructor.experience} of IELTS examination and training
               </p>
             </div>
 

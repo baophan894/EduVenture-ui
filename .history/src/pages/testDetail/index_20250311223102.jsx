@@ -54,7 +54,6 @@ const test = {
   description:
     "Complete TOEIC Listening test simulation with authentic exam format. This test includes four parts: Photographs, Question-Response, Conversations, and Talks, simulating real TOEIC listening conditions.",
   coverImg: "/Test (402 x 256 px)/2.png",
-  type: "TOEIC",
   views: 1245,
   ratings: 4.8,
   reviewCount: 156,

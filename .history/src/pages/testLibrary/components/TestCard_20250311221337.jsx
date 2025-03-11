@@ -19,13 +19,11 @@ const TestCard = ({ test }) => {
       onClick={handleClick}
     >
       {/* Test Image */}
-      <div className="relative h-[180px] bg-gray-300 mb-2">
-        <img
-          src={test.coverImg}
-          alt="Test Image"
-          className="h-full w-full object-cover bg-gray-300"
-        />
-      </div>
+      <img
+        src="your-image-url.jpg"
+        alt="Test Image"
+        className="h-[180px] w-full object-cover bg-gray-300 mb-2"
+      />
 
       {/* Test Title */}
       <h3
