@@ -80,9 +80,9 @@ const HomePage = () => {
   }, [isDataReady]);
 
   const carouselImages = [
-    "/public/carousel1.png",
-    "/public/carousel2.png",
-    "/public/carousel3.png",
+    "/carousel1.png", 
+    "/carousel2.png",
+    "/carousel3.png",
   ];
 
   // Custom color styles
