@@ -80,9 +80,9 @@ const HomePage = () => {
   }, [isDataReady]);
 
   const carouselImages = [
-    "/carousel1.png", 
-    "/carousel2.png",
-    "/carousel3.png",
+    "/public/carousel1.png",
+    "/public/carousel2.png",
+    "/public/carousel3.png",
   ];
 
   // Custom color styles
@@ -291,10 +291,10 @@ const HomePage = () => {
               Test Library
             </h3>
             <Row gutter={[24, 40]} className="pt-2">
-              {testData?.slice(0, 4).map((test, index) => {
+              {courses?.slice(0, 4).map((course, index) => {
                 return (
                   <Col
-                    key={test.id}
+                    key={course.id}
                     className={`gutter-row transition-all duration-700 ${
                       animatedSections.courses
                         ? "opacity-100 translate-y-0"
@@ -305,7 +305,7 @@ const HomePage = () => {
                     sm={12}
                     md={6}
                   >
-                    <TestCard test={test}></TestCard>
+                    <TestCard test></TestCard>
                   </Col>
                 );
               })}
@@ -336,47 +336,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-// Mock data for tests
-const testData = [
-  {
-    id: 1,
-    title: "TOEIC Reading Practice Test 1",
-    views: 27,
-    ratings: 4.9,
-    participants: 100,
-    duration: 120,
-    tag: "#TOEIC #Reading",
-    coverImg: "/Test (402 x 256 px)/1.png",
-  },
-  {
-    id: 2,
-    title: "TOEIC Listening Practice Test 1",
-    views: 23,
-    ratings: 4.8,
-    participants: 90,
-    duration: 120,
-    tag: "#TOEIC #Listening",
-    coverImg: "/Test (402 x 256 px)/2.png",
-  },
-  {
-    id: 3,
-    title: "HSK 1 Listening Test 1",
-    views: 19,
-    ratings: 4.7,
-    participants: 50,
-    duration: 30,
-    tag: "#HSK1 #Listening",
-    coverImg: "/Test (402 x 256 px)/3.png",
-  },
-  {
-    id: 4,
-    title: "JLPT N2 Listening Practice Test 1",
-    views: 20,
-    ratings: 4.6,
-    participants: 45,
-    duration: 35,
-    tag: "#JLPT #N2 #Listening",
-    coverImg: "/Test (402 x 256 px)/4.png",
-  },
-];

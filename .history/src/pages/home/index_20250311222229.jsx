@@ -80,9 +80,9 @@ const HomePage = () => {
   }, [isDataReady]);
 
   const carouselImages = [
-    "/carousel1.png", 
-    "/carousel2.png",
-    "/carousel3.png",
+    "/public/carousel1.png",
+    "/public/carousel2.png",
+    "/public/carousel3.png",
   ];
 
   // Custom color styles
@@ -347,7 +347,7 @@ const testData = [
     participants: 100,
     duration: 120,
     tag: "#TOEIC #Reading",
-    coverImg: "/Test (402 x 256 px)/1.png",
+    coverImg: "/Test (402 x 256 px)/2.png",
   },
   {
     id: 2,
@@ -367,7 +367,7 @@ const testData = [
     participants: 50,
     duration: 30,
     tag: "#HSK1 #Listening",
-    coverImg: "/Test (402 x 256 px)/3.png",
+    coverImg: "/Test (402 x 256 px)/2.png",
   },
   {
     id: 4,
@@ -377,6 +377,6 @@ const testData = [
     participants: 45,
     duration: 35,
     tag: "#JLPT #N2 #Listening",
-    coverImg: "/Test (402 x 256 px)/4.png",
+    coverImg: "/Test (402 x 256 px)/2.png",
   },
 ];
