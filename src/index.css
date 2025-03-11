@@ -1,5 +1,26 @@
-@import 'animate.css';
+@import 'animate.css'; /* Import animate.css nếu dùng cho hiệu ứng */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Định nghĩa font chữ cục bộ */
+@font-face {
+  font-family: 'ShopeeDisplay';
+  src: url('/font/ShopeeDisplay-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'ShopeeDisplay';
+  src: url('/font/ShopeeDisplay-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'FVHShopeeText';
+  src: url('/font/FVHShopeeText-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}

@@ -166,7 +166,7 @@ const FlashcardScreen = () => {
             <Search setSearch={setSearch} />
             <div
               onClick={() => setIsViewModal(true)}
-              className="mr-5 p-2 rounded hover:bg-[#7F00FF] hover:text-[white]"
+              className="mr-5 p-2 rounded hover:bg-[#469B74] hover:text-[white]"
             >
               {" "}
               <span className="mr-[3px]">Create</span> <PlusCircleOutlined />

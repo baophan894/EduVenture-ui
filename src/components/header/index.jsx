@@ -22,7 +22,7 @@ const Header = () => {
         <div className="group relative cursor-pointer">
           <div className="flex items-center justify-between">
             <Avatar size={40} src={user?.avatarUrl} />
-            <span className="ml-3 text-black">{user?.fullName}</span>
+            <span className="font-shopee ml-3 text-black">{user?.fullName}</span>
           </div>
         </div>
       </div>
@@ -35,26 +35,26 @@ const Header = () => {
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
           {/* Logo Section */}
           <Link to="/" className="flex items-center">
-            <img src="/logo.jpg" className="mr-3 h-8 sm:h-10" alt="Logo" />
-            <span className="self-center text-xl font-semibold whitespace-nowrap" style={{ color: primaryGreen }}>
+            <img src="/logo.png" className="mr-3 h-8 sm:h-10" alt="Logo" />
+            <span className="font-shopee-bold self-center text-xl font-semibold whitespace-nowrap" style={{ color: primaryGreen }}>
               EduVenture
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
+          <div className="font-shopee-bold hidden lg:flex items-center space-x-8">
             <Link to="/forum" className="nav-link">
               <span className="font-medium text-gray-700 hover:text-green-600 transition-colors">Community</span>
             </Link>
             <Link to="/test-library" className="nav-link">
-              <span className="font-medium text-gray-700 hover:text-green-600 transition-colors">Test library</span>
+              <span className="font-medium text-gray-700 hover:text-green-600 transition-colors">Test Library</span>
             </Link>
             <Link to="/courses" className="nav-link">
-              <span className="font-medium text-gray-700 hover:text-green-600 transition-colors">Course</span>
+              <span className="font-medium text-gray-700 hover:text-green-600 transition-colors">My learning</span>
             </Link>
-            <Link to="/flashcards" className="nav-link">
+            {/* <Link to="/flashcards" className="nav-link">
               <span className="font-medium text-gray-700 hover:text-green-600 transition-colors">Flashcards</span>
-            </Link>
+            </Link> */}
           
           </div>
 
@@ -144,10 +144,10 @@ const Header = () => {
                   className="block py-2 px-4 rounded-lg hover:bg-opacity-10"
                   style={{ color: primaryGreen, backgroundColor: "rgba(70, 155, 116, 0.05)" }}
                 >
-                  Course
+                  Learning
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   to="/flashcards"
                   className="block py-2 px-4 rounded-lg hover:bg-opacity-10"
@@ -156,7 +156,7 @@ const Header = () => {
                   Flashcards
                 </Link>
               </li>
-          
+           */}
             </ul>
           </div>
         </div>

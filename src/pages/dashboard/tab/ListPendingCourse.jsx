@@ -142,7 +142,7 @@ const ListCourseTab = () => {
         <div className="flex justify-between w-full items-center">
           <Button
             onClick={() => setCourse(null)}
-            className="w-[150px] mt-4 mb-3  text-white bg-[#7F00FF]"
+            className="w-[150px] mt-4 mb-3  text-white bg-[#469B74]"
           >
             &larr; Back
           </Button>

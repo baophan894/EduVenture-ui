@@ -1,25 +1,88 @@
 import { Button, Checkbox, Form, Input, notification } from "antd";
-import SignupStyle from "./Signup.style";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "../../api/http";
 import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import LoginWithGoogleButton from "../../components/loginWithGoogle";
+import api from "../../api/http";
+
+const SignUpWrapper = styled.div`
+  min-height: 100vh;
+  display: flex;
+  justify-content: flex-end;
+  background-image: url('/cover-login.png');
+  background-size: cover;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 40px;
+    background: rgb(255, 255, 255);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 2px solid #469B74;
+    border-radius: 8px;
+    margin: 40px;
+    margin-right: 200px;
+  }
+
+  .form-title {
+    font-size: 40px;
+    font-weight: 800;
+    color: #469B74;
+    margin-bottom: 20px;
+  }
+
+  .ant-form-item-label {
+    text-align: left;
+  }
+
+  .ant-input, .ant-input-password {
+    height: 50px;
+  }
+
+  .ant-btn {
+    height: 50px;
+    font-size: 18px;
+  }
+
+  @media (max-width: 768px) {
+    justify-content: center;
+
+    .form-container {
+      max-width: 100%;
+    }
+  }
+`;
+
 const SignUpScreen = () => {
   const queryClient = useQueryClient();
-  const formItemLayout = {
-    labelCol: {
-      xs: { span: 24 },
-      sm: { span: 8 },
-    },
-  };
 
   const registerMutation = useMutation({
     mutationFn: (formData) => {
       return api.post("signup", formData);
     },
   });
+
   const navigate = useNavigate();
-  const onfinish = (body) => {
+
+  const onFinish = (body) => {
     registerMutation.mutate(body, {
       onSuccess(data) {
         navigate(`/verify?email=${data.data.email}`);
@@ -31,142 +94,123 @@ const SignUpScreen = () => {
       },
     });
   };
+
   return (
-    <SignupStyle>
-      <div className="signup">
-        <div className="image ">hello</div>
-        <div className="signup_content ">
-          <span className="signup_content_title">Sign Up</span>
-          <div className="social mt-3">
-            <LoginWithGoogleButton />
-          </div>
-          <span>Or Email</span>
-          <Form
-            onFinish={onfinish}
-            layout="vertical"
-            {...formItemLayout}
-            name="register"
-            scrollToFirstError
-          >
-            <Form.Item
-              name="full_name"
-              label="Full name"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input full name!",
-                },
-              ]}
-            >
-              <Input placeholder="Enter your name" />
-            </Form.Item>
-
-            <Form.Item
-              name="email"
-              label="E-mail"
-              rules={[
-                {
-                  type: "email",
-                  message: "The input is not valid E-mail!",
-                },
-                {
-                  required: true,
-                  message: "Please input your E-mail!",
-                },
-              ]}
-            >
-              <Input placeholder="Enter your email" />
-            </Form.Item>
-            <Form.Item
-              name="password"
-              label="Password"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your password!",
-                },
-                {
-                  pattern: new RegExp(
-                    '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};:"\\|,.<>\\/?]).{8,}$'
-                  ),
-                  message:
-                    "Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one number, and one special character.",
-                },
-              ]}
-              hasFeedback
-            >
-              <Input.Password placeholder="Enter your password" />
-            </Form.Item>
-
-            <Form.Item
-              name="confirm"
-              label="Confirm"
-              dependencies={["password"]}
-              hasFeedback
-              rules={[
-                {
-                  required: true,
-                  message: "Please confirm your password!",
-                },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue("password") === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(
-                      new Error(
-                        "The new password that you entered do not match!"
-                      )
-                    );
-                  },
-                }),
-              ]}
-            >
-              <Input.Password placeholder="Confirm your email" />
-            </Form.Item>
-            <Form.Item
-              className="left"
-              name="agree"
-              valuePropName="checked" // Ensure that the Form.Item knows how to extract the value from the Checkbox
-              rules={[
-                {
-                  validator: (_, value) =>
-                    value
-                      ? Promise.resolve()
-                      : Promise.reject(
-                          new Error("Please read and agree with our policy")
-                        ),
-                },
-              ]}
-            >
-              <Checkbox>I have read and accept all policy</Checkbox>
-            </Form.Item>
-
-            <Form.Item>
-              {registerMutation.isPending ? (
-                <Button loading style={{ textAlign: "center" }}>
-                  Sign up
-                </Button>
-              ) : (
-                <Button
-                  size="large"
-                  htmlType="submit"
-                  style={{ textAlign: "center" }}
-                >
-                  Sign up
-                </Button>
-              )}
-            </Form.Item>
-            <Form.Item>
-              <span>You already have an account? </span>{" "}
-              <Link style={{ color: "blue" }} to={"/login"}>
-                Sign in
-              </Link>
-            </Form.Item>
-          </Form>
+    <SignUpWrapper>
+      <div className="form-container">
+        <div className="text-center">
+          <h1 className="form-title">Sign Up</h1>
+          <p className="text-gray-600">Create a new account</p>
         </div>
+
+        <div className="social mt-6 mb-6">
+          <LoginWithGoogleButton />
+        </div>
+
+        <div className="text-center mb-6">Or Email</div>
+
+        <Form onFinish={onFinish} layout="vertical" name="signup" scrollToFirstError>
+          <Form.Item
+            name="full_name"
+            label="Full Name"
+            rules={[
+              {
+                required: true,
+                message: "Please input your full name!",
+              },
+            ]}
+          >
+            <Input placeholder="Enter your full name" />
+          </Form.Item>
+          <Form.Item
+            name="email"
+            label="E-mail"
+            rules={[
+              {
+                type: "email",
+                message: "The input is not valid E-mail!",
+              },
+              {
+                required: true,
+                message: "Please input your E-mail!",
+              },
+            ]}
+          >
+            <Input placeholder="Enter your email" />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label="Password"
+            rules={[
+              {
+                required: true,
+                message: "Please input your password!",
+              },
+              {
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};:"|,.<>\\/?]).{8,}$/,
+                message:
+                  "Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one number, and one special character.",
+              },
+            ]}
+            hasFeedback
+          >
+            <Input.Password placeholder="Enter your password" />
+          </Form.Item>
+          <Form.Item
+            name="confirm"
+            label="Confirm Password"
+            dependencies={["password"]}
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: "Please confirm your password!",
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error("The passwords do not match!"));
+                },
+              }),
+            ]}
+          >
+            <Input.Password placeholder="Confirm your password" />
+          </Form.Item>
+          <Form.Item
+            name="agree"
+            valuePropName="checked"
+            rules={[
+              {
+                validator: (_, value) =>
+                  value ? Promise.resolve() : Promise.reject(new Error("Please accept the policy!")),
+              },
+            ]}
+          >
+            <Checkbox>I have read and accept all policy</Checkbox>
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="w-full bg-[#469B74] text-white hover:bg-[#3a8963]"
+              loading={registerMutation.isPending}
+            >
+              {registerMutation.isPending ? "Signing up..." : "Sign up"}
+            </Button>
+          </Form.Item>
+          <Form.Item className="text-center">
+            <span>Already have an account? </span>
+            <Link className="text-[#469B74] hover:underline" to="/login">
+              Sign in
+            </Link>
+          </Form.Item>
+        </Form>
       </div>
-    </SignupStyle>
+    </SignUpWrapper>
   );
 };
+
 export default SignUpScreen;

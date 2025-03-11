@@ -42,7 +42,7 @@ const CourseDetail = () => {
         >
           <p className="ml-3">
             {course?.lessonOrder}. {course?.name}{" "}
-            <span style={{ color: "#7F00FF", fontSize: "14px" }}>Preview</span>
+            <span style={{ color: "#469B74", fontSize: "14px" }}>Preview</span>
           </p>
         </div>
       );

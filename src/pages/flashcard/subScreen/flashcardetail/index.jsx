@@ -141,7 +141,7 @@ const FlashCardDetailScreen = () => {
             {isAuthor && (
               <button
                 onClick={() => setIsViewModal(true)}
-                className="mt-3 mr-1 p-2 w-[100px] rounded hover:bg-[#7F00FF] hover:text-[white]"
+                className="mt-3 mr-1 p-2 w-[100px] rounded hover:bg-[#469B74] hover:text-[white]"
               >
                 {" "}
                 <span className="mr-[3px]">Update</span> <PlusCircleOutlined />

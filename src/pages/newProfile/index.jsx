@@ -21,9 +21,7 @@ import { AppstoreOutlined, SettingOutlined } from "@ant-design/icons";
 import MyLearning from "./components/myLearning";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../components/loading";
-import MyFlashCard from "./components/myFlashcard";
-import MyDocument from "./components/myDocument";
-import MyRequest from "./components/myRequest";
+
 import { FaMoneyBillWave } from "react-icons/fa";
 import {
   ADMIN,
@@ -31,7 +29,7 @@ import {
   EXPERT_MARK_DEMAND,
   USER,
 } from "../../common/constants";
-import MyPost from "./components/myPost";
+
 const Profile = () => {
   const role = localStorage.getItem("role");
   const queryClient = useQueryClient();
@@ -292,122 +290,138 @@ const Profile = () => {
     <Loading />
   ) : (
     <ProfileStyle>
-      <div className="profile">
-        <div className="profile_avatar">
-          <div className="profile_avatar_top">
-            {uploadAvatar.isPending ? (
-              "Uploading..."
-            ) : (
-              <Avatar
-                className="profile_avatar_top_image"
-                size={120}
-                src={user?.avatarUrl}
-              />
-            )}
-            <button
-              onClick={showModal}
-              className="profile_avatar_top_update p-10 bg-slate-100"
-            >
-              Update
-            </button>
-            <p>{user?.fullName}</p>
-          </div>
-          <div>
-            {" "}
-            {getRoleTag()}{" "}
-            <Popover content={getLegitHoverContent(user?.legitMark)}>
-              {
-                <span className="cursor-pointer">
-                  {getLegitMarkTag(user?.legitMark)}
-                </span>
-              }
-            </Popover>
-          </div>
-          {!!userBalance && (
-            <>
-              <Tag color="gold" className="mt-2">
-                {" "}
-                Balance: {Number(user.balance).toLocaleString()}$
-              </Tag>
-              {userBalance > 5 && (
-                <Button onClick={handleOpenWithdrawModal} className="mt-2">
-                  <div className="flex items-center gap-2">
-                    Withdraw <FaMoneyBillWave />
-                  </div>
-                </Button>
-              )}
-            </>
-          )}
-          {isShowRequestButton && (
-            <Button
-              onClick={() => setIsShowExertRequest(true)}
-              type="primary"
-              className="mt-3"
-            >
-              Apply to be Platform Expert
-            </Button>
-          )}
-          <div>
-            <Menu
-              onClick={menuOnclick}
-              style={{ width: 256 }}
-              mode="vertical"
-              items={menuItems}
-            />
-          </div>
-        </div>
-        <div className="profile_information">
-          <div className="profile_information_header">
-            <p className="profile_information_header_title">Public profile</p>
-            <p className="profile_information_header_des text-white">
-              Add information about yourself
-            </p>
-          </div>
-          <div className="profile_information_content">
-            <Form onFinish={onFinish} form={form} layout="vertical">
-              <Form.Item
-                label="Full Name"
-                name="fullName"
-                rules={[{ required: true }]}
+     <div className="profile">
+      <div className="profile_avatar">
+        <div className="profile_avatar_top">
+          {uploadAvatar.isPending ? (
+            <div className="flex items-center justify-center w-32 h-32 bg-gray-200 rounded-full">
+              <span className="text-gray-500">Uploading...</span>
+            </div>
+          ) : (
+            <div className="relative group">
+              <Avatar className="profile_avatar_top_image" size={120} src={user?.avatarUrl} />
+              <button
+                onClick={showModal}
+                className="profile_avatar_top_update absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
               >
-                <Input />
-              </Form.Item>
-              <Form.Item label="Email" name="email">
-                <Input readOnly placeholder="Email" />
-              </Form.Item>
-              <Form.Item label="Gender" name="gender">
-                <Select options={genderOptions} placeholder="Gender" />
-              </Form.Item>
+                Update
+              </button>
+            </div>
+          )}
+          <p className="mt-3 text-lg font-semibold text-gray-800">{user?.fullName}</p>
+        </div>
 
-              <Form.Item label="Birthday" name="dob">
-                <DatePicker
-                  onChange={(_, dateString) => {
-                    setDob(dateString);
-                  }}
-                  placeholder="Birthday"
-                />
-              </Form.Item>
-              <Form.Item label="About you" name="about">
-                <Input.TextArea placeholder="About your self..." />
-              </Form.Item>
-              <Form.Item style={{ textAlign: "right" }}>
-                {updateProfile.isPending ? (
-                  <Button loading>Loading...</Button>
-                ) : (
-                  <Button type="primary" htmlType="submit">
-                    Save
-                  </Button>
-                )}
-              </Form.Item>
-            </Form>
+        <div className="flex items-center gap-2 mb-3">
+          {getRoleTag()}
+          <Popover content={getLegitHoverContent(user?.legitMark)}>
+            <span className="cursor-pointer">{getLegitMarkTag(user?.legitMark)}</span>
+          </Popover>
+        </div>
+
+        {!!userBalance && (
+          <div className="mb-4">
+            <Tag color="#FCB80B" className="mb-2 py-1 px-2">
+              Balance: {Number(user.balance).toLocaleString()}$
+            </Tag>
+            {userBalance > 5 && (
+              <Button
+                onClick={handleOpenWithdrawModal}
+                className="w-full flex items-center justify-center gap-2 border-[#469B74] text-[#469B74] hover:text-white hover:bg-[#469B74]"
+              >
+                <FaMoneyBillWave />
+                <span>Withdraw</span>
+              </Button>
+            )}
           </div>
+        )}
+
+        {isShowRequestButton && (
+          <Button
+            onClick={() => setIsShowExertRequest(true)}
+            type="primary"
+            className="mb-4 w-full bg-[#FCB80B] border-[#FCB80B] hover:bg-[#e0a50a] hover:border-[#e0a50a]"
+          >
+            Apply to be Platform Expert
+          </Button>
+        )}
+
+        <div className="w-full mt-2">
+          <Menu onClick={menuOnclick} mode="vertical" items={menuItems} className="border-r-0 menu-custom" />
         </div>
       </div>
+
+      <div className="bg-white rounded-lg shadow-md overflow-hidden profile_information">
+        <div className="bg-[#469B74] px-6 py-4">
+          <h2 className="text-xl font-semibold text-white">Public profile</h2>
+          <p className="text-white/80 text-sm mt-1">Add information about yourself</p>
+        </div>
+
+        <div className="p-6 profile_information_content">
+          <Form onFinish={onFinish} form={form} layout="vertical">
+            <Form.Item
+              label={<span className="text-gray-700 font-medium">Full Name</span>}
+              name="fullName"
+              rules={[{ required: true }]}
+            >
+              <Input
+                className="border-gray-300 hover:border-[#469B74] focus:border-[#469B74]"
+                placeholder="Enter your full name"
+              />
+            </Form.Item>
+
+            <Form.Item label={<span className="text-gray-700 font-medium">Email</span>} name="email">
+              <Input readOnly className="bg-gray-50 border-gray-300" placeholder="Email" />
+            </Form.Item>
+
+            <Form.Item label={<span className="text-gray-700 font-medium">Gender</span>} name="gender">
+              <Select
+                options={genderOptions}
+                placeholder="Select your gender"
+                className="border-gray-300 hover:border-[#469B74]"
+              />
+            </Form.Item>
+
+            <Form.Item label={<span className="text-gray-700 font-medium">Birthday</span>} name="dob">
+              <DatePicker
+                onChange={(_, dateString) => {
+                  setDob(dateString)
+                }}
+                placeholder="Select your birthday"
+                className="w-full border-gray-300 hover:border-[#469B74]"
+              />
+            </Form.Item>
+
+            <Form.Item label={<span className="text-gray-700 font-medium">About you</span>} name="about">
+              <Input.TextArea
+                placeholder="Tell us about yourself..."
+                className="border-gray-300 hover:border-[#469B74] focus:border-[#469B74]"
+                rows={4}
+              />
+            </Form.Item>
+
+            <Form.Item className="flex justify-end mb-0">
+              {updateProfile.isPending ? (
+                <Button
+                  loading
+                  className="bg-[#469B74] hover:bg-[#3d8a67] border-[#469B74] hover:border-[#3d8a67] text-white"
+                >
+                  Saving...
+                </Button>
+              ) : (
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className="bg-[#FCB80B] hover:bg-[#e0a50a] border-[#FCB80B] hover:border-[#e0a50a] text-white"
+                >
+                  Save Changes
+                </Button>
+              )}
+            </Form.Item>
+          </Form>
+        </div>
+      </div>
+    </div>
       <MyLearning />
-      <MyFlashCard />
-      <MyDocument />
-      <MyPost />
-      <MyRequest/>
       <Modal
         title="Update avatar ?"
         open={isModalOpen}
