@@ -1,3 +1,4 @@
+'use client'
 import { Button, Form, Input, notification } from "antd"
 import { useMutation } from "@tanstack/react-query"
 import { Link, useNavigate } from "react-router-dom"
@@ -12,7 +13,7 @@ const SignInWrapper = styled.div`
   background-image: url('/cover-login.png');
   background-size: cover;
   background-position: center;
-  background-size: contain;
+  background-size: 100%;
   background-repeat: no-repeat;
   position: relative;
 
@@ -45,8 +46,9 @@ const SignInWrapper = styled.div`
   }
 
   .form-title {
-    font-size: 40px;
+    font-size: 50px;
     font-weight: 800;
+    
     color: #469B74;
     margin-bottom: 20px;
   }
@@ -56,6 +58,7 @@ const SignInWrapper = styled.div`
   }
 
   .ant-input, .ant-input-password {
+
     height: 50px;
     
   }
@@ -111,20 +114,21 @@ const SignInScreen = () => {
     <SignInWrapper>
       <div className="form-container">
         <div className="text-center">
-          <h1 className="form-title">Sign In</h1>
-          <p className="text-gray-600">Sign in to your account</p>
+          <h1 className="font-shopee-bold form-title">Sign In</h1>
+          <p className="font-shopee text-gray-600">Sign in to your account</p>
         </div>
 
         <div className="social mt-6 mb-6">
           <LoginWithGoogleButton />
         </div>
 
-        <div className="text-center mb-6">Or Email</div>
+        <div className="font-shopee text-center mb-6">Or Email</div>
 
         <Form onFinish={onFinish} layout="vertical" name="signin" scrollToFirstError>
           <Form.Item
             name="email"
             label="E-mail"
+            style={{fontFamily: "font-shopee"}}
             rules={[
               {
                 type: "email",
@@ -152,7 +156,7 @@ const SignInScreen = () => {
             <Input.Password placeholder="Enter your password" />
           </Form.Item>
           <Form.Item className="text-right">
-            <Link className="text-[#469B74] hover:underline" to="/forgot-password">
+            <Link className="font-shopee text-[#469B74] hover:underline" to="/forgot-password">
               Forgot password
             </Link>
           </Form.Item>
@@ -167,9 +171,9 @@ const SignInScreen = () => {
               {loginMutation.isPending ? "Signing in..." : "Sign in"}
             </Button>
           </Form.Item>
-          <Form.Item className="text-center">
+          <Form.Item className=" font-shopee text-center">
             <span>You don`t have an account? </span>{" "}
-            <Link className="text-[#469B74] hover:underline" to="/register">
+            <Link className="font-shopee text-[#469B74] hover:underline" to="/register">
               Sign up
             </Link>
           </Form.Item>

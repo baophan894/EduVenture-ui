@@ -1,3 +1,4 @@
+'use client'
 import { Button, Checkbox, Form, Input, notification } from "antd";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,13 +7,13 @@ import LoginWithGoogleButton from "../../components/loginWithGoogle";
 import api from "../../api/http";
 
 const SignUpWrapper = styled.div`
-  min-height: 100vh;
+  min-height: 80vh;
   display: flex;
   justify-content: flex-end;
   background-image: url('/cover-login.png');
   background-size: cover;
   background-position: center;
-  background-size: contain;
+  background-size: 100%;
   background-repeat: no-repeat;
   position: relative;
 
@@ -43,23 +44,26 @@ const SignUpWrapper = styled.div`
   }
 
   .form-title {
-    font-size: 40px;
+    font-size: 50px;
     font-weight: 800;
     color: #469B74;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
   }
 
   .ant-form-item-label {
     text-align: left;
+    font-family: 'font-shopee';
   }
 
   .ant-input, .ant-input-password {
     height: 50px;
+    font-family: 'font-shopee';
   }
 
   .ant-btn {
     height: 50px;
     font-size: 18px;
+    font-family: 'font-shopee';
   }
 
   @media (max-width: 768px) {
@@ -99,18 +103,19 @@ const SignUpScreen = () => {
     <SignUpWrapper>
       <div className="form-container">
         <div className="text-center">
-          <h1 className="form-title">Sign Up</h1>
+          <h1 className="font-shopee-bold form-title">Sign Up</h1>
           <p className="text-gray-600">Create a new account</p>
         </div>
 
-        <div className="social mt-6 mb-6">
+        <div className="font-shopee social mt-6 mb-6">
           <LoginWithGoogleButton />
         </div>
 
-        <div className="text-center mb-6">Or Email</div>
+        <div className="font-shopee text-center mb-6">Or Email</div>
 
         <Form onFinish={onFinish} layout="vertical" name="signup" scrollToFirstError>
           <Form.Item
+            className="font-shopee"
             name="full_name"
             label="Full Name"
             rules={[
@@ -139,6 +144,7 @@ const SignUpScreen = () => {
             <Input placeholder="Enter your email" />
           </Form.Item>
           <Form.Item
+          className="font-shopee"
             name="password"
             label="Password"
             rules={[
@@ -158,6 +164,7 @@ const SignUpScreen = () => {
           </Form.Item>
           <Form.Item
             name="confirm"
+            className="font-shopee"
             label="Confirm Password"
             dependencies={["password"]}
             hasFeedback
@@ -176,11 +183,12 @@ const SignUpScreen = () => {
               }),
             ]}
           >
-            <Input.Password placeholder="Confirm your password" />
+            <Input.Password className="font-shopee" placeholder="Confirm your password" />
           </Form.Item>
           <Form.Item
             name="agree"
             valuePropName="checked"
+            className="font-shopee"
             rules={[
               {
                 validator: (_, value) =>
@@ -188,22 +196,22 @@ const SignUpScreen = () => {
               },
             ]}
           >
-            <Checkbox>I have read and accept all policy</Checkbox>
+            <Checkbox className="font-shopee">I have read and accept all policy</Checkbox>
           </Form.Item>
 
           <Form.Item>
             <Button
               type="primary"
               htmlType="submit"
-              className="w-full bg-[#469B74] text-white hover:bg-[#3a8963]"
+              className="font-shopee w-full bg-[#469B74] text-white hover:bg-[#3a8963]"
               loading={registerMutation.isPending}
             >
               {registerMutation.isPending ? "Signing up..." : "Sign up"}
             </Button>
           </Form.Item>
-          <Form.Item className="text-center">
+          <Form.Item className="font-shopee text-center">
             <span>Already have an account? </span>
-            <Link className="text-[#469B74] hover:underline" to="/login">
+            <Link className="font-shopee text-[#469B74] hover:underline" to="/login">
               Sign in
             </Link>
           </Form.Item>
