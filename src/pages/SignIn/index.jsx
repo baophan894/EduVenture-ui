@@ -7,13 +7,13 @@ import LoginWithGoogleButton from "../../components/loginWithGoogle"
 import api from "../../api/http"
 
 const SignInWrapper = styled.div`
-  min-height: 100vh;
+  min-height: 80vh;
   display: flex;
   justify-content: flex-end;
   background-image: url('/cover-login.png');
-  background-size: cover;
+ 
   background-position: center;
-  background-size: 100%;
+  background-size: cover;
   background-repeat: no-repeat;
   position: relative;
 

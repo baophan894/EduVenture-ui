@@ -1,6 +1,6 @@
 "use client"
 
-import { Card, Tabs, Progress, Button, Typography, Space, Row, Col } from "antd"
+import { Card, Tabs, Progress, Button, Typography, Space } from "antd"
 import { CalendarOutlined, ClockCircleOutlined } from "@ant-design/icons"
 import styled from "styled-components"
 
@@ -24,6 +24,7 @@ const StyledTabs = styled(Tabs)`
     margin: 0 4px 0 0 !important;
     padding: 8px 16px !important;
     transition: all 0.3s ease;
+    font-family:"font-shopee";
 
     &:hover {
       color: ${primaryColor} !important;
@@ -47,6 +48,7 @@ const StyledTabs = styled(Tabs)`
 
   .ant-tabs-nav-list {
     border-bottom: 2px solid ${primaryColor};
+    font-family: "font-shopee";
   }
 `
 
@@ -69,11 +71,275 @@ const MyLearning = () => {
         </Title>
       </motion.div>
 
-      <StyledTabs defaultActiveKey="in-progress" type="card" onChange={(key) => setActiveKey(key)}>
-        <TabPane tab="In Progress" key="in-progress">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <StyledTabs  defaultActiveKey="library" type="card" onChange={(key) => setActiveKey(key)}>
+        <TabPane className="font-shopee" tab="Library" key="library">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+          >
             <Card
-              title="My FPTU Spring 2025 Learning"
+              title="My Public Flashcards"
+              headStyle={{ backgroundColor: primaryColor, color: whiteColor }}
+              className="font-shopee hover:shadow-lg transition-shadow duration-300"
+            >
+              <Card
+                bodyStyle={{ padding: 16 }}
+                className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+              >
+                <div style={{ display: "flex", gap: 16 }}>
+                  <div
+                    style={{
+                      width: 80,
+                      height: 80,
+                      backgroundColor: `${primaryColor}20`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 4,
+                    }}
+                    className="transition-transform duration-300 hover:scale-110 hover:rotate-3"
+                  >
+                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <Title className="font-shopee" level={5} style={{ margin: 0 }}>
+                      Digital Marketing Mid-Terms
+                    </Title>
+                    <Text className="font-shopee" type="secondary">50 cards</Text>
+
+                   
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <Button
+                      type="primary"
+                      style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
+                      className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
+                    >
+                      Practice
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+              <Card
+                bodyStyle={{ padding: 16 }}
+                className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+              >
+                <div style={{ display: "flex", gap: 16 }}>
+                  <div
+                    style={{
+                      width: 80,
+                      height: 80,
+                      backgroundColor: `${primaryColor}20`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 4,
+                    }}
+                    className="transition-transform duration-300 hover:scale-110 hover:rotate-3"
+                  >
+                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <Title className="font-shopee" level={5} style={{ margin: 0 }}>
+                      Digital Marketing Terms
+                    </Title>
+                    <Text className="font-shopee" type="secondary">50 cards</Text>
+
+  
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <Button
+                      type="primary"
+                      style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
+                      className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
+                    >
+                      Practice
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </Card>
+       
+              
+          </motion.div>
+        </TabPane>
+
+        <TabPane tab="Private" key="private">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+          >
+            <Card
+            
+              title="My Flashcards"
+              headStyle={{ backgroundColor: primaryColor, color: whiteColor }}
+              className="font-shopee hover:shadow-lg transition-shadow duration-300"
+            >
+              <Card
+                bodyStyle={{ padding: 16 }}
+                className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+              >
+                <div style={{ display: "flex", gap: 16 }}>
+                  <div
+                    style={{
+                      width: 80,
+                      height: 80,
+                      backgroundColor: `${primaryColor}20`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 4,
+                    }}
+                    className="transition-transform duration-300 hover:scale-110 hover:rotate-3"
+                  >
+                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <Title className="font-shopee" level={5} style={{ margin: 0 }}>
+                      Digital Marketing Mid-Terms
+                    </Title>
+                    <Text className="font-shopee" type="secondary">50 cards</Text>
+
+                   
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <Button
+                      type="primary"
+                      style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
+                      className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
+                    >
+                      Practice
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+              <Card
+                bodyStyle={{ padding: 16 }}
+                className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+              >
+                <div style={{ display: "flex", gap: 16 }}>
+                  <div
+                    style={{
+                      width: 80,
+                      height: 80,
+                      backgroundColor: `${primaryColor}20`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 4,
+                    }}
+                    className="transition-transform duration-300 hover:scale-110 hover:rotate-3"
+                  >
+                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <Title className="font-shopee" level={5} style={{ margin: 0 }}>
+                      Digital Marketing Terms
+                    </Title>
+                    <Text className="font-shopee" type="secondary">50 cards</Text>
+
+  
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <Button
+                      type="primary"
+                      style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
+                      className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
+                    >
+                      Practice
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+              <Card
+                bodyStyle={{ padding: 16 }}
+                className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+              >
+                <div style={{ display: "flex", gap: 16 }}>
+                  <div
+                    style={{
+                      width: 80,
+                      height: 80,
+                      backgroundColor: `${primaryColor}20`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 4,
+                    }}
+                    className="transition-transform duration-300 hover:scale-110 hover:rotate-3"
+                  >
+                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <Title className="font-shopee" level={5} style={{ margin: 0 }}>
+                      International Business
+                    </Title>
+                    <Text className="font-shopee" type="secondary">50 cards</Text>
+
+  
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <Button
+                      type="primary"
+                      style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
+                      className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
+                    >
+                      Practice
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+              <Card
+                bodyStyle={{ padding: 16 }}
+                className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+              >
+                <div style={{ display: "flex", gap: 16 }}>
+                  <div
+                    style={{
+                      width: 80,
+                      height: 80,
+                      backgroundColor: `${primaryColor}20`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 4,
+                    }}
+                    className="transition-transform duration-300 hover:scale-110 hover:rotate-3"
+                  >
+                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <Title className="font-shopee" level={5} style={{ margin: 0 }}>
+                      Bussiness Law
+                    </Title>
+                    <Text className="font-shopee" type="secondary">50 cards</Text>
+
+  
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <Button
+                      type="primary"
+                      style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
+                      className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
+                    >
+                      Practice
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </Card>
+       
+              
+          </motion.div>
+        </TabPane>
+
+        <TabPane tab="Saved" key="saved">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <Card
+            
+              title="Saved Courses"
               style={{ marginBottom: 16 }}
               headStyle={{ backgroundColor: primaryColor, color: whiteColor }}
               className="font-shopee hover:shadow-lg transition-shadow duration-300"
@@ -92,25 +358,25 @@ const MyLearning = () => {
                       className="transition-transform duration-300 hover:scale-105"
                     />
                     <div style={{ flex: 1 }}>
-                      <Title level={5} style={{ margin: 0 }}>
+                      <Title className="font-shopee" level={5} style={{ margin: 0 }}>
                         Digital Strategy and Business Opportunity
                       </Title>
-                      <Text type="secondary">Digital Marketing (FPTU)</Text>
+                      <Text className="font-shopee" type="secondary">Digital Marketing (FPTU)</Text>
 
                       <div style={{ marginTop: 12 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                          <Text>Progress: 1.5/3</Text>
-                          <Text>Ends on Mar 31, 2025</Text>
+                          <Text className="font-shopee">Progress: 1.5/3</Text>
+                          <Text className="font-shopee">Ends on Mar 31, 2025</Text>
                         </div>
                         <Progress percent={50} size="small" strokeColor={primaryColor} />
                       </div>
                     </div>
                     <div style={{ textAlign: "right" }}>
-                      <Text style={{ display: "block", marginBottom: 8 }}>Week 1 of 3</Text>
+                      <Text  className="font-shopee" style={{ display: "block", marginBottom: 8 }}>Week 1 of 3</Text>
                       <Button
                         type="primary"
                         style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
-                        className="hover:scale-105 transition-transform duration-200 hover:shadow-md"
+                        className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
                       >
                         Resume
                       </Button>
@@ -133,25 +399,25 @@ const MyLearning = () => {
                       className="transition-transform duration-300 hover:scale-105"
                     />
                     <div style={{ flex: 1 }}>
-                      <Title level={5} style={{ margin: 0 }}>
+                      <Title className="font-shopee" level={5} style={{ margin: 0 }}>
                         Digital Leadership and Digital Strategy Consultation
                       </Title>
-                      <Text type="secondary">Digital Marketing (FPTU)</Text>
+                      <Text className="font-shopee" type="secondary">Digital Marketing (FPTU)</Text>
 
                       <div style={{ marginTop: 12 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                          <Text>Progress: 0/3</Text>
-                          <Text>Ends on Mar 17, 2025</Text>
+                          <Text className="font-shopee">Progress: 0/3</Text>
+                          <Text className="font-shopee">Ends on Mar 17, 2025</Text>
                         </div>
                         <Progress percent={0} size="small" strokeColor={primaryColor} />
                       </div>
                     </div>
                     <div style={{ textAlign: "right" }}>
-                      <Text style={{ display: "block", marginBottom: 8 }}>Week 0 of 3</Text>
+                      <Text className="font-shopee" style={{ display: "block", marginBottom: 8 }}>Week 0 of 3</Text>
                       <Button
                         type="primary"
                         style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
-                        className="hover:scale-105 transition-transform duration-200 hover:shadow-md"
+                        className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
                       >
                         Start
                       </Button>
@@ -162,11 +428,11 @@ const MyLearning = () => {
 
               <Space>
                 <ClockCircleOutlined style={{ color: primaryColor }} />
-                <Text type="secondary">You can finish this time</Text>
+                <Text className="font-shopee" type="secondary">You can finish this time</Text>
                 <Button
                   type="link"
                   style={{ padding: 0, color: primaryColor }}
-                  className="hover:underline transition-all duration-200"
+                  className="font-shopee hover:underline transition-all duration-200"
                 >
                   Reset the deadline
                 </Button>
@@ -174,16 +440,16 @@ const MyLearning = () => {
             </Card>
           </motion.div>
 
-          {/* Replace the "My Flashcards" Card with this animated version */}
+  
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.5 }}
           >
             <Card
-              title="My Flashcards"
+              title="Saved Flashcards"
               headStyle={{ backgroundColor: primaryColor, color: whiteColor }}
-              className="hover:shadow-lg transition-shadow duration-300"
+              className="font-shopee hover:shadow-lg transition-shadow duration-300"
             >
               <Card
                 bodyStyle={{ padding: 16 }}
@@ -205,14 +471,14 @@ const MyLearning = () => {
                     <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <Title level={5} style={{ margin: 0 }}>
+                    <Title  className="font-shopee" level={5} style={{ margin: 0 }}>
                       Digital Marketing Terms
                     </Title>
-                    <Text type="secondary">50 cards</Text>
+                    <Text className="font-shopee" type="secondary">50 cards</Text>
 
                     <div style={{ marginTop: 12 }}>
                       <div style={{ marginBottom: 4 }}>
-                        <Text>Progress: 15/50</Text>
+                        <Text className="font-shopee">Progress: 15/50</Text>
                       </div>
                       <Progress percent={30} size="small" strokeColor={primaryColor} />
                     </div>
@@ -221,7 +487,7 @@ const MyLearning = () => {
                     <Button
                       type="primary"
                       style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
-                      className="hover:scale-105 transition-transform duration-200 hover:shadow-md"
+                      className="font-shopee-bold hover:scale-105 transition-transform duration-200 hover:shadow-md"
                     >
                       Practice
                     </Button>
@@ -232,89 +498,95 @@ const MyLearning = () => {
           </motion.div>
         </TabPane>
 
-        <TabPane tab="Complete" key="complete">
-          <Card title="Completed Learning" headStyle={{ backgroundColor: primaryColor, color: whiteColor }}>
-            <Card bodyStyle={{ padding: 16 }}>
-              <div style={{ display: "flex", gap: 16 }}>
-                <img
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-JIk6sipvv1E2pQuxUTY0REIPHIN45O.png"
-                  alt="Completed course"
-                  style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 4 }}
-                />
-                <div style={{ flex: 1 }}>
-                  <Title level={5} style={{ margin: 0 }}>
-                    Introduction to Digital Marketing
-                  </Title>
-                  <Text type="secondary">Digital Marketing (FPTU)</Text>
+        <TabPane tab="Sold" key="sold">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <Card
+              title="Shared Library Content"
+              style={{ marginBottom: 16 }}
+              headStyle={{ backgroundColor: primaryColor, color: whiteColor }}
+              className="font-shopee hover:shadow-lg transition-shadow duration-300"
+            >
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.5 }}>
+                <Card
+                  style={{ marginBottom: 16 }}
+                  bodyStyle={{ padding: 16 }}
+                  className="font-shopee-bold hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+                >
+                  <div style={{ display: "flex", gap: 16 }}>
+                    <img
+                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-JIk6sipvv1E2pQuxUTY0REIPHIN45O.png"
+                      alt="Digital Strategy course"
+                      style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 4 }}
+                      className="transition-transform duration-300 hover:scale-105"
+                    />
+                    <div style={{ flex: 1 }}>
+                      <Title className="font-shopee" level={5} style={{ margin: 0 }}>
+                        Digital Strategy and Business Opportunity
+                      </Title>
+                      <Text className="font-shopee" type="secondary">Digital Marketing (FPTU)</Text>
 
-                  <div style={{ marginTop: 12 }}>
-                    <div style={{ marginBottom: 4 }}>
-                      <Text>Completed on Feb 15, 2025</Text>
+                      <div style={{ marginTop: 12 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                     
+                          <Text className="font-shopee">On Mar 31, 2025</Text>
+                        </div>
+                
+                      </div>
                     </div>
-                    <Progress percent={100} size="small" strokeColor={primaryColor} />
+                    <div style={{ textAlign: "right" }}>
+                  <Button style={{ borderColor: primaryColor, color: primaryColor}} className="font-shopee">View Course</Button>
+                </div>
                   </div>
-                </div>
-                <div style={{ textAlign: "right" }}>
-                  <Button style={{ borderColor: primaryColor, color: primaryColor }}>View Certificate</Button>
-                </div>
-              </div>
-            </Card>
-          </Card>
-        </TabPane>
+                </Card>
+              </motion.div>
 
-        <TabPane tab="Create" key="create">
-          <Card title="Create New Learning" headStyle={{ backgroundColor: primaryColor, color: whiteColor }}>
-            <Row gutter={[16, 16]}>
-              <Col xs={24} md={12}>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.5 }}>
                 <Card
-                  hoverable
-                  style={{ textAlign: "center", cursor: "pointer" }}
-                  bodyStyle={{ borderTop: `2px solid ${secondaryColor}` }}
+                  bodyStyle={{ padding: 16 }}
+                  style={{ marginBottom: 16 }}
+                  className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
                 >
-                  <div
-                    style={{
-                      width: 64,
-                      height: 64,
-                      backgroundColor: `${primaryColor}20`,
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      margin: "0 auto 16px",
-                    }}
-                  >
-                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
+                  <div style={{ display: "flex", gap: 16 }}>
+                    <img
+                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-JIk6sipvv1E2pQuxUTY0REIPHIN45O.png"
+                      alt="Digital Leadership course"
+                      style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 4 }}
+                      className="transition-transform duration-300 hover:scale-105"
+                    />
+                    <div style={{ flex: 1 }}>
+                      <Title className="font-shopee" level={5} style={{ margin: 0 }}>
+                        Digital Leadership and Digital Strategy Consultation
+                      </Title>
+                      <Text className="font-shopee" type="secondary">Digital Marketing (FPTU)</Text>
+
+                      <div style={{ marginTop: 12 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+            
+                          <Text className="font-shopee">On Mar 17, 2025</Text>
+                        </div>
+                      
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                  <Button style={{ borderColor: primaryColor, color: primaryColor }} className="font-shopee">View Course</Button>
+                </div>
                   </div>
-                  <Title level={5}>Create Flashcard Set</Title>
-                  <Text type="secondary">Create a new set of flashcards for your studies</Text>
                 </Card>
-              </Col>
-              <Col xs={24} md={12}>
-                <Card
-                  hoverable
-                  style={{ textAlign: "center", cursor: "pointer" }}
-                  bodyStyle={{ borderTop: `2px solid ${secondaryColor}` }}
+              </motion.div>
+
+              <Space>
+                <ClockCircleOutlined style={{ color: primaryColor }} />
+                <Text className="font-shopee" type="secondary">You can finish this time</Text>
+                <Button
+                  type="link"
+                  style={{ padding: 0, color: primaryColor }}
+                  className="font-shopee hover:underline transition-all duration-200"
                 >
-                  <div
-                    style={{
-                      width: 64,
-                      height: 64,
-                      backgroundColor: `${primaryColor}20`,
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      margin: "0 auto 16px",
-                    }}
-                  >
-                    <ClockCircleOutlined style={{ fontSize: 32, color: primaryColor }} />
-                  </div>
-                  <Title level={5}>Create Study Plan</Title>
-                  <Text type="secondary">Create a customized study plan for your courses</Text>
-                </Card>
-              </Col>
-            </Row>
-          </Card>
+                  Reset the deadline
+                </Button>
+              </Space>
+            </Card>
+          </motion.div>
         </TabPane>
       </StyledTabs>
     </motion.div>

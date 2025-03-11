@@ -29,7 +29,7 @@ const CourseCard = ({ course, expert }) => {
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden flex flex-col cursor-pointer w-[300px] h-[420px] transition-all duration-300 transform hover:-translate-y-2"
+      className="font-shopee bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden flex flex-col cursor-pointer w-[300px] h-[420px] transition-all duration-300 transform hover:-translate-y-2"
       style={{
         boxShadow: isHovered
           ? "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
