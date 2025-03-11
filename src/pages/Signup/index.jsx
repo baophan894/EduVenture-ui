@@ -11,20 +11,11 @@ const SignUpWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
   background-image: url('/cover-login.png');
-  background-size: cover;
   background-position: center;
-  background-size: 100%;
+  background-size: cover;
   background-repeat: no-repeat;
   position: relative;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-  }
 
   .form-container {
     width: 100%;

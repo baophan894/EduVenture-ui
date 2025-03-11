@@ -127,7 +127,7 @@ const FlashCardDetailScreen = () => {
   };
   return (
     <FlashcardDetailStyle>
-      <div className="flashcard-detail  flex items-start justify-center mt-[100px] flashcard-detail">
+      <div className=" flashcard-detail  flex items-start justify-center mt-[100px] flashcard-detail">
         <div className="justify-start gap-10 py-5 pl-5 bg-[#323639] text-[#fff] fixed top-[63px] left-0 right-0  z-10  ">
           <div className="flex justify-between ">
             <p className="font-bold text-sm">{topicName}</p>
@@ -144,7 +144,7 @@ const FlashCardDetailScreen = () => {
                 className="mt-3 mr-1 p-2 w-[100px] rounded hover:bg-[#469B74] hover:text-[white]"
               >
                 {" "}
-                <span className="mr-[3px]">Update</span> <PlusCircleOutlined />
+                <span className="mr-[3px] font-shopee">Update</span> <PlusCircleOutlined />
               </button>
             )}
           </div>
