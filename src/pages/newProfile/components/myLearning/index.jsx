@@ -36,9 +36,10 @@ const StyledTabs = styled(Tabs)`
   .ant-tabs-tab-active {
     background-color: ${primaryColor} !important;
     border-color: ${primaryColor} !important;
-
+    font-family: "font-shopee";
     .ant-tabs-tab-btn {
       color: ${whiteColor} !important;
+      font-family: "font-shopee"
     }
   }
 
@@ -71,7 +72,7 @@ const MyLearning = () => {
         </Title>
       </motion.div>
 
-      <StyledTabs  defaultActiveKey="library" type="card" onChange={(key) => setActiveKey(key)}>
+      <StyledTabs className="font-shopee" defaultActiveKey="library" type="card" onChange={(key) => setActiveKey(key)}>
         <TabPane className="font-shopee" tab="Library" key="library">
         <motion.div
             initial={{ opacity: 0, y: 20 }}

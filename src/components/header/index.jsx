@@ -50,7 +50,7 @@ const Header = () => {
               <span className="font-medium text-gray-700 hover:text-green-600 transition-colors">Test Library</span>
             </Link>
             <Link to="/courses" className="nav-link">
-              <span className="font-medium text-gray-700 hover:text-green-600 transition-colors">My learning</span>
+              <span className="font-medium text-gray-700 hover:text-green-600 transition-colors">Learning</span>
             </Link>
             {/* <Link to="/flashcards" className="nav-link">
               <span className="font-medium text-gray-700 hover:text-green-600 transition-colors">Flashcards</span>
