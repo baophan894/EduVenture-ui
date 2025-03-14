@@ -105,7 +105,7 @@ const StyledModal = styled(Modal)`
       background-color: transparent;
       border: none;
       color: #3a3b3c;
-      font-size: 24px;
+      font-size: 18px;
       padding: 0;
       resize: none;
       
