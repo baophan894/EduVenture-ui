@@ -575,17 +575,7 @@ const MyLearning = () => {
                 </Card>
               </motion.div>
 
-              <Space>
-                <ClockCircleOutlined style={{ color: primaryColor }} />
-                <Text className="font-shopee" type="secondary">You can finish this time</Text>
-                <Button
-                  type="link"
-                  style={{ padding: 0, color: primaryColor }}
-                  className="font-shopee hover:underline transition-all duration-200"
-                >
-                  Reset the deadline
-                </Button>
-              </Space>
+             
             </Card>
           </motion.div>
         </TabPane>
