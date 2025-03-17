@@ -1,15 +1,19 @@
 "use client";
 
 import { FaArrowLeft, FaArrowRight, FaCheck, FaList } from "react-icons/fa";
+import { QUESTION_TYPES } from "./test-types";
 
 const BottomNavigation = ({
   currentQuestionIndex,
+  currentQuestion,
+  filteredTotalQuestions,
   totalQuestions,
   onPrevious,
   onNext,
   onFinish,
   onOpenNavigation,
   disableNavigation = false,
+  actualIndex,
 }) => {
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
 
@@ -26,7 +30,11 @@ const BottomNavigation = ({
           </button>
 
           <div className="text-sm text-gray-600 font-shopee">
-            Question {currentQuestionIndex + 1} of {totalQuestions}
+            {currentQuestion.type === QUESTION_TYPES.PART_INSTRUCTION
+              ? `Instruction`
+              : `Question ${actualIndex + 1} of ${
+                  filteredTotalQuestions.length
+                }`}{" "}
           </div>
         </div>
 

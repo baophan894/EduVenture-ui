@@ -2,7 +2,7 @@ import { useState } from "react";
 import TestStartModal from "./test-start-modal";
 import { useNavigate } from "react-router-dom";
 
-const Sidebar = ({ test, setIsTesting }) => {
+const Sidebar = ({ test, setIsTesting, selectedParts }) => {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate(); // Initialize navigation
 
@@ -30,8 +30,11 @@ const Sidebar = ({ test, setIsTesting }) => {
         </p>
 
         <button
-          className="w-full bg-[#469B74] text-white font-bold py-3 px-6 rounded-lg shadow hover:bg-[#5bbd8b] transition-colors mb-4 font-shopee"
+          className={`w-full bg-[#469B74] text-white font-bold py-3 px-6 rounded-lg shadow hover:bg-[#5bbd8b] transition-colors mb-4 font-shopee ${
+            selectedParts.length === 0 ? "opacity-50 cursor-not-allowed" : ""
+          }`}
           onClick={openModal}
+          disabled={selectedParts.length === 0}
         >
           Start Test Simulation
         </button>

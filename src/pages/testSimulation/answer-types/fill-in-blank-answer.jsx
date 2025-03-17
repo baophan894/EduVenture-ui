@@ -1,18 +1,37 @@
-"use client"
+"use client";
+
+import { FaTimes } from "react-icons/fa";
 
 const FillInBlankAnswer = ({ question, answer, onAnswerChange }) => {
+  // Function to clear the current answer
+  const clearAnswer = () => {
+    onAnswerChange("");
+  };
+
   return (
     <div className="mt-2">
-      <input
-        type="text"
-        value={answer || ""}
-        onChange={(e) => onAnswerChange(e.target.value)}
-        placeholder="Type your answer here..."
-        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#469B74] focus:border-transparent font-shopee"
-      />
+      <div className="relative">
+        <input
+          type="text"
+          value={answer || ""}
+          onChange={(e) => onAnswerChange(e.target.value)}
+          placeholder="Type your answer here..."
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#469B74] focus:border-transparent font-shopee"
+        />
+
+        {/* Clear button - only shown when there's text */}
+        {answer && (
+          <button
+            onClick={clearAnswer}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
+            title="Clear answer"
+          >
+            <FaTimes size={16} />
+          </button>
+        )}
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default FillInBlankAnswer
-
+export default FillInBlankAnswer;

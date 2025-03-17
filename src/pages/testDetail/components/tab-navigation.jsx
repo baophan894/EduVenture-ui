@@ -17,16 +17,6 @@ const TabNavigation = ({ activeTab, setActiveTab }) => {
           </button>
           <button
             className={`py-4 px-6 font-medium border-b-2 transition-colors font-shopee ${
-              activeTab === "modules"
-                ? "border-[#469B74] text-[#469B74]"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
-            onClick={() => setActiveTab("modules")}
-          >
-            Test Modules
-          </button>
-          <button
-            className={`py-4 px-6 font-medium border-b-2 transition-colors font-shopee ${
               activeTab === "instructor"
                 ? "border-[#469B74] text-[#469B74]"
                 : "border-transparent text-gray-500 hover:text-gray-700"

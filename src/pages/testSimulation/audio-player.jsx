@@ -2,14 +2,22 @@
 
 import { useEffect, useRef } from "react";
 
-const AudioPlayer = ({ audioUrl, autoPlay = true, onAudioEnd }) => {
+const AudioPlayer = ({
+  audioUrl,
+  autoPlay = true,
+  onAudioEnd,
+  showResultsModal,
+}) => {
   const audioRef = useRef(null);
 
   useEffect(() => {
     if (autoPlay && audioRef.current) {
       audioRef.current.play();
     }
-  }, [autoPlay]);
+    if (showResultsModal) {
+      audioRef.current.pause();
+    }
+  }, [autoPlay, showResultsModal]);
 
   return (
     <audio

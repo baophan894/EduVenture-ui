@@ -9,7 +9,11 @@ const AnswerSection = ({ question, answer, onAnswerChange }) => {
   };
 
   return (
-    <div>
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <h3 className="text-lg font-semibold mb-4 font-shopee">Your Answer</h3>
+      <p className="text-sm text-gray-600 font-shopee">
+        {question?.answerInstruction}
+      </p>
       {question.type === QUESTION_TYPES.SINGLE_CHOICE && (
         <SingleChoiceAnswer
           question={question}
@@ -17,7 +21,6 @@ const AnswerSection = ({ question, answer, onAnswerChange }) => {
           onAnswerChange={handleAnswerChange}
         />
       )}
-
       {question.type === QUESTION_TYPES.MULTIPLE_CHOICE && (
         <MultipleChoiceAnswer
           question={question}
@@ -25,7 +28,6 @@ const AnswerSection = ({ question, answer, onAnswerChange }) => {
           onAnswerChange={handleAnswerChange}
         />
       )}
-
       {question.type === QUESTION_TYPES.FILL_IN_BLANK && (
         <FillInBlankAnswer
           question={question}

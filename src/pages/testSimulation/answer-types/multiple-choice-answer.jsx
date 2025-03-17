@@ -1,16 +1,40 @@
-"use client"
+"use client";
 
-const MultipleChoiceAnswer = ({ question, selectedAnswers, onAnswerChange }) => {
+import { FaTimes } from "react-icons/fa";
+
+const MultipleChoiceAnswer = ({
+  question,
+  selectedAnswers,
+  onAnswerChange,
+}) => {
   const toggleAnswer = (optionId) => {
     const newAnswers = selectedAnswers?.includes(optionId)
       ? selectedAnswers.filter((id) => id !== optionId)
-      : [...(selectedAnswers || []), optionId]
+      : [...(selectedAnswers || []), optionId];
 
-    onAnswerChange(newAnswers)
-  }
+    onAnswerChange(newAnswers);
+  };
+
+  // Function to clear all selected answers
+  const clearAllAnswers = () => {
+    onAnswerChange([]);
+  };
 
   return (
     <div className="space-y-3 mt-2">
+      {/* Clear all answers button - only shown when at least one answer is selected */}
+      {selectedAnswers?.length > 0 && (
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={clearAllAnswers}
+            className="flex items-center gap-1 text-sm text-gray-600 hover:text-red-500 transition-colors font-shopee"
+          >
+            <FaTimes size={12} />
+            Clear All Selections
+          </button>
+        </div>
+      )}
+
       {question.options.map((option) => (
         <label
           key={option.id}
@@ -29,7 +53,9 @@ const MultipleChoiceAnswer = ({ question, selectedAnswers, onAnswerChange }) => 
           />
           <div
             className={`w-5 h-5 rounded-sm border flex items-center justify-center mr-3 ${
-              selectedAnswers?.includes(option.id) ? "border-[#469B74] bg-[#469B74]" : "border-gray-400"
+              selectedAnswers?.includes(option.id)
+                ? "border-[#469B74] bg-[#469B74]"
+                : "border-gray-400"
             }`}
           >
             {selectedAnswers?.includes(option.id) && (
@@ -53,8 +79,7 @@ const MultipleChoiceAnswer = ({ question, selectedAnswers, onAnswerChange }) => 
         </label>
       ))}
     </div>
-  )
-}
+  );
+};
 
-export default MultipleChoiceAnswer
-
+export default MultipleChoiceAnswer;

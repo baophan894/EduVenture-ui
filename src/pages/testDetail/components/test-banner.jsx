@@ -2,20 +2,17 @@
 
 import { useState } from "react";
 import {
-  FaStar,
-  FaEye,
-  FaClock,
   FaChartBar,
-  FaUserGraduate,
+  FaClock,
+  FaEye,
   FaRegCalendarAlt,
-  FaCheckCircle,
-  FaTimes,
-  FaExclamationTriangle,
+  FaStar,
+  FaUserGraduate,
 } from "react-icons/fa";
-import TestStartModal from "./test-start-modal";
 import { useNavigate } from "react-router-dom";
+import TestStartModal from "./test-start-modal";
 
-const TestBanner = ({ test, setIsTesting }) => {
+const TestBanner = ({ test, setIsTesting, selectedParts }) => {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate(); // Initialize navigation
 
@@ -86,7 +83,12 @@ const TestBanner = ({ test, setIsTesting }) => {
 
             <button
               onClick={openModal}
-              className="bg-white text-[#469B74] font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-gray-100 transition-colors font-shopee"
+              disabled={selectedParts.length === 0}
+              className={`bg-white text-[#469B74] font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-gray-100 transition-colors font-shopee ${
+                selectedParts.length === 0
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
             >
               Start Test Simulation
             </button>

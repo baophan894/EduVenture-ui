@@ -1,16 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import AnswerSection from "./answer-section";
 import BottomNavigation from "./bottom-navigation";
-import CompletionModal from "./completion-modal";
+import ConfirmationModal from "./confirmation-modal";
+import ResultsModal from "./results-modal";
 import { sampleListeningTest, sampleReadingTest } from "./mock-data";
 import NavigationModal from "./navigation-modal";
 import ProgressBar from "./progress-bar";
 import QuestionDisplay from "./question-display";
 import QuestionHeader from "./question-header";
-import { TEST_TYPES } from "./test-types";
+import { QUESTION_TYPES, TEST_TYPES } from "./test-types";
 import Timer from "./timer";
+
+// Layout options
+const LAYOUTS = {
+  VERTICAL: "vertical", // Question on top, answer below
+  HORIZONTAL: "horizontal", // Question on left, answer on right
+  REVERSE_VERTICAL: "reverse-vertical", // Answer on top, question below
+  REVERSE_HORIZONTAL: "reverse-horizontal", // Answer on left, question on right
+};
 
 const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
   // Load appropriate test based on type
@@ -22,20 +31,46 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
   const [timeRemaining, setTimeRemaining] = useState(test.duration);
   const [answers, setAnswers] = useState({});
   const [flaggedQuestions, setFlaggedQuestions] = useState([]);
-  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [showResultsModal, setShowResultsModal] = useState(false);
   const [testCompleted, setTestCompleted] = useState(false);
-  const [audioCompleted, setAudioCompleted] = useState(false);
   const [showNavigationModal, setShowNavigationModal] = useState(false);
+  const [layout, setLayout] = useState(LAYOUTS.VERTICAL); // Default layout
 
-  const currentQuestion = test.questions[currentQuestionIndex];
+  const flattenedQuestions = initialTest.parts.flatMap(
+    (part) => part.questions
+  );
+
+  const filteredTestQuestions = flattenedQuestions.filter(
+    (question) => question.type != QUESTION_TYPES.PART_INSTRUCTION
+  );
+
+  const currentQuestion = flattenedQuestions[currentQuestionIndex];
+
+  const actualIndex = filteredTestQuestions.findIndex(
+    (q) => q.id === currentQuestion.id
+  );
+
+  const filteredTotalQuestions = filteredTestQuestions.length;
   const isListeningTest = test.type === TEST_TYPES.LISTENING;
-  const answeredCount = Object.keys(answers).length;
+  const answeredCount = Object.values(answers).filter(
+    (value) => Boolean(value) && !(Array.isArray(value) && value.length === 0)
+  ).length;
 
-  // Timer effect
+  const handleAnswerChange = useCallback((questionId, value) => {
+    setAnswers((prevAnswers) => ({
+      ...prevAnswers,
+      [questionId]: value,
+    }));
+  }, []);
+
+  // Timer effect - only stop when results are shown
   useEffect(() => {
-    if (timeRemaining <= 0) {
+    if (timeRemaining <= 0 || showResultsModal) {
       // Auto-submit when time runs out
-      submitTest();
+      if (timeRemaining <= 0 && !showResultsModal) {
+        handleTimeOut();
+      }
       return;
     }
 
@@ -44,17 +79,23 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeRemaining]);
+  }, [timeRemaining, showResultsModal]);
+
+  // Handle timeout - automatically show results without confirmation
+  const handleTimeOut = () => {
+    setShowResultsModal(true);
+    submitTest();
+  };
 
   // Handle audio end for listening tests
   const handleAudioEnd = () => {
-    setAudioCompleted(true);
+    true;
 
     // For listening test, automatically go to next question when audio ends
     if (isListeningTest) {
       // If it's the last question, submit the test
-      if (currentQuestionIndex === test.questions.length - 1) {
-        submitTest();
+      if (currentQuestionIndex === flattenedQuestions.length - 1) {
+        handleTestCompletion();
       } else {
         // Otherwise, go to next question after a short delay
         setTimeout(() => {
@@ -62,14 +103,6 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
         }, 1500); // 1.5 second delay to allow user to see the question before moving on
       }
     }
-  };
-
-  // Handle answer changes
-  const handleAnswerChange = (questionId, value) => {
-    setAnswers({
-      ...answers,
-      [questionId]: value,
-    });
   };
 
   // Toggle flag for current question
@@ -85,9 +118,9 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
 
   // Navigation functions
   const goToNextQuestion = () => {
-    if (currentQuestionIndex < test.questions.length - 1) {
+    if (currentQuestionIndex < flattenedQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setAudioCompleted(false);
+      false;
     } else {
       handleTestCompletion();
     }
@@ -97,7 +130,7 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
   const goToPreviousQuestion = () => {
     if (currentQuestionIndex > 0 && !isListeningTest) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
-      setAudioCompleted(false);
+      false;
     }
   };
 
@@ -108,20 +141,29 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
     }
   };
 
-  // Handle test completion
+  // Handle test completion - show confirmation first
   const handleTestCompletion = () => {
-    setShowCompletionModal(true);
+    setShowConfirmationModal(true);
   };
 
+  // Submit the test
   const submitTest = () => {
-    setTestCompleted(true);
-    setShowCompletionModal(false);
-
     // This is where you would trigger an event or callback
     console.log("Test completed with answers:", answers);
-
     // In a real app, you might send the results to a server
     // onTestComplete(answers);
+  };
+
+  // Handle confirmation submission
+  const handleConfirmSubmit = () => {
+    setShowConfirmationModal(false);
+    setShowResultsModal(true);
+    submitTest();
+  };
+
+  // Close modals
+  const handleCloseConfirmationModal = () => {
+    setShowConfirmationModal(false);
   };
 
   // Toggle navigation modal
@@ -169,6 +211,77 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
     );
   }
 
+  // Render content based on layout
+  const renderContent = () => {
+    switch (layout) {
+      case LAYOUTS.HORIZONTAL:
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <QuestionDisplay
+              test={test}
+              question={currentQuestion}
+              onAudioEnd={handleAudioEnd}
+              showResultsModal={showResultsModal}
+            />
+            <AnswerSection
+              question={currentQuestion}
+              answer={answers[currentQuestion.id]}
+              onAnswerChange={handleAnswerChange}
+            />
+          </div>
+        );
+      case LAYOUTS.REVERSE_VERTICAL:
+        return (
+          <div className="grid grid-cols-1 gap-6">
+            <AnswerSection
+              question={currentQuestion}
+              answer={answers[currentQuestion.id]}
+              onAnswerChange={handleAnswerChange}
+            />
+            <QuestionDisplay
+              test={test}
+              question={currentQuestion}
+              onAudioEnd={handleAudioEnd}
+              showResultsModal={showResultsModal}
+            />
+          </div>
+        );
+      case LAYOUTS.REVERSE_HORIZONTAL:
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <AnswerSection
+              question={currentQuestion}
+              answer={answers[currentQuestion.id]}
+              onAnswerChange={handleAnswerChange}
+            />
+            <QuestionDisplay
+              test={test}
+              question={currentQuestion}
+              onAudioEnd={handleAudioEnd}
+              showResultsModal={showResultsModal}
+            />
+          </div>
+        );
+      case LAYOUTS.VERTICAL:
+      default:
+        return (
+          <div className="grid grid-cols-1 gap-6">
+            <QuestionDisplay
+              test={test}
+              question={currentQuestion}
+              onAudioEnd={handleAudioEnd}
+              showResultsModal={showResultsModal}
+            />
+            <AnswerSection
+              question={currentQuestion}
+              answer={answers[currentQuestion.id]}
+              onAnswerChange={handleAnswerChange}
+            />
+          </div>
+        );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 font-shopee pb-20">
       {/* Header with timer */}
@@ -188,60 +301,38 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
       {/* Main content */}
       <main className="container mx-auto px-4 py-6">
         <ProgressBar
-          currentQuestionIndex={currentQuestionIndex}
-          totalQuestions={test.questions.length}
+          filteredTotalQuestions={filteredTotalQuestions}
           answeredCount={answeredCount}
         />
 
         <QuestionHeader
-          questionNumber={currentQuestionIndex + 1}
-          totalQuestions={test.questions.length}
+          question={currentQuestion}
+          questionNumber={actualIndex + 1}
+          filteredTotalQuestions={filteredTotalQuestions}
           isFlagged={flaggedQuestions.includes(currentQuestion.id)}
           onToggleFlag={toggleFlagQuestion}
           onPrevious={goToPreviousQuestion}
           onNext={goToNextQuestion}
           disableNavigation={isListeningTest}
+          layout={layout}
+          setLayout={setLayout}
         />
 
-        <div className="grid grid-cols-1 gap-6">
-          {/* Question Content */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            {/* Question Display */}
-            <div className="mb-6">
-              <QuestionDisplay
-                test={test}
-                question={currentQuestion}
-                questionNumber={currentQuestionIndex + 1}
-                isFlagged={flaggedQuestions.includes(currentQuestion.id)}
-                onToggleFlag={toggleFlagQuestion}
-                onAudioEnd={handleAudioEnd}
-              />
-            </div>
-
-            {/* Answer Section */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4 font-shopee">
-                {currentQuestion.text}
-              </h3>
-              <AnswerSection
-                question={currentQuestion}
-                answer={answers[currentQuestion.id]}
-                onAnswerChange={handleAnswerChange}
-              />
-            </div>
-          </div>
-        </div>
+        {renderContent()}
       </main>
 
       {/* Bottom Navigation */}
       <BottomNavigation
         currentQuestionIndex={currentQuestionIndex}
-        totalQuestions={test.questions.length}
+        totalQuestions={flattenedQuestions.length}
+        filteredTotalQuestions={filteredTestQuestions}
         onPrevious={goToPreviousQuestion}
         onNext={goToNextQuestion}
         onFinish={handleTestCompletion}
         onOpenNavigation={toggleNavigationModal}
         disableNavigation={isListeningTest}
+        actualIndex={actualIndex}
+        currentQuestion={currentQuestion}
       />
 
       {/* Navigation Modal */}
@@ -249,25 +340,27 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
         isOpen={showNavigationModal}
         onClose={toggleNavigationModal}
         test={test}
-        questions={test.questions}
+        questions={flattenedQuestions}
         currentQuestionIndex={currentQuestionIndex}
         answers={answers}
         flaggedQuestions={flaggedQuestions}
         onQuestionSelect={goToQuestion}
-        onPrevious={goToPreviousQuestion}
-        onNext={goToNextQuestion}
         onFinish={handleTestCompletion}
       />
 
-      {/* Completion Modal */}
-      <CompletionModal
-        test={test}
-        answers={answers}
-        flaggedQuestions={flaggedQuestions}
-        onClose={() => setShowCompletionModal(false)}
-        onSubmit={submitTest}
-        isOpen={showCompletionModal}
-      />
+      {/* Confirmation Modal */}
+      {showConfirmationModal && (
+        <ConfirmationModal
+          filteredTestQuestions={filteredTestQuestions}
+          answers={answers}
+          flaggedQuestions={flaggedQuestions}
+          onClose={handleCloseConfirmationModal}
+          onSubmit={handleConfirmSubmit}
+        />
+      )}
+
+      {/* Results Modal */}
+      {showResultsModal && <ResultsModal test={test} answers={answers} />}
     </div>
   );
 };

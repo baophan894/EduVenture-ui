@@ -1,7 +1,7 @@
 "use client";
 
-import { FaTimes } from "react-icons/fa";
-import { TEST_TYPES } from "./test-types";
+import { FaTimes, FaInfoCircle } from "react-icons/fa";
+import { QUESTION_TYPES, TEST_TYPES } from "./test-types";
 
 const NavigationModal = ({
   isOpen,
@@ -15,6 +15,19 @@ const NavigationModal = ({
   onFinish,
 }) => {
   const isListeningTest = test.type === TEST_TYPES.LISTENING;
+
+  const flattenedQuestions = test.parts.flatMap((part) => part.questions);
+
+  const filteredTestQuestions = flattenedQuestions.filter(
+    (question) => question.type !== QUESTION_TYPES.PART_INSTRUCTION
+  );
+
+  const currentQuestion = flattenedQuestions[currentQuestionIndex];
+
+  // Find the actual index of the current question among non-instruction questions
+  const actualIndex = filteredTestQuestions.findIndex(
+    (q) => q.id === currentQuestion.id
+  );
 
   return (
     <>
@@ -56,10 +69,15 @@ const NavigationModal = ({
               <div className="mb-6">
                 <div className="flex justify-between text-sm text-gray-600 mb-2">
                   <span className="font-shopee">
-                    Question {currentQuestionIndex + 1} of {questions.length}
+                    {currentQuestion.type === QUESTION_TYPES.PART_INSTRUCTION
+                      ? `Instruction`
+                      : `Question ${actualIndex + 1} of ${
+                          filteredTestQuestions.length
+                        }`}
                   </span>
                   <span className="font-shopee">
-                    {Object.keys(answers).length} of {questions.length} answered
+                    {Object.keys(answers).length} of{" "}
+                    {filteredTestQuestions.length} answered
                   </span>
                 </div>
 
@@ -68,7 +86,9 @@ const NavigationModal = ({
                     className="h-full bg-[#469B74]"
                     style={{
                       width: `${
-                        (Object.keys(answers).length / questions.length) * 100
+                        (Object.keys(answers).length /
+                          filteredTestQuestions.length) *
+                        100
                       }%`,
                     }}
                   ></div>
@@ -77,33 +97,74 @@ const NavigationModal = ({
 
               {/* Question navigation grid */}
               <div className="grid grid-cols-5 gap-2 mb-6">
-                {questions.map((question, index) => (
-                  <button
-                    key={question.id}
-                    onClick={() => {
-                      if (!isListeningTest || index === currentQuestionIndex) {
-                        onQuestionSelect(index);
-                        onClose();
+                {questions.map((question, index) => {
+                  // For part instructions, render a special instruction button
+                  if (question.type === QUESTION_TYPES.PART_INSTRUCTION) {
+                    return (
+                      <button
+                        key={question.id}
+                        onClick={() => {
+                          onQuestionSelect(index);
+                          onClose();
+                        }}
+                        className={`h-12 rounded-md flex flex-col items-center justify-center font-medium transition-colors ${
+                          index === currentQuestionIndex
+                            ? "bg-blue-500 text-white"
+                            : "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                        } font-shopee ${
+                          isListeningTest && index !== currentQuestionIndex
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
+                        disabled={
+                          isListeningTest && index !== currentQuestionIndex
+                        }
+                        title="Part Instruction"
+                      >
+                        <FaInfoCircle size={14} />
+                        <span className="text-xs mt-1">Info</span>
+                      </button>
+                    );
+                  }
+
+                  // For regular questions, find their actual index among non-instruction questions
+                  const actualIndex = filteredTestQuestions.findIndex(
+                    (q) => q.id === question.id
+                  );
+
+                  return (
+                    <button
+                      key={question.id}
+                      onClick={() => {
+                        if (
+                          !isListeningTest ||
+                          index === currentQuestionIndex
+                        ) {
+                          onQuestionSelect(index);
+                          onClose();
+                        }
+                      }}
+                      disabled={
+                        isListeningTest && index !== currentQuestionIndex
                       }
-                    }}
-                    disabled={isListeningTest && index !== currentQuestionIndex}
-                    className={`h-12 rounded-md flex flex-col items-center justify-center font-medium transition-colors ${
-                      index === currentQuestionIndex
-                        ? "bg-[#469B74] text-white"
-                        : flaggedQuestions.includes(question.id)
-                        ? "bg-[#FCB80B] bg-opacity-20 text-[#FCB80B]"
-                        : answers[question.id]
-                        ? "bg-[#469B74] bg-opacity-20 text-[#469B74]"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    } ${
-                      isListeningTest && index !== currentQuestionIndex
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    } font-shopee`}
-                  >
-                    <span>{index + 1}</span>
-                  </button>
-                ))}
+                      className={`h-12 rounded-md flex flex-col items-center justify-center font-medium transition-colors ${
+                        index === currentQuestionIndex
+                          ? "bg-[#469B74] text-white"
+                          : flaggedQuestions.includes(question.id)
+                          ? "bg-[#FCB80B] bg-opacity-20 text-[#FCB80B]"
+                          : answers[question.id]
+                          ? "bg-[#469B74] bg-opacity-20 text-[#469B74]"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      } ${
+                        isListeningTest && index !== currentQuestionIndex
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      } font-shopee`}
+                    >
+                      <span>{actualIndex + 1}</span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Legend */}
@@ -119,6 +180,10 @@ const NavigationModal = ({
                 <div className="flex items-center text-sm text-gray-600">
                   <div className="w-4 h-4 bg-gray-100 mr-2"></div>
                   <span className="font-shopee">Not visited</span>
+                </div>
+                <div className="flex items-center text-sm text-gray-600">
+                  <div className="w-4 h-4 bg-blue-100 mr-2"></div>
+                  <span className="font-shopee">Part instruction</span>
                 </div>
               </div>
 
