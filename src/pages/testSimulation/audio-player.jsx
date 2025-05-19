@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import PropTypes from "prop-types";
 
 const AudioPlayer = ({
   audioUrl,
@@ -25,9 +26,16 @@ const AudioPlayer = ({
       src={audioUrl}
       autoPlay={autoPlay}
       onEnded={onAudioEnd}
-      style={{ display: "none" }} // Completely hides the audio element
+      style={{ display: "none" }}
     />
   );
+};
+
+AudioPlayer.propTypes = {
+  audioUrl: PropTypes.string.isRequired,
+  autoPlay: PropTypes.bool,
+  onAudioEnd: PropTypes.func,
+  showResultsModal: PropTypes.bool,
 };
 
 export default AudioPlayer;

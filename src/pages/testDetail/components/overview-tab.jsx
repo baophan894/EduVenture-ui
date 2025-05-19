@@ -1,35 +1,56 @@
 "use client";
 
-import { FaRegClock, FaCheck, FaCheckCircle } from "react-icons/fa";
+import { FaRegClock, FaCheck, FaSpinner } from "react-icons/fa";
 import FaIconConverter from "./FaIconConverter";
+import PropTypes from "prop-types";
 
-const OverviewTab = ({ test, selectedParts, setSelectedParts }) => {
-  const handleCheckboxChange = (partName) => {
-    if (selectedParts.includes(partName)) {
-      setSelectedParts(selectedParts.filter((part) => part !== partName));
+const OverviewTab = ({
+  test,
+  selectedParts,
+  setSelectedParts,
+  onStartTest,
+  isLoading,
+}) => {
+  const handleCheckboxChange = (partId) => {
+    if (selectedParts.includes(partId)) {
+      setSelectedParts(selectedParts.filter((id) => id !== partId));
     } else {
-      setSelectedParts([...selectedParts, partName]);
+      setSelectedParts([...selectedParts, partId]);
     }
   };
 
   const handleSelectAll = () => {
-    const allPartNames = test.parts.map((part) => part.name);
-    if (selectedParts.length === allPartNames.length) {
+    const allPartIds = test.testParts.map((part) => part.id);
+    if (selectedParts.length === allPartIds.length) {
       setSelectedParts([]);
     } else {
-      setSelectedParts(allPartNames);
+      setSelectedParts(allPartIds);
     }
   };
 
   // Calculate total time for selected parts
-  const totalSelectedTime = test.parts
-    .filter((part) => selectedParts.includes(part.name))
+  const totalSelectedTime = test.testParts
+    .filter((part) => selectedParts.includes(part.id))
     .reduce((total, part) => total + part.duration, 0);
 
-  // Calculate total questions for selected parts
-  const totalSelectedQuestions = test.parts
-    .filter((part) => selectedParts.includes(part.name))
-    .reduce((total, part) => total + part.questions.length, 0);
+  // Calculate total questions excluding instructions for each part
+  const getPartQuestionCount = (part) => {
+    return part.questions.filter((q) => q.typeName !== "Part Instruction")
+      .length;
+  };
+
+  // Calculate total questions excluding instructions
+  const totalSelectedQuestions = test.testParts
+    .filter((part) => selectedParts.includes(part.id))
+    .reduce((total, part) => total + getPartQuestionCount(part), 0);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <FaSpinner className="w-8 h-8 text-[#469B74] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -38,12 +59,7 @@ const OverviewTab = ({ test, selectedParts, setSelectedParts }) => {
       {/* Test Format */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <h3 className="text-xl font-semibold mb-4 font-shopee">Test Format</h3>
-        <p className="mb-6 font-shopee">
-          This IELTS Academic test simulation follows the exact format of the
-          official IELTS Academic test, with four parts: Listening, Reading,
-          Writing, and Speaking. The total test time is approximately 2 hours
-          and 45 minutes.
-        </p>
+        <p className="mb-6 font-shopee">{test.description}</p>
 
         {/* Part Selection */}
         <div className="mb-8">
@@ -56,7 +72,7 @@ const OverviewTab = ({ test, selectedParts, setSelectedParts }) => {
               className="text-[#469B74] hover:text-green-700 text-sm font-medium transition-colors font-shopee flex items-center"
             >
               <span className="underline">
-                {selectedParts.length === test.parts.length
+                {selectedParts.length === test.testParts.length
                   ? "Deselect All"
                   : "Select All"}
               </span>
@@ -78,7 +94,7 @@ const OverviewTab = ({ test, selectedParts, setSelectedParts }) => {
                     Selected Parts
                   </div>
                   <div className="text-xl font-semibold text-gray-800 font-shopee">
-                    {selectedParts.length} of {test.parts.length}
+                    {selectedParts.length} of {test.testParts.length}
                   </div>
                 </div>
 
@@ -87,7 +103,7 @@ const OverviewTab = ({ test, selectedParts, setSelectedParts }) => {
                     Total Time
                   </div>
                   <div className="text-xl font-semibold text-gray-800 font-shopee">
-                    {(totalSelectedTime / 60).toFixed(2)} minutes
+                    {totalSelectedTime} minutes
                   </div>
                 </div>
 
@@ -103,116 +119,139 @@ const OverviewTab = ({ test, selectedParts, setSelectedParts }) => {
             </div>
           )}
 
-          {/* part Selection Cards */}
+          {/* Part Selection Cards */}
           <div className="grid grid-cols-1 gap-3">
-            {test.parts.map((part, index) => (
-              <div
-                key={index}
-                className={`border rounded-lg transition-all duration-200 ${
-                  selectedParts.includes(part.name)
-                    ? "border-[#469B74] bg-gradient-to-r from-green-50 to-white shadow-md"
-                    : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
-                }`}
-              >
-                <label
-                  htmlFor={`part-${index}`}
-                  className="flex items-center p-4 cursor-pointer"
-                >
-                  <div className="relative flex items-center justify-center">
-                    <input
-                      type="checkbox"
-                      id={`part-${index}`}
-                      checked={selectedParts.includes(part.name)}
-                      onChange={() => handleCheckboxChange(part.name)}
-                      className="w-5 h-5 opacity-0 absolute"
-                    />
-                    <div
-                      className={`w-6 h-6 flex items-center justify-center rounded-full border-2 ${
-                        selectedParts.includes(part.name)
-                          ? "border-[#469B74] bg-[#469B74] text-white"
-                          : "border-gray-300 bg-white"
-                      }`}
+            {test.testParts
+              .sort((a, b) => a.order - b.order)
+              .map((part, index) => {
+                const questionCount = getPartQuestionCount(part);
+                return (
+                  <div
+                    key={index}
+                    className={`border rounded-lg transition-all duration-200 ${
+                      selectedParts.includes(part.id)
+                        ? "border-[#469B74] bg-gradient-to-r from-green-50 to-white shadow-md"
+                        : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
+                    }`}
+                  >
+                    <label
+                      htmlFor={`part-${index}`}
+                      className="flex items-center p-4 cursor-pointer"
                     >
-                      {selectedParts.includes(part.name) && (
-                        <FaCheck className="text-xs" />
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="ml-4 flex-1">
-                    <div className="flex items-center">
-                      <div
-                        className={`text-xl mr-3 ${
-                          selectedParts.includes(part.name)
-                            ? "text-[#469B74]"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        <FaIconConverter icon={part.icon} />
+                      <div className="relative flex items-center justify-center">
+                        <input
+                          type="checkbox"
+                          id={`part-${index}`}
+                          checked={selectedParts.includes(part.id)}
+                          onChange={() => handleCheckboxChange(part.id)}
+                          className="w-5 h-5 opacity-0 absolute"
+                        />
+                        <div
+                          className={`w-6 h-6 flex items-center justify-center rounded-full border-2 ${
+                            selectedParts.includes(part.id)
+                              ? "border-[#469B74] bg-[#469B74] text-white"
+                              : "border-gray-300 bg-white"
+                          }`}
+                        >
+                          {selectedParts.includes(part.id) && (
+                            <FaCheck className="text-xs" />
+                          )}
+                        </div>
                       </div>
-                      <h4
-                        className={`font-semibold font-shopee ${
-                          selectedParts.includes(part.name)
-                            ? "text-[#469B74]"
-                            : "text-gray-800"
-                        }`}
-                      >
-                        {part.name}
-                      </h4>
-                    </div>
 
-                    <div className="flex items-center text-sm text-gray-600 mt-1">
-                      <FaRegClock className="mr-1" />
-                      <span className="font-shopee">
-                        {(part.duration / 60).toFixed(2)} minutes
-                      </span>
-                      {part.questions && (
-                        <span className="ml-3 font-shopee">
-                          {part.questions.length} questions
-                        </span>
-                      )}
-                    </div>
+                      <div className="ml-4 flex-1">
+                        <div className="flex items-center">
+                          <div
+                            className={`text-xl mr-3 ${
+                              selectedParts.includes(part.id)
+                                ? "text-[#469B74]"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            <FaIconConverter icon={part.icon} />
+                          </div>
+                          <h4
+                            className={`font-semibold font-shopee ${
+                              selectedParts.includes(part.id)
+                                ? "text-[#469B74]"
+                                : "text-gray-800"
+                            }`}
+                          >
+                            {part.name}
+                          </h4>
+                        </div>
 
-                    <p className="text-sm text-gray-600 font-shopee mt-1 pr-4">
-                      {part.description}
-                    </p>
+                        <div className="flex items-center text-sm text-gray-600 mt-1">
+                          <FaRegClock className="mr-1" />
+                          <span className="font-shopee">
+                            {part.duration} minutes
+                          </span>
+                          {part.questions && (
+                            <span className="ml-3 font-shopee">
+                              {questionCount} questions
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-sm text-gray-600 font-shopee mt-1 pr-4">
+                          {part.description}
+                        </p>
+                      </div>
+                    </label>
                   </div>
-                </label>
-              </div>
-            ))}
+                );
+              })}
           </div>
-        </div>
-
-        {/* Features */}
-        <h3 className="text-xl font-semibold mb-4 font-shopee border-t border-gray-100 pt-6">
-          Test Features
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {test.features.map((feature, index) => (
-            <div key={index} className="flex items-start">
-              <div className="text-[#469B74] mt-1 mr-3">
-                <FaCheckCircle />
-              </div>
-              <p className="font-shopee">{feature}</p>
-            </div>
-          ))}
         </div>
       </div>
 
+      {/* Features */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 className="text-xl font-semibold mb-4 font-shopee">Features</h3>
+        <ul className="list-disc list-inside text-gray-600 space-y-2 font-shopee">
+          {test.testFeatures.map((feature, index) => (
+            <li key={index}>{feature}</li>
+          ))}
+        </ul>
+      </div>
+
       {/* Requirements */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <h3 className="text-xl font-semibold mb-4 font-shopee">Requirements</h3>
-        <ul className="space-y-2">
-          {test.requirements.map((req, index) => (
-            <li key={index} className="flex items-start">
-              <div className="text-[#469B74] mt-1 mr-3">•</div>
-              <p className="font-shopee">{req}</p>
-            </li>
+        <ul className="list-disc list-inside text-gray-600 space-y-2 font-shopee">
+          {test.testRequirements.map((requirement, index) => (
+            <li key={index}>{requirement}</li>
           ))}
         </ul>
       </div>
     </div>
   );
+};
+
+OverviewTab.propTypes = {
+  test: PropTypes.shape({
+    description: PropTypes.string.isRequired,
+    testFeatures: PropTypes.arrayOf(PropTypes.string).isRequired,
+    testRequirements: PropTypes.arrayOf(PropTypes.string).isRequired,
+    testParts: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        name: PropTypes.string.isRequired,
+        icon: PropTypes.string.isRequired,
+        duration: PropTypes.number.isRequired,
+        description: PropTypes.string.isRequired,
+        questions: PropTypes.arrayOf(
+          PropTypes.shape({
+            typeName: PropTypes.string.isRequired,
+          })
+        ).isRequired,
+      })
+    ).isRequired,
+  }).isRequired,
+  selectedParts: PropTypes.arrayOf(PropTypes.number).isRequired,
+  setSelectedParts: PropTypes.func.isRequired,
+  onStartTest: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool,
 };
 
 export default OverviewTab;

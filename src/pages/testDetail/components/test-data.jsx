@@ -11,7 +11,7 @@ export const ieltsTestData = {
   ratings: 4.8,
   reviewCount: 156,
   duration: 170, // in minutes
-  difficulty: "Intermediate to Advanced",
+  testLevel: "IELTS 6.5-7.0",
   lastUpdated: "October 15, 2023",
   instructor: {
     name: "Dr. Sarah Johnson",

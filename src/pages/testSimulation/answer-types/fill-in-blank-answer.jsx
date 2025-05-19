@@ -1,6 +1,7 @@
 "use client";
 
 import { FaTimes } from "react-icons/fa";
+import PropTypes from "prop-types";
 
 const FillInBlankAnswer = ({ question, answer, onAnswerChange }) => {
   // Function to clear the current answer
@@ -32,6 +33,14 @@ const FillInBlankAnswer = ({ question, answer, onAnswerChange }) => {
       </div>
     </div>
   );
+};
+
+FillInBlankAnswer.propTypes = {
+  question: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+  }).isRequired,
+  answer: PropTypes.string,
+  onAnswerChange: PropTypes.func.isRequired,
 };
 
 export default FillInBlankAnswer;

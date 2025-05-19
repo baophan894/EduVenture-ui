@@ -9,6 +9,7 @@ import useAllPublicCourse from "../../hook/course/useAllUserCourse";
 import useAllUser from "../../hook/user/useAllUser";
 import useAllDocuments from "../../hook/documents/useAllDocument";
 import useAllFlashCard from "../../hook/flashcard/useAllFlashCard";
+import useAllTest from "../../hook/test/useAllTest";
 import CourseCard from "../courses/components/courseCard";
 // import FlashCard from "../flashcard/components/FlashCard"
 import Loading from "../../components/loading";
@@ -26,6 +27,7 @@ const HomePage = () => {
   const flashcards = useAllFlashCard()?.filter(
     (flashCard) => flashCard.state == ACTIVE_RESOURCE
   );
+  const { tests } = useAllTest();
   const [animatedSections, setAnimatedSections] = useState({
     welcome: false,
     courses: false,
@@ -36,7 +38,7 @@ const HomePage = () => {
     return experts?.find((expert) => expert.id == id);
   };
 
-  const isDataReady = courses && experts && documents && flashcards;
+  const isDataReady = courses && experts && documents && flashcards && tests;
 
   // Animation on scroll
   useEffect(() => {
@@ -79,11 +81,7 @@ const HomePage = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isDataReady]);
 
-  const carouselImages = [
-    "/carousel1.png", 
-    "/carousel2.png",
-    "/carousel3.png",
-  ];
+  const carouselImages = ["/carousel1.png", "/carousel2.png", "/carousel3.png"];
 
   // Custom color styles
   const primaryGreen = "#469B74";
@@ -270,7 +268,7 @@ const HomePage = () => {
             </Row>
           </div>
 
-          {/* Flashcards Section */}
+          {/* Test Library Section */}
           <div
             id="flashcards-section"
             className={`mx-4 md:mx-8 lg:mx-16 mb-12 bg-white rounded-xl shadow-md relative p-6 transition-all duration-1000 ${
@@ -291,7 +289,7 @@ const HomePage = () => {
               Test Library
             </h3>
             <Row gutter={[24, 40]} className="pt-2">
-              {testData?.slice(0, 4).map((test, index) => {
+              {tests?.map((test, index) => {
                 return (
                   <Col
                     key={test.id}
@@ -305,7 +303,7 @@ const HomePage = () => {
                     sm={12}
                     md={6}
                   >
-                    <TestCard test={test}></TestCard>
+                    <TestCard test={test} />
                   </Col>
                 );
               })}
@@ -336,47 +334,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-// Mock data for tests
-const testData = [
-  {
-    id: 1,
-    title: "TOEIC Reading Practice Test 1",
-    views: 27,
-    ratings: 4.9,
-    participants: 100,
-    duration: 120,
-    tag: "#TOEIC #Reading",
-    coverImg: "/Test (402 x 256 px)/1.png",
-  },
-  {
-    id: 2,
-    title: "TOEIC Listening Practice Test 1",
-    views: 23,
-    ratings: 4.8,
-    participants: 90,
-    duration: 120,
-    tag: "#TOEIC #Listening",
-    coverImg: "/Test (402 x 256 px)/2.png",
-  },
-  {
-    id: 3,
-    title: "HSK 1 Listening Test 1",
-    views: 19,
-    ratings: 4.7,
-    participants: 50,
-    duration: 30,
-    tag: "#HSK1 #Listening",
-    coverImg: "/Test (402 x 256 px)/3.png",
-  },
-  {
-    id: 4,
-    title: "JLPT N2 Listening Practice Test 1",
-    views: 20,
-    ratings: 4.6,
-    participants: 45,
-    duration: 35,
-    tag: "#JLPT #N2 #Listening",
-    coverImg: "/Test (402 x 256 px)/4.png",
-  },
-];

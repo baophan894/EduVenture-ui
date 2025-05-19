@@ -13,7 +13,7 @@ export const sampleListeningTest = {
   ratings: 4.8,
   reviewCount: 156,
   duration: 45, // TOEIC Listening is about 45 minutes
-  difficulty: "Intermediate",
+  testLevel: "TOEIC 600-700",
   lastUpdated: "October 15, 2023",
   instructor: {
     name: "David Anderson",
@@ -177,7 +177,7 @@ export const sampleReadingTest = {
   ratings: 4.7,
   reviewCount: 142,
   duration: 75 * 60, // 75 minutes in seconds
-  difficulty: "Intermediate",
+  testLevel: "TOEIC 700-800",
   lastUpdated: "November 10, 2023",
   instructor: {
     name: "Sophia Carter",

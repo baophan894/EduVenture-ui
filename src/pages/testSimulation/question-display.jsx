@@ -1,7 +1,7 @@
 "use client";
 
-import { TEST_TYPES } from "./test-types";
 import AudioPlayer from "./audio-player";
+import PropTypes from "prop-types";
 
 const QuestionDisplay = ({ test, question, onAudioEnd, showResultsModal }) => {
   return (
@@ -19,7 +19,7 @@ const QuestionDisplay = ({ test, question, onAudioEnd, showResultsModal }) => {
         </div>
 
         {/* Audio player for listening questions */}
-        {test.type === TEST_TYPES.LISTENING && question.audioUrl && (
+        {test.typeName === "LISTENING" && question.audioUrl && (
           <div className="mb-4">
             <AudioPlayer
               audioUrl={question.audioUrl}
@@ -52,6 +52,21 @@ const QuestionDisplay = ({ test, question, onAudioEnd, showResultsModal }) => {
       </div>
     </div>
   );
+};
+
+QuestionDisplay.propTypes = {
+  test: PropTypes.shape({
+    typeName: PropTypes.string.isRequired,
+  }).isRequired,
+  question: PropTypes.shape({
+    title: PropTypes.string,
+    questionInstruction: PropTypes.string,
+    audioUrl: PropTypes.string,
+    imageUrl: PropTypes.string,
+    readingPassage: PropTypes.string,
+  }).isRequired,
+  onAudioEnd: PropTypes.func.isRequired,
+  showResultsModal: PropTypes.bool.isRequired,
 };
 
 export default QuestionDisplay;

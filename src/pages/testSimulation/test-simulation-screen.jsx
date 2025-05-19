@@ -5,13 +5,13 @@ import AnswerSection from "./answer-section";
 import BottomNavigation from "./bottom-navigation";
 import ConfirmationModal from "./confirmation-modal";
 import ResultsModal from "./results-modal";
-import { sampleListeningTest, sampleReadingTest } from "./mock-data";
 import NavigationModal from "./navigation-modal";
 import ProgressBar from "./progress-bar";
 import QuestionDisplay from "./question-display";
 import QuestionHeader from "./question-header";
-import { QUESTION_TYPES, TEST_TYPES } from "./test-types";
 import Timer from "./timer";
+import AudioPlayer from "./audio-player";
+import PropTypes from "prop-types";
 
 // Layout options
 const LAYOUTS = {
@@ -21,28 +21,44 @@ const LAYOUTS = {
   REVERSE_HORIZONTAL: "reverse-horizontal", // Answer on left, question on right
 };
 
-const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
-  // Load appropriate test based on type
-  const initialTest =
-    type === TEST_TYPES.LISTENING ? sampleListeningTest : sampleReadingTest;
-
-  const [test, setTest] = useState(initialTest);
+const TestSimulationScreen = ({
+  selectedParts = [],
+  onExit,
+  test,
+  totalTime,
+}) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [timeRemaining, setTimeRemaining] = useState(test.duration);
+  const [timeRemaining, setTimeRemaining] = useState(totalTime * 60); // Convert minutes to seconds
   const [answers, setAnswers] = useState({});
   const [flaggedQuestions, setFlaggedQuestions] = useState([]);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showResultsModal, setShowResultsModal] = useState(false);
-  const [testCompleted, setTestCompleted] = useState(false);
+  const [testCompleted] = useState(false);
   const [showNavigationModal, setShowNavigationModal] = useState(false);
   const [layout, setLayout] = useState(LAYOUTS.VERTICAL); // Default layout
+  const [testResult, setTestResult] = useState(null);
+  const [currentAudioPartIndex, setCurrentAudioPartIndex] = useState(0);
 
-  const flattenedQuestions = initialTest.parts.flatMap(
-    (part) => part.questions
+  // Filter parts based on selected parts
+  const filteredParts =
+    selectedParts.length > 0
+      ? test.testParts
+          .filter((part) => selectedParts.includes(part.id))
+          .sort((a, b) => a.order - b.order)
+      : test.testParts.sort((a, b) => a.order - b.order);
+
+  const flattenedQuestions = filteredParts.flatMap((part) =>
+    part.questions
+      .sort((a, b) => a.order - b.order)
+      .map((question) => ({
+        ...question,
+        partId: part.id,
+        partName: part.name,
+      }))
   );
 
   const filteredTestQuestions = flattenedQuestions.filter(
-    (question) => question.type != QUESTION_TYPES.PART_INSTRUCTION
+    (question) => question.typeName !== "Part Instruction" // Filter out PART_INSTRUCTION type
   );
 
   const currentQuestion = flattenedQuestions[currentQuestionIndex];
@@ -52,7 +68,7 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
   );
 
   const filteredTotalQuestions = filteredTestQuestions.length;
-  const isListeningTest = test.type === TEST_TYPES.LISTENING;
+  const isListeningTest = test.typeName === "LISTENING"; // Check typeName from API
   const answeredCount = Object.values(answers).filter(
     (value) => Boolean(value) && !(Array.isArray(value) && value.length === 0)
   ).length;
@@ -63,6 +79,122 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
       [questionId]: value,
     }));
   }, []);
+
+  // Submit the test
+  const submitTest = useCallback(async () => {
+    try {
+      // Format answers according to question types
+      const formattedAnswers = Object.entries(answers)
+        .map(([questionId, answer]) => {
+          const question = flattenedQuestions.find(
+            (q) => q.id === parseInt(questionId)
+          );
+
+          if (!question) return null;
+
+          // Skip if no answer provided
+          if (!answer || (Array.isArray(answer) && answer.length === 0)) {
+            return {
+              questionId: parseInt(questionId),
+              writtenAnswer: null,
+              selectedOptions: null,
+            };
+          }
+
+          // Handle different question types
+          switch (question.typeName) {
+            case "Fill in Blank":
+              return {
+                questionId: parseInt(questionId),
+                writtenAnswer: answer,
+                selectedOptions: null,
+              };
+
+            case "Single Choice":
+              return {
+                questionId: parseInt(questionId),
+                writtenAnswer: null,
+                selectedOptions: [
+                  {
+                    optionId: answer,
+                  },
+                ],
+              };
+
+            case "Multiple Choice":
+              return {
+                questionId: parseInt(questionId),
+                writtenAnswer: null,
+                selectedOptions: Array.isArray(answer)
+                  ? answer.map((opt) => ({ optionId: opt }))
+                  : [{ optionId: answer }],
+              };
+
+            default:
+              return null;
+          }
+        })
+        .filter(Boolean); // Remove any null entries
+
+      const submissionData = {
+        testId: test.id,
+        submittedAt: new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString(), // Add 7 hours for Vietnam timezone
+        partIds: selectedParts,
+        submittedAnswers: formattedAnswers,
+        timeSpent: totalTime * 60 - timeRemaining,
+      };
+
+      console.log("Submitting test with data:", submissionData);
+
+      const token = localStorage.getItem("token");
+      const headers = {
+        "Content-Type": "application/json",
+      };
+
+      if (token) {
+        headers["Authorization"] = token;
+      }
+
+      const response = await fetch(
+        "http://localhost:8080/api/test-submissions",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(submissionData),
+        }
+      );
+
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error response:", errorData);
+        throw new Error(errorData.message || "Failed to submit test");
+      }
+
+      const result = await response.json();
+      console.log("Response data:", result);
+      setTestResult(result);
+      setShowResultsModal(true);
+    } catch (error) {
+      console.error("Error submitting test:", error);
+      // TODO: Show error message to user
+    }
+  }, [
+    answers,
+    flattenedQuestions,
+    test.id,
+    selectedParts,
+    totalTime,
+    timeRemaining,
+  ]);
+
+  // Handle timeout - automatically show results without confirmation
+  const handleTimeOut = useCallback(() => {
+    setShowResultsModal(true);
+    submitTest();
+  }, [submitTest]);
 
   // Timer effect - only stop when results are shown
   useEffect(() => {
@@ -79,28 +211,14 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeRemaining, showResultsModal]);
-
-  // Handle timeout - automatically show results without confirmation
-  const handleTimeOut = () => {
-    setShowResultsModal(true);
-    submitTest();
-  };
+  }, [timeRemaining, showResultsModal, handleTimeOut]);
 
   // Handle audio end for listening tests
   const handleAudioEnd = () => {
-    true;
-
-    // For listening test, automatically go to next question when audio ends
     if (isListeningTest) {
-      // If it's the last question, submit the test
-      if (currentQuestionIndex === flattenedQuestions.length - 1) {
-        handleTestCompletion();
-      } else {
-        // Otherwise, go to next question after a short delay
-        setTimeout(() => {
-          goToNextQuestion();
-        }, 1500); // 1.5 second delay to allow user to see the question before moving on
+      // Move to next part's audio if available
+      if (currentAudioPartIndex < filteredParts.length - 1) {
+        setCurrentAudioPartIndex((prev) => prev + 1);
       }
     }
   };
@@ -120,38 +238,24 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
   const goToNextQuestion = () => {
     if (currentQuestionIndex < flattenedQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      false;
     } else {
       handleTestCompletion();
     }
   };
 
-  // Navigation functions
   const goToPreviousQuestion = () => {
-    if (currentQuestionIndex > 0 && !isListeningTest) {
+    if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
-      false;
     }
   };
 
-  // For reading test only - go to specific question
   const goToQuestion = (index) => {
-    if (!isListeningTest || index === currentQuestionIndex) {
-      setCurrentQuestionIndex(index);
-    }
+    setCurrentQuestionIndex(index);
   };
 
   // Handle test completion - show confirmation first
   const handleTestCompletion = () => {
     setShowConfirmationModal(true);
-  };
-
-  // Submit the test
-  const submitTest = () => {
-    // This is where you would trigger an event or callback
-    console.log("Test completed with answers:", answers);
-    // In a real app, you might send the results to a server
-    // onTestComplete(answers);
   };
 
   // Handle confirmation submission
@@ -170,6 +274,23 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
   const toggleNavigationModal = () => {
     setShowNavigationModal(!showNavigationModal);
   };
+
+  // Add ESC key handler
+  useEffect(() => {
+    const handleEscKey = (event) => {
+      if (event.key === "Escape") {
+        if (showNavigationModal) {
+          setShowNavigationModal(false);
+        }
+        if (showConfirmationModal) {
+          setShowConfirmationModal(false);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleEscKey);
+    return () => window.removeEventListener("keydown", handleEscKey);
+  }, [showNavigationModal, showConfirmationModal]);
 
   // If test is completed, show completion screen
   if (testCompleted) {
@@ -196,13 +317,12 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
             Test Completed!
           </h2>
           <p className="text-gray-600 mb-6 font-shopee">
-            Thank you for completing the{" "}
-            {isListeningTest ? "TOEIC Listening" : "TOEIC Reading"} test. Your
-            answers have been submitted.
+            Thank you for completing the {test.typeName} test. Your answers have
+            been submitted.
           </p>
           <button
             className="bg-[#469B74] hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors font-shopee"
-            onClick={() => window.location.reload()}
+            onClick={onExit}
           >
             Return to Dashboard
           </button>
@@ -211,72 +331,101 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
     );
   }
 
-  // Render content based on layout
+  // Modify the renderContent function
   const renderContent = () => {
+    const currentPart = filteredParts[currentAudioPartIndex];
+    const audioPlayer = isListeningTest && currentPart?.audioUrl && (
+      <AudioPlayer
+        audioUrl={currentPart.audioUrl}
+        onAudioEnd={handleAudioEnd}
+        showResultsModal={showResultsModal}
+      />
+    );
+
     switch (layout) {
       case LAYOUTS.HORIZONTAL:
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <QuestionDisplay
-              test={test}
-              question={currentQuestion}
-              onAudioEnd={handleAudioEnd}
-              showResultsModal={showResultsModal}
-            />
-            <AnswerSection
-              question={currentQuestion}
-              answer={answers[currentQuestion.id]}
-              onAnswerChange={handleAnswerChange}
-            />
+          <div className="flex flex-col h-full">
+            {audioPlayer}
+            <div className="flex-1 overflow-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <QuestionDisplay
+                  test={test}
+                  question={currentQuestion}
+                  onAudioEnd={handleAudioEnd}
+                  showResultsModal={showResultsModal}
+                />
+                <AnswerSection
+                  question={currentQuestion}
+                  answer={answers[currentQuestion.id]}
+                  onAnswerChange={handleAnswerChange}
+                />
+              </div>
+            </div>
           </div>
         );
       case LAYOUTS.REVERSE_VERTICAL:
         return (
-          <div className="grid grid-cols-1 gap-6">
-            <AnswerSection
-              question={currentQuestion}
-              answer={answers[currentQuestion.id]}
-              onAnswerChange={handleAnswerChange}
-            />
-            <QuestionDisplay
-              test={test}
-              question={currentQuestion}
-              onAudioEnd={handleAudioEnd}
-              showResultsModal={showResultsModal}
-            />
+          <div className="flex flex-col h-full">
+            {audioPlayer}
+            <div className="flex-1 overflow-auto">
+              <div className="grid grid-cols-1 gap-6">
+                <AnswerSection
+                  question={currentQuestion}
+                  answer={answers[currentQuestion.id]}
+                  onAnswerChange={handleAnswerChange}
+                />
+                <QuestionDisplay
+                  test={test}
+                  question={currentQuestion}
+                  onAudioEnd={handleAudioEnd}
+                  showResultsModal={showResultsModal}
+                />
+              </div>
+            </div>
           </div>
         );
       case LAYOUTS.REVERSE_HORIZONTAL:
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <AnswerSection
-              question={currentQuestion}
-              answer={answers[currentQuestion.id]}
-              onAnswerChange={handleAnswerChange}
-            />
-            <QuestionDisplay
-              test={test}
-              question={currentQuestion}
-              onAudioEnd={handleAudioEnd}
-              showResultsModal={showResultsModal}
-            />
+          <div className="flex flex-col h-full">
+            {audioPlayer}
+            <div className="flex-1 overflow-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <AnswerSection
+                  question={currentQuestion}
+                  answer={answers[currentQuestion.id]}
+                  onAnswerChange={handleAnswerChange}
+                />
+                <QuestionDisplay
+                  test={test}
+                  question={currentQuestion}
+                  onAudioEnd={handleAudioEnd}
+                  showResultsModal={showResultsModal}
+                />
+              </div>
+            </div>
           </div>
         );
       case LAYOUTS.VERTICAL:
       default:
         return (
-          <div className="grid grid-cols-1 gap-6">
-            <QuestionDisplay
-              test={test}
-              question={currentQuestion}
-              onAudioEnd={handleAudioEnd}
-              showResultsModal={showResultsModal}
-            />
-            <AnswerSection
-              question={currentQuestion}
-              answer={answers[currentQuestion.id]}
-              onAnswerChange={handleAnswerChange}
-            />
+          <div className="flex flex-col h-full">
+            {audioPlayer}
+            <div className="flex-1 overflow-auto">
+              <div className="grid grid-cols-1 gap-6">
+                <QuestionDisplay
+                  test={test}
+                  question={currentQuestion}
+                  onAudioEnd={handleAudioEnd}
+                  showResultsModal={showResultsModal}
+                />
+                <AnswerSection
+                  question={currentQuestion}
+                  answer={answers[currentQuestion.id]}
+                  onAnswerChange={handleAnswerChange}
+                />
+              </div>
+            </div>
           </div>
         );
     }
@@ -313,7 +462,7 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
           onToggleFlag={toggleFlagQuestion}
           onPrevious={goToPreviousQuestion}
           onNext={goToNextQuestion}
-          disableNavigation={isListeningTest}
+          disableNavigation={false}
           layout={layout}
           setLayout={setLayout}
         />
@@ -330,7 +479,7 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
         onNext={goToNextQuestion}
         onFinish={handleTestCompletion}
         onOpenNavigation={toggleNavigationModal}
-        disableNavigation={isListeningTest}
+        disableNavigation={false}
         actualIndex={actualIndex}
         currentQuestion={currentQuestion}
       />
@@ -360,9 +509,44 @@ const TestSimulationScreen = ({ type = TEST_TYPES.LISTENING }) => {
       )}
 
       {/* Results Modal */}
-      {showResultsModal && <ResultsModal test={test} answers={answers} />}
+      {showResultsModal && (
+        <ResultsModal
+          test={test}
+          testResult={testResult}
+          flattenedQuestions={flattenedQuestions}
+          onClose={() => {
+            setShowResultsModal(false);
+            onExit();
+          }}
+        />
+      )}
     </div>
   );
+};
+
+TestSimulationScreen.propTypes = {
+  selectedParts: PropTypes.arrayOf(PropTypes.number),
+  onExit: PropTypes.func,
+  test: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    typeId: PropTypes.number.isRequired,
+    typeName: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    duration: PropTypes.number.isRequired,
+    testParts: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        questions: PropTypes.arrayOf(
+          PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            typeId: PropTypes.number.isRequired,
+            typeName: PropTypes.string.isRequired,
+          })
+        ).isRequired,
+      })
+    ).isRequired,
+  }).isRequired,
+  totalTime: PropTypes.number.isRequired,
 };
 
 export default TestSimulationScreen;

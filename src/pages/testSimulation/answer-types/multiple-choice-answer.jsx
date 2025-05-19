@@ -1,6 +1,7 @@
 "use client";
 
 import { FaTimes } from "react-icons/fa";
+import PropTypes from "prop-types";
 
 const MultipleChoiceAnswer = ({
   question,
@@ -35,51 +36,69 @@ const MultipleChoiceAnswer = ({
         </div>
       )}
 
-      {question.options.map((option) => (
+      {question.questionOptions.map((option) => (
         <label
           key={option.id}
           className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${
-            selectedAnswers?.includes(option.id)
+            selectedAnswers?.includes(option.optionId)
               ? "border-[#469B74] bg-[#469B74] bg-opacity-5"
               : "border-gray-200 hover:border-gray-300"
           }`}
         >
           <input
             type="checkbox"
-            name={`question-${question.id}-option-${option.id}`}
-            checked={selectedAnswers?.includes(option.id) || false}
-            onChange={() => toggleAnswer(option.id)}
+            name={`question-${question.id}`}
+            value={option.optionId}
+            checked={selectedAnswers?.includes(option.optionId)}
+            onChange={() => toggleAnswer(option.optionId)}
             className="sr-only"
           />
           <div
-            className={`w-5 h-5 rounded-sm border flex items-center justify-center mr-3 ${
-              selectedAnswers?.includes(option.id)
+            className={`w-5 h-5 rounded border flex items-center justify-center mr-3 ${
+              selectedAnswers?.includes(option.optionId)
                 ? "border-[#469B74] bg-[#469B74]"
                 : "border-gray-400"
             }`}
           >
-            {selectedAnswers?.includes(option.id) && (
+            {selectedAnswers?.includes(option.optionId) && (
               <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-3 w-3 text-white"
-                viewBox="0 0 20 20"
-                fill="currentColor"
+                className="w-3 h-3 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
                 <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
                 />
               </svg>
             )}
           </div>
           <div className="flex-1 font-shopee">
-            <span className="font-medium">{option.id}.</span> {option.text}
+            <span className="font-medium">{option.optionId}.</span>{" "}
+            {option.text}
           </div>
         </label>
       ))}
     </div>
   );
+};
+
+MultipleChoiceAnswer.propTypes = {
+  question: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    questionOptions: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        optionId: PropTypes.string.isRequired,
+        text: PropTypes.string.isRequired,
+      })
+    ).isRequired,
+  }).isRequired,
+  selectedAnswers: PropTypes.arrayOf(PropTypes.string),
+  onAnswerChange: PropTypes.func.isRequired,
 };
 
 export default MultipleChoiceAnswer;

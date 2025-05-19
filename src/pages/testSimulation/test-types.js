@@ -5,8 +5,8 @@ export const TEST_TYPES = {
 };
 
 export const QUESTION_TYPES = {
-  SINGLE_CHOICE: "single-choice",
-  MULTIPLE_CHOICE: "multiple-choice",
-  FILL_IN_BLANK: "fill-in-blank",
-  PART_INSTRUCTION: "part-instruction",
+  SINGLE_CHOICE: 1,
+  MULTIPLE_CHOICE: 2,
+  FILL_IN_BLANK: 3,
+  PART_INSTRUCTION: 4,
 };

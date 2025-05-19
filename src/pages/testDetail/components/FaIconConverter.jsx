@@ -1,5 +1,5 @@
-import React from "react";
 import * as FaIcons from "react-icons/fa";
+import PropTypes from "prop-types";
 
 function FaIconConverter({ icon }) {
   const IconComponent = FaIcons[icon]; // Lấy component icon từ chuỗi
@@ -8,5 +8,9 @@ function FaIconConverter({ icon }) {
 
   return <IconComponent />;
 }
+
+FaIconConverter.propTypes = {
+  icon: PropTypes.string.isRequired,
+};
 
 export default FaIconConverter;

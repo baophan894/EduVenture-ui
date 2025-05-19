@@ -6,6 +6,7 @@ import {
   UserOutlined,
   DollarOutlined,
   ExclamationCircleFilled,
+  FormOutlined,
 } from "@ant-design/icons";
 import { Menu } from "antd";
 import DashboardStyle from "./Dashboard.style";
@@ -19,6 +20,8 @@ import { adminRequire } from "../../common/adminRequire.js";
 import ExpertRequest from "./tab/ExpertRequest.jsx";
 import Topic from "./tab/Topic.jsx";
 import Withdraw from "./tab/Withdraw.jsx";
+import TestManagement from "./tab/TestManagement.jsx";
+
 const items = [
   { key: "1", icon: <UserOutlined />, label: "Platform statistics" },
   { key: "2", icon: <ExclamationCircleFilled />, label: "List Report" },
@@ -28,7 +31,9 @@ const items = [
   { key: "6", icon: <ContainerOutlined />, label: "Platform topic" },
   { key: "7", icon: <ContainerOutlined />, label: "Expert request" },
   { key: "8", icon: <DollarOutlined />, label: "Withdraw" },
+  { key: "9", icon: <FormOutlined />, label: "Test Management" },
 ];
+
 const Dashboard = () => {
   adminRequire();
   const [selectedKey, setSelectedKey] = useState("1");
@@ -37,8 +42,8 @@ const Dashboard = () => {
   };
   const renderTab = () => {
     switch (selectedKey) {
-       case "1":
-         return <ListUser />;
+      case "1":
+        return <ListUser />;
       case "2":
         return <ReportTab />;
       case "3":
@@ -49,10 +54,12 @@ const Dashboard = () => {
         return <ListPendingFlashcard />;
       case "6":
         return <Topic />;
-       case "7":
-         return <ExpertRequest />;
-       case "8":
-         return <Withdraw/>
+      case "7":
+        return <ExpertRequest />;
+      case "8":
+        return <Withdraw />;
+      case "9":
+        return <TestManagement />;
       default:
         return <div>Default Content</div>;
     }

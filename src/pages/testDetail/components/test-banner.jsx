@@ -11,20 +11,26 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import TestStartModal from "./test-start-modal";
+import PropTypes from "prop-types";
 
 const TestBanner = ({ test, setIsTesting, selectedParts }) => {
   const [showModal, setShowModal] = useState(false);
-  const navigate = useNavigate(); // Initialize navigation
+  const navigate = useNavigate();
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
 
   const handleStartTest = () => {
-    // Logic to start the test
     closeModal();
-    // Navigate to test page or other action
-    console.log("Starting test...");
     setIsTesting(true);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
   };
 
   return (
@@ -69,15 +75,11 @@ const TestBanner = ({ test, setIsTesting, selectedParts }) => {
             <div className="flex flex-wrap gap-4 mb-8">
               <div className="bg-white bg-opacity-20 rounded-full px-4 py-1 text-sm flex items-center">
                 <FaChartBar className="mr-2" />
-                <span className="font-shopee">{test.difficulty}</span>
-              </div>
-              <div className="bg-white bg-opacity-20 rounded-full px-4 py-1 text-sm flex items-center">
-                <FaRegCalendarAlt className="mr-2" />
-                <span className="font-shopee">Updated {test.lastUpdated}</span>
+                <span className="font-shopee">{test.testLevel}</span>
               </div>
               <div className="bg-white bg-opacity-20 rounded-full px-4 py-1 text-sm flex items-center">
                 <FaUserGraduate className="mr-2" />
-                <span className="font-shopee">By {test.instructor.name}</span>
+                <span className="font-shopee">By {test.instructorName}</span>
               </div>
             </div>
 
@@ -104,6 +106,22 @@ const TestBanner = ({ test, setIsTesting, selectedParts }) => {
       </div>
     </div>
   );
+};
+
+TestBanner.propTypes = {
+  test: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    coverImg: PropTypes.string,
+    views: PropTypes.number.isRequired,
+    ratings: PropTypes.number.isRequired,
+    reviewCount: PropTypes.number.isRequired,
+    duration: PropTypes.number.isRequired,
+    testLevel: PropTypes.string.isRequired,
+    instructorName: PropTypes.string.isRequired,
+  }).isRequired,
+  setIsTesting: PropTypes.func.isRequired,
+  selectedParts: PropTypes.array.isRequired,
 };
 
 export default TestBanner;

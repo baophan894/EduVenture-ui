@@ -22,6 +22,10 @@ import TestDetailScreen from "../pages/testDetail";
 import TestLibraryScreen from "../pages/testLibrary";
 import UpdatePassword from "../pages/updatePassword";
 import VerifyNotification from "../pages/verify";
+import TestHistory from "../pages/testHistory";
+import TestReviewScreen from "../pages/testReview/test-review-screen";
+import NotFound from "../pages/not-found";
+
 const RouterManagement = () => {
   return (
     <Routes>
@@ -56,8 +60,11 @@ const RouterManagement = () => {
           path="/test-library/detail/:testId"
           element={<TestDetailScreen />}
         ></Route>
-
+        <Route path="/test-history" element={<TestHistory />}></Route>
         <Route path="/forum" element={<PostScreen />}></Route>
+        <Route path="/test-review/:id" element={<TestReviewScreen />}></Route>
+        {/* Catch-all route for 404 */}
+        <Route path="*" element={<NotFound />}></Route>
       </Route>
     </Routes>
   );
