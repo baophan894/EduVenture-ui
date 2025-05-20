@@ -12,7 +12,7 @@ import { Menu } from "antd";
 import DashboardStyle from "./Dashboard.style";
 import ReportTab from "./tab/ReportTab.jsx";
 import ListPendingDocument from "./tab/ListPendingDocument.jsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ListUser from "./tab/ListUser.jsx";
 import ListPendingFlashcard from "./tab/ListPendingFlashcard.jsx";
 import ListPendingCourse from "./tab/ListPendingCourse.jsx";
@@ -21,6 +21,7 @@ import ExpertRequest from "./tab/ExpertRequest.jsx";
 import Topic from "./tab/Topic.jsx";
 import Withdraw from "./tab/Withdraw.jsx";
 import TestManagement from "./tab/TestManagement.jsx";
+import { useSearchParams } from "react-router-dom";
 
 const items = [
   { key: "1", icon: <UserOutlined />, label: "Platform statistics" },
@@ -36,7 +37,17 @@ const items = [
 
 const Dashboard = () => {
   adminRequire();
+  const [searchParams] = useSearchParams();
   const [selectedKey, setSelectedKey] = useState("1");
+
+  // Set initial selected key from URL parameter
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "test-management") {
+      setSelectedKey("9");
+    }
+  }, [searchParams]);
+
   const handleClick = (e) => {
     setSelectedKey(e.key);
   };
@@ -70,7 +81,7 @@ const Dashboard = () => {
         <div className="dashboard_menu">
           <Menu
             onClick={handleClick}
-            defaultSelectedKeys={["1"]}
+            selectedKeys={[selectedKey]}
             defaultOpenKeys={["sub1"]}
             mode="inline"
             theme="dark"

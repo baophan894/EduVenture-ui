@@ -25,8 +25,10 @@ import {
 } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import debounce from "lodash/debounce";
+import { useNavigate } from "react-router-dom";
 
 export default function TestManagement() {
+  const navigate = useNavigate();
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
@@ -552,7 +554,10 @@ export default function TestManagement() {
                     <span className="px-2 py-1 bg-gray-100 rounded text-xs font-medium text-gray-700">
                       {test.testLevel}
                     </span>
-                    <button className="bg-[#469B74] text-white px-3 py-1 rounded-lg text-sm hover:bg-[#3a8963] transition-colors">
+                    <button
+                      className="bg-[#469B74] text-white px-3 py-1 rounded-lg text-sm hover:bg-[#3a8963] transition-colors"
+                      onClick={() => navigate(`/test-detail-admin/${test.id}`)}
+                    >
                       View Details
                     </button>
                   </div>

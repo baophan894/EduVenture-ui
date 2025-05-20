@@ -38,22 +38,6 @@ const Sidebar = ({ test, setIsTesting, selectedParts }) => {
         <button className="w-full border border-[#469B74] text-[#469B74] font-bold py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors font-shopee">
           Save for Later
         </button>
-
-        {test.testTargetScores && (
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <h4 className="font-semibold mb-3 font-shopee">Target Scores:</h4>
-            <div className="flex flex-wrap gap-2">
-              {test.testTargetScores.map((score, index) => (
-                <span
-                  key={index}
-                  className="bg-gray-100 rounded-full px-3 py-1 text-sm font-shopee"
-                >
-                  {score}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       <TestStartModal
@@ -68,7 +52,8 @@ const Sidebar = ({ test, setIsTesting, selectedParts }) => {
 
 Sidebar.propTypes = {
   test: PropTypes.shape({
-    testTargetScores: PropTypes.arrayOf(PropTypes.string),
+    testRequirements: PropTypes.arrayOf(PropTypes.string),
+    testFeatures: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,
   setIsTesting: PropTypes.func.isRequired,
   selectedParts: PropTypes.array.isRequired,

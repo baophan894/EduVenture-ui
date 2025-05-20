@@ -25,6 +25,7 @@ import VerifyNotification from "../pages/verify";
 import TestHistory from "../pages/testHistory";
 import TestReviewScreen from "../pages/testReview/test-review-screen";
 import NotFound from "../pages/not-found";
+import TestDetailAdmin from "../pages/testDetailAdmin/TestDetailAdmin";
 
 const RouterManagement = () => {
   return (
@@ -42,6 +43,10 @@ const RouterManagement = () => {
         <Route path="/profile" element={<Profile />}></Route>
         <Route path="/update-password" element={<UpdatePassword />}></Route>
         <Route path="/dashboard" element={<Dashboard />}></Route>
+        <Route
+          path="/test-detail-admin/:id"
+          element={<TestDetailAdmin />}
+        ></Route>
         <Route path="/expert" element={<ExpertDashboard />}></Route>
         <Route path="/courses" element={<CourseScreen />}></Route>
         <Route path="/documents" element={<Document />}></Route>
