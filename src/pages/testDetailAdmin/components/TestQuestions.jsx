@@ -271,24 +271,6 @@ const TestQuestions = ({
                                     className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="Question Title"
                                   />
-                                  <button
-                                    onClick={() =>
-                                      handleQuestionChange(
-                                        part.order - 1,
-                                        question.order - 1,
-                                        "title",
-                                        originalTest.testParts[
-                                          part.order
-                                        ].questions.find(
-                                          (q) => q.id === question.id
-                                        ).title
-                                      )
-                                    }
-                                    className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                                    title="Reset title"
-                                  >
-                                    <FaUndo />
-                                  </button>
                                 </div>
                               ) : (
                                 <div className="p-2 bg-gray-50 rounded-md border">
@@ -323,23 +305,6 @@ const TestQuestions = ({
                                     )}
                                     style={{ height: "42px" }}
                                   />
-                                  <button
-                                    onClick={() =>
-                                      handleQuestionTypeChange(
-                                        part.order - 1,
-                                        question.order - 1,
-                                        originalTest.testParts[
-                                          part.order
-                                        ].questions.find(
-                                          (q) => q.id === question.id
-                                        ).typeId
-                                      )
-                                    }
-                                    className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                                    title="Reset type"
-                                  >
-                                    <FaUndo />
-                                  </button>
                                 </div>
                               ) : (
                                 <div className="p-2 bg-gray-50 rounded-md border">
@@ -370,24 +335,6 @@ const TestQuestions = ({
                                   rows="2"
                                   className="flex-1 min-w-[300px] px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                                 />
-                                <button
-                                  onClick={() =>
-                                    handleQuestionChange(
-                                      part.order - 1,
-                                      question.order - 1,
-                                      "questionInstruction",
-                                      originalTest.testParts[
-                                        part.order
-                                      ].questions.find(
-                                        (q) => q.id === question.id
-                                      ).questionInstruction
-                                    )
-                                  }
-                                  className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                                  title="Reset instruction"
-                                >
-                                  <FaUndo />
-                                </button>
                               </div>
                             ) : (
                               <div className="p-3 bg-gray-50 rounded-md border whitespace-pre-wrap">
@@ -417,24 +364,6 @@ const TestQuestions = ({
                                   rows="2"
                                   className="flex-1 min-w-[300px] px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                                 />
-                                <button
-                                  onClick={() =>
-                                    handleQuestionChange(
-                                      part.order - 1,
-                                      question.order - 1,
-                                      "answerInstruction",
-                                      originalTest.testParts[
-                                        part.order
-                                      ].questions.find(
-                                        (q) => q.id === question.id
-                                      ).answerInstruction
-                                    )
-                                  }
-                                  className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                                  title="Reset answer instruction"
-                                >
-                                  <FaUndo />
-                                </button>
                               </div>
                             ) : (
                               <div className="p-3 bg-gray-50 rounded-md border whitespace-pre-wrap">
@@ -469,24 +398,6 @@ const TestQuestions = ({
                                   rows="6"
                                   className="flex-1 min-w-[300px] px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all font-mono"
                                 />
-                                <button
-                                  onClick={() =>
-                                    handleQuestionChange(
-                                      part.order - 1,
-                                      question.order - 1,
-                                      "readingPassage",
-                                      originalTest.testParts[
-                                        part.order
-                                      ].questions.find(
-                                        (q) => q.id === question.id
-                                      ).readingPassage
-                                    )
-                                  }
-                                  className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                                  title="Reset reading passage"
-                                >
-                                  <FaUndo />
-                                </button>
                               </div>
                             ) : (
                               <div className="p-3 bg-gray-50 rounded-md border whitespace-pre-wrap font-mono text-sm">
@@ -659,23 +570,6 @@ const TestQuestions = ({
                                     className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
                                     placeholder="Enter correct answer"
                                   />
-                                  <button
-                                    onClick={() =>
-                                      handleFillInBlankChange(
-                                        part.order - 1,
-                                        question.order - 1,
-                                        originalTest.testParts[
-                                          part.order
-                                        ].questions.find(
-                                          (q) => q.id === question.id
-                                        ).correctAnswer
-                                      )
-                                    }
-                                    className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                                    title="Reset correct answer"
-                                  >
-                                    <FaUndo />
-                                  </button>
                                 </div>
                               ) : (
                                 <div className="p-2 bg-gray-50 rounded-md border font-medium text-emerald-600">
@@ -707,41 +601,6 @@ const TestQuestions = ({
                                             ? "Click options to select/deselect correct answers"
                                             : "Click an option to set as correct answer"}
                                         </div>
-                                        {originalTest.testParts[
-                                          part.order
-                                        ]?.questions?.some(
-                                          (q) => q.id === question.id
-                                        ) && (
-                                          <button
-                                            onClick={() => {
-                                              if (isMultipleChoice(question)) {
-                                                handleQuestionChange(
-                                                  part.order - 1,
-                                                  question.order - 1,
-                                                  "correctAnswer",
-                                                  originalTest.testParts[
-                                                    part.order
-                                                  ].questions.find(
-                                                    (q) => q.id === question.id
-                                                  ).correctAnswer
-                                                );
-                                              } else {
-                                                handleSingleChoiceSelection(
-                                                  question.id,
-                                                  originalTest.testParts[
-                                                    part.order
-                                                  ].questions.find(
-                                                    (q) => q.id === question.id
-                                                  ).correctAnswer
-                                                );
-                                              }
-                                            }}
-                                            className="px-2 py-1 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                                            title="Reset correct answer"
-                                          >
-                                            <FaUndo />
-                                          </button>
-                                        )}
                                       </div>
                                     )}
                                 </div>

@@ -14,15 +14,20 @@ const TestDetails = ({
   sortedLanguages,
   filteredTestLevels,
   setTest,
+  mode = "edit", // 'edit' or 'create'
 }) => {
+  // Only show restore buttons in edit mode when originalTest exists
+  const showRestoreButtons = mode === "edit" && originalTest;
+
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-xl font-bold mb-4">Test Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
               Title
+              <span className="text-red-500 text-sm">*</span>
             </label>
             {isEditing ? (
               <div className="flex gap-2">
@@ -32,19 +37,22 @@ const TestDetails = ({
                   value={test.title}
                   onChange={handleChange}
                   className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+                  required
                 />
-                <button
-                  onClick={() => {
-                    setTest((prev) => ({
-                      ...prev,
-                      title: originalTest.title,
-                    }));
-                  }}
-                  className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                  title="Reset title"
-                >
-                  <FaUndo />
-                </button>
+                {showRestoreButtons && (
+                  <button
+                    onClick={() => {
+                      setTest((prev) => ({
+                        ...prev,
+                        title: originalTest.title,
+                      }));
+                    }}
+                    className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+                    title="Reset title"
+                  >
+                    <FaUndo />
+                  </button>
+                )}
               </div>
             ) : (
               <div className="p-2 bg-gray-50 rounded-md border">
@@ -53,37 +61,49 @@ const TestDetails = ({
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
               Type
+              <span className="text-red-500 text-sm">*</span>
             </label>
             {isEditing ? (
               <div className="flex gap-2">
                 <Select
                   className="flex-1"
-                  value={test.typeId}
-                  onChange={(value) =>
-                    handleChange({ target: { name: "typeId", value } })
-                  }
+                  value={test.typeId || undefined}
+                  onChange={(value) => {
+                    const selectedType = sortedTestTypes.find(
+                      (type) => type.id === value
+                    );
+                    setTest((prev) => ({
+                      ...prev,
+                      typeId: value,
+                      typeName: selectedType?.name || "",
+                    }));
+                  }}
                   options={sortedTestTypes.map((type) => ({
                     value: type.id,
                     label: type.name,
                   }))}
                   style={{ height: "42px" }}
+                  placeholder="Select a type"
+                  required
                 />
-                <button
-                  onClick={() => {
-                    setTest((prev) => ({
-                      ...prev,
-                      typeId: originalTest.typeId,
-                      typeName: originalTest.typeName,
-                    }));
-                  }}
-                  className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                  title="Reset type"
-                >
-                  <FaUndo />
-                </button>
+                {showRestoreButtons && (
+                  <button
+                    onClick={() => {
+                      setTest((prev) => ({
+                        ...prev,
+                        typeId: originalTest.typeId,
+                        typeName: originalTest.typeName,
+                      }));
+                    }}
+                    className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+                    title="Reset type"
+                  >
+                    <FaUndo />
+                  </button>
+                )}
               </div>
             ) : (
               <div className="p-2 bg-gray-50 rounded-md border">
@@ -92,14 +112,15 @@ const TestDetails = ({
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
               Language
+              <span className="text-red-500 text-sm">*</span>
             </label>
             {isEditing ? (
               <Select
                 className="w-full"
-                value={test.languageId}
+                value={test.languageId || undefined}
                 onChange={(value) => {
                   // Clear the level when language changes
                   setTest((prev) => ({
@@ -117,6 +138,8 @@ const TestDetails = ({
                   label: language.name,
                 }))}
                 style={{ height: "42px" }}
+                placeholder="Select a language"
+                required
               />
             ) : (
               <div className="p-2 bg-gray-50 rounded-md border">
@@ -125,9 +148,10 @@ const TestDetails = ({
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
               Level
+              <span className="text-red-500 text-sm">*</span>
             </label>
             {isEditing ? (
               <div className="flex gap-2">
@@ -149,22 +173,25 @@ const TestDetails = ({
                   }))}
                   style={{ height: "42px" }}
                   placeholder="Select a level"
+                  required
                 />
-                <button
-                  onClick={() => {
-                    setTest((prev) => ({
-                      ...prev,
-                      languageId: originalTest.languageId,
-                      languageName: originalTest.languageName,
-                      testLevelId: originalTest.testLevelId,
-                      testLevel: originalTest.testLevel,
-                    }));
-                  }}
-                  className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                  title="Reset to original language and level"
-                >
-                  <FaUndo />
-                </button>
+                {showRestoreButtons && (
+                  <button
+                    onClick={() => {
+                      setTest((prev) => ({
+                        ...prev,
+                        languageId: originalTest.languageId,
+                        languageName: originalTest.languageName,
+                        testLevelId: originalTest.testLevelId,
+                        testLevel: originalTest.testLevel,
+                      }));
+                    }}
+                    className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+                    title="Reset to original language and level"
+                  >
+                    <FaUndo />
+                  </button>
+                )}
               </div>
             ) : (
               <div className="p-2 bg-gray-50 rounded-md border">
@@ -199,18 +226,20 @@ const TestDetails = ({
                 rows="4"
                 className="flex-1 min-w-[300px] px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
               />
-              <button
-                onClick={() => {
-                  setTest((prev) => ({
-                    ...prev,
-                    description: originalTest.description,
-                  }));
-                }}
-                className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                title="Reset description"
-              >
-                <FaUndo />
-              </button>
+              {showRestoreButtons && (
+                <button
+                  onClick={() => {
+                    setTest((prev) => ({
+                      ...prev,
+                      description: originalTest.description,
+                    }));
+                  }}
+                  className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+                  title="Reset description"
+                >
+                  <FaUndo />
+                </button>
+              )}
             </div>
           ) : (
             <div className="p-3 bg-gray-50 rounded-md border whitespace-pre-wrap">
@@ -427,10 +456,10 @@ const TestDetails = ({
 TestDetails.propTypes = {
   test: PropTypes.shape({
     title: PropTypes.string.isRequired,
-    typeId: PropTypes.number.isRequired,
-    typeName: PropTypes.string.isRequired,
-    languageId: PropTypes.number.isRequired,
-    languageName: PropTypes.string.isRequired,
+    typeId: PropTypes.number,
+    typeName: PropTypes.string,
+    languageId: PropTypes.number,
+    languageName: PropTypes.string,
     testLevelId: PropTypes.number,
     testLevel: PropTypes.string,
     duration: PropTypes.number.isRequired,
@@ -440,10 +469,10 @@ TestDetails.propTypes = {
   }).isRequired,
   originalTest: PropTypes.shape({
     title: PropTypes.string.isRequired,
-    typeId: PropTypes.number.isRequired,
-    typeName: PropTypes.string.isRequired,
-    languageId: PropTypes.number.isRequired,
-    languageName: PropTypes.string.isRequired,
+    typeId: PropTypes.number,
+    typeName: PropTypes.string,
+    languageId: PropTypes.number,
+    languageName: PropTypes.string,
     testLevelId: PropTypes.number,
     testLevel: PropTypes.string,
     description: PropTypes.string,
@@ -474,6 +503,7 @@ TestDetails.propTypes = {
     })
   ).isRequired,
   setTest: PropTypes.func.isRequired,
+  mode: PropTypes.string,
 };
 
 export default TestDetails;

@@ -235,7 +235,7 @@ export default function TestManagement() {
       render: (views) => (
         <Space>
           <Eye className="h-4 w-4 mr-1" />
-          {views}
+          <span>{views ? views.toLocaleString() : "0"}</span>
         </Space>
       ),
     },
@@ -264,9 +264,7 @@ export default function TestManagement() {
   ];
 
   const handleAdd = () => {
-    setEditingId(null);
-    form.resetFields();
-    setIsModalVisible(true);
+    navigate("/create-test-admin");
   };
 
   const handleEdit = (record) => {
@@ -507,7 +505,9 @@ export default function TestManagement() {
                     </div>
                     <div className="flex items-center">
                       <Eye className="h-4 w-4 mr-1" />
-                      <span>{test.views.toLocaleString()}</span>
+                      <span>
+                        {test.views ? test.views.toLocaleString() : "0"}
+                      </span>
                     </div>
                   </div>
 

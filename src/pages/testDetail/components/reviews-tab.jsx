@@ -12,13 +12,20 @@ const ReviewsTab = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [pageSize] = useState(10);
-  // Replace the sortConfig state with simpler sortBy and direction states
   const [sortBy, setSortBy] = useState("reviewDate");
   const [direction, setDirection] = useState("desc");
   const [selectedRatings, setSelectedRatings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [newReview, setNewReview] = useState({
+    rating: 5,
+    comment: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [canReview, setCanReview] = useState(false);
+  const [checkingReview, setCheckingReview] = useState(true);
   const [stats, setStats] = useState({
     averageRating: 0,
     totalReviews: 0,
@@ -29,10 +36,38 @@ const ReviewsTab = () => {
     oneStarCount: 0,
   });
 
+  const checkCanReview = async () => {
+    try {
+      setCheckingReview(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setCanReview(false);
+        return;
+      }
+      const response = await axios.get(
+        `http://localhost:8080/api/tests/${testId}/reviews/check`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      setCanReview(!response.data.hasReviewed);
+    } catch (error) {
+      console.error("Error checking review status:", error);
+      setCanReview(false);
+    } finally {
+      setCheckingReview(false);
+    }
+  };
+
+  useEffect(() => {
+    checkCanReview();
+  }, [testId]);
+
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      // Replace the fetchReviews function params related to sorting
       const response = await axios.get(
         `http://localhost:8080/api/tests/${testId}/reviews`,
         {
@@ -76,7 +111,6 @@ const ReviewsTab = () => {
     }
   };
 
-  // Replace the useEffect dependency array
   useEffect(() => {
     fetchReviews();
   }, [currentPage, sortBy, direction, selectedRatings]);
@@ -85,7 +119,6 @@ const ReviewsTab = () => {
     setCurrentPage(newPage);
   };
 
-  // Replace the handleSortChange function with this simpler version
   const handleSortChange = (newSortBy) => {
     if (sortBy === newSortBy) {
       setDirection(direction === "asc" ? "desc" : "asc");
@@ -116,12 +149,10 @@ const ReviewsTab = () => {
     return Math.round((count / stats.totalReviews) * 100);
   };
 
-  // Generate pagination buttons
   const renderPaginationButtons = () => {
     const buttons = [];
     const maxVisibleButtons = 5;
 
-    // Always show first page
     if (totalPages > 0) {
       buttons.push(
         <button
@@ -136,7 +167,6 @@ const ReviewsTab = () => {
       );
     }
 
-    // Calculate range of visible page buttons
     let startPage = Math.max(
       1,
       currentPage - Math.floor(maxVisibleButtons / 2)
@@ -147,7 +177,6 @@ const ReviewsTab = () => {
       startPage = Math.max(1, endPage - (maxVisibleButtons - 2));
     }
 
-    // Add ellipsis after first page if needed
     if (startPage > 1) {
       buttons.push(
         <span key="ellipsis1" className="px-2">
@@ -156,7 +185,6 @@ const ReviewsTab = () => {
       );
     }
 
-    // Add middle pages
     for (let i = startPage; i <= endPage; i++) {
       buttons.push(
         <button
@@ -171,7 +199,6 @@ const ReviewsTab = () => {
       );
     }
 
-    // Add ellipsis before last page if needed
     if (endPage < totalPages - 2) {
       buttons.push(
         <span key="ellipsis2" className="px-2">
@@ -180,7 +207,6 @@ const ReviewsTab = () => {
       );
     }
 
-    // Always show last page if there is more than one page
     if (totalPages > 1) {
       buttons.push(
         <button
@@ -200,13 +226,131 @@ const ReviewsTab = () => {
     return buttons;
   };
 
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    try {
+      setSubmitting(true);
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `http://localhost:8080/api/tests/${testId}/reviews`,
+        newReview,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      setNewReview({ rating: 5, comment: "" });
+      setShowReviewForm(false);
+      fetchReviews();
+    } catch (error) {
+      console.error("Error submitting review:", error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6 font-shopee">Student Reviews</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold font-shopee">Student Reviews</h2>
+        {checkingReview ? (
+          <button
+            disabled
+            className="bg-gray-300 text-white px-4 py-2 rounded-lg cursor-not-allowed"
+          >
+            Checking...
+          </button>
+        ) : (
+          canReview && (
+            <button
+              onClick={() => setShowReviewForm(true)}
+              className="bg-[#469B74] text-white px-4 py-2 rounded-lg hover:bg-[#3a8963] transition-colors"
+            >
+              Write a Review
+            </button>
+          )
+        )}
+      </div>
+
+      {showReviewForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">Write a Review</h3>
+              <button
+                onClick={() => setShowReviewForm(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FaTimes />
+              </button>
+            </div>
+            <form onSubmit={handleSubmitReview}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Rating
+                </label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() =>
+                        setNewReview((prev) => ({ ...prev, rating: star }))
+                      }
+                      className="text-2xl"
+                    >
+                      <FaStar
+                        className={
+                          star <= newReview.rating
+                            ? "text-[#FCB80B]"
+                            : "text-gray-300"
+                        }
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Comment
+                </label>
+                <textarea
+                  value={newReview.comment}
+                  onChange={(e) =>
+                    setNewReview((prev) => ({
+                      ...prev,
+                      comment: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all"
+                  rows={4}
+                  required
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowReviewForm(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="bg-[#469B74] text-white px-4 py-2 rounded-lg hover:bg-[#3a8963] transition-colors disabled:opacity-50"
+                >
+                  {submitting ? "Submitting..." : "Submit Review"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <div className="flex flex-col md:flex-row items-center gap-8">
-          {/* Circular rating display */}
           <div className="text-center">
             <div className="w-24 h-24 rounded-full bg-[#469B74] flex items-center justify-center text-white mb-2">
               <span className="text-3xl font-bold font-shopee">
@@ -249,7 +393,6 @@ const ReviewsTab = () => {
         </div>
       </div>
 
-      {/* Improved Filter and Sort Controls */}
       <div className="mb-6 flex flex-wrap justify-between items-center">
         <div className="flex gap-4 mb-2 sm:mb-0">
           <div className="relative">
@@ -314,7 +457,6 @@ const ReviewsTab = () => {
             )}
           </div>
 
-          {/* Replace the entire Sort button and dropdown with this simpler version */}
           <div className="relative">
             <button
               onClick={() => {
@@ -385,7 +527,6 @@ const ReviewsTab = () => {
         )}
       </div>
 
-      {/* Active Filters Display */}
       {selectedRatings.length > 0 && (
         <div className="mb-4 flex flex-wrap gap-2">
           {selectedRatings.map((rating) => (
@@ -408,7 +549,6 @@ const ReviewsTab = () => {
         </div>
       )}
 
-      {/* Reviews List */}
       {loading ? (
         <div className="text-center py-8">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#469B74] border-r-transparent"></div>
@@ -459,7 +599,6 @@ const ReviewsTab = () => {
         <div className="text-center py-8 text-gray-500">No reviews yet</div>
       )}
 
-      {/* Improved Pagination */}
       {totalPages > 1 && (
         <div className="mt-8 flex flex-wrap justify-center items-center gap-2">
           <button

@@ -89,7 +89,7 @@ const TestParts = ({
                 <div className="flex items-center gap-4">
                   {isEditing && !part.isDeleted ? (
                     <div className="flex items-center gap-4">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-100 text-emerald-600">
+                      <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-emerald-100 text-emerald-600">
                         {getIconComponent(part.icon)}
                       </div>
                       <Select
@@ -124,11 +124,12 @@ const TestParts = ({
                         }
                         className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Part Title"
+                        required
                       />
                     </div>
                   ) : (
                     <>
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-100 text-emerald-600">
+                      <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-emerald-100 text-emerald-600">
                         {getIconComponent(part.icon)}
                       </div>
                       <h3 className="text-lg font-semibold">
@@ -216,7 +217,8 @@ const TestParts = ({
                     {/* Duration Field */}
                     <div className="bg-white p-4 rounded-lg border h-[117px]">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Duration (minutes)
+                        Duration (minutes){" "}
+                        <span className="text-red-500">*</span>
                       </label>
                       {isEditing && !part.isDeleted ? (
                         <input
@@ -231,6 +233,8 @@ const TestParts = ({
                           }
                           className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="Duration (minutes)"
+                          min="1"
+                          required
                         />
                       ) : (
                         <div className="p-2 bg-gray-50 rounded-lg">
@@ -251,7 +255,7 @@ const TestParts = ({
                         }`}
                       >
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Audio File
+                          Audio File <span className="text-red-500">*</span>
                         </label>
                         {isEditing && !part.isDeleted ? (
                           <div className="space-y-3">

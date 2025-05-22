@@ -9,9 +9,14 @@ const CoverImage = ({
   setTest,
   getImageUrl,
   setImageFiles,
+  mode = "edit", // 'edit' or 'create'
 }) => {
-  // Check if the cover image has changed
-  const hasImageChanged = test.coverImg !== originalTest.coverImg;
+  // Only show restore buttons in edit mode when originalTest exists
+  const showRestoreButtons = mode === "edit" && originalTest;
+
+  // Check if the cover image has changed (only in edit mode)
+  const hasImageChanged =
+    showRestoreButtons && test.coverImg !== originalTest.coverImg;
 
   // Check if the current image is not the placeholder
   const isPlaceholderImage =
@@ -20,7 +25,10 @@ const CoverImage = ({
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
-      <h2 className="text-xl font-bold mb-4">Cover Image</h2>
+      <h2 className="text-xl font-bold mb-4 flex items-center gap-1">
+        Cover Image
+        <span className="text-red-500 text-sm">*</span>
+      </h2>
       <div className="relative">
         <div className="rounded-lg overflow-hidden bg-gray-100 aspect-video relative">
           <img
@@ -67,7 +75,7 @@ const CoverImage = ({
                 }}
               />
             </label>
-            {hasImageChanged && (
+            {showRestoreButtons && hasImageChanged && (
               <button
                 onClick={() => {
                   setTest((prev) => ({
@@ -86,7 +94,7 @@ const CoverImage = ({
                 <span>Restore Original</span>
               </button>
             )}
-            {test.coverImg && !isPlaceholderImage && (
+            {!isPlaceholderImage && (
               <button
                 onClick={() => {
                   setTest((prev) => ({
@@ -126,6 +134,7 @@ CoverImage.propTypes = {
   setTest: PropTypes.func.isRequired,
   getImageUrl: PropTypes.func.isRequired,
   setImageFiles: PropTypes.func.isRequired,
+  mode: PropTypes.string,
 };
 
 export default CoverImage;

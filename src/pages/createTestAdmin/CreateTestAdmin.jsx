@@ -7,7 +7,6 @@ import {
   FaBook,
   FaCamera,
   FaComment,
-  FaEdit,
   FaExclamationCircle,
   FaEye,
   FaFileAlt,
@@ -21,32 +20,61 @@ import {
   FaRegSquare,
   FaSave,
   FaStar,
-  FaTimes,
-  FaTrash,
   FaUser,
   FaUsers,
-  FaUndo,
 } from "react-icons/fa";
-import { useNavigate, useParams } from "react-router-dom";
-import TestDetails from "./components/TestDetails";
-import TestInstructor from "./components/TestInstructor";
-import TestParts from "./components/TestParts";
-import TestQuestions from "./components/TestQuestions";
-import DeleteModal from "./components/DeleteModal";
-import CancelModal from "./components/CancelModal";
-import SaveModal from "./components/SaveModal";
-import CoverImage from "./components/CoverImage";
-import TestReviews from "./components/TestReviews";
+import { useNavigate } from "react-router-dom";
+import TestDetails from "../testDetailAdmin/components/TestDetails";
+import TestInstructor from "../testDetailAdmin/components/TestInstructor";
+import TestParts from "../testDetailAdmin/components/TestParts";
+import TestQuestions from "../testDetailAdmin/components/TestQuestions";
+import CancelModal from "../testDetailAdmin/components/CancelModal";
+import SaveModal from "../testDetailAdmin/components/SaveModal";
+import CoverImage from "../testDetailAdmin/components/CoverImage";
 
-const TestDetailAdmin = () => {
-  const { id } = useParams();
+const CreateTestAdmin = () => {
   const navigate = useNavigate();
-  const [test, setTest] = useState(null);
-  const [originalTest, setOriginalTest] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [test, setTest] = useState({
+    title: "",
+    description: "",
+    typeId: null,
+    typeName: "",
+    languageId: null,
+    languageName: "",
+    testLevelId: null,
+    testLevel: "",
+    duration: 0,
+    testFeatures: [],
+    testRequirements: [],
+    instructorName: "",
+    instructorTitle: "",
+    instructorExperience: "",
+    instructorDescription: "",
+    instructorAvatar: "",
+    coverImg: "",
+    testParts: [],
+  });
+  const [originalTest, setOriginalTest] = useState({
+    title: "",
+    description: "",
+    typeId: null,
+    typeName: "",
+    languageId: null,
+    languageName: "",
+    testLevelId: null,
+    testLevel: "",
+    duration: 0,
+    testFeatures: [],
+    testRequirements: [],
+    instructorName: "",
+    instructorTitle: "",
+    instructorExperience: "",
+    instructorDescription: "",
+    instructorAvatar: "",
+    coverImg: "",
+    testParts: [],
+  });
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("cover");
   const [expandedQuestions, setExpandedQuestions] = useState({});
@@ -64,6 +92,8 @@ const TestDetailAdmin = () => {
     instructorAvatar: null,
     questions: {},
   });
+  const [isEditing, setIsEditing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Available icons for parts
   const availableIcons = [
@@ -99,50 +129,6 @@ const TestDetailAdmin = () => {
       [partId]: !prev[partId],
     }));
   };
-
-  // Initialize selected correct answers from the test data
-  useEffect(() => {
-    if (test) {
-      const initialSelections = {};
-      test.testParts.forEach((part) => {
-        part.questions.forEach((question) => {
-          if (question.correctAnswer) {
-            if (question.typeName === "Multiple Choice") {
-              initialSelections[question.id] =
-                question.correctAnswer.split(",");
-            } else {
-              initialSelections[question.id] = question.correctAnswer;
-            }
-          }
-        });
-      });
-      setSelectedCorrectAnswers(initialSelections);
-    }
-  }, [test]);
-
-  // Fetch test data
-  const fetchTest = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`http://localhost:8080/api/tests/${id}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch test data");
-      }
-      const data = await response.json();
-      setTest(data);
-      setOriginalTest(JSON.parse(JSON.stringify(data)));
-    } catch (err) {
-      setError(err.message);
-      toast.error("Failed to load test data");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTest();
-  }, [id]);
 
   // Fetch question types, test types, levels and languages
   useEffect(() => {
@@ -334,8 +320,6 @@ const TestDetailAdmin = () => {
 
   // Handle single choice answer selection
   const handleSingleChoiceSelection = (questionId, optionId) => {
-    if (!isEditing) return;
-
     setSelectedCorrectAnswers((prev) => ({
       ...prev,
       [questionId]: optionId,
@@ -358,8 +342,6 @@ const TestDetailAdmin = () => {
 
   // Handle multiple choice answer selection
   const handleMultipleChoiceSelection = (questionId, optionId) => {
-    if (!isEditing) return;
-
     setSelectedCorrectAnswers((prev) => {
       const currentSelections = prev[questionId] || [];
       let newSelections;
@@ -406,7 +388,6 @@ const TestDetailAdmin = () => {
   useEffect(() => {
     const handleEscKey = (event) => {
       if (event.key === "Escape") {
-        setShowDeleteModal(false);
         setShowCancelModal(false);
         setShowSaveModal(false);
       }
@@ -420,23 +401,6 @@ const TestDetailAdmin = () => {
 
   // Update save handler to check for changes first
   const handleSave = () => {
-    // Check if there are any changes
-    const hasChanges = JSON.stringify(test) !== JSON.stringify(originalTest);
-
-    if (!hasChanges) {
-      setIsEditing(false);
-      toast.success("No changes to save", {
-        duration: 4000,
-        position: "top-right",
-        style: {
-          background: "#10B981",
-          color: "#fff",
-        },
-      });
-      return;
-    }
-
-    // Only show modal if there are changes
     setShowSaveModal(true);
   };
 
@@ -504,193 +468,6 @@ const TestDetailAdmin = () => {
           color: "#fff",
         },
       });
-      return;
-    }
-
-    // Check for required instructor fields
-    if (!test.instructorName?.trim()) {
-      toast.error("Instructor name is required", {
-        duration: 4000,
-        position: "top-right",
-        style: {
-          background: "#EF4444",
-          color: "#fff",
-        },
-      });
-      return;
-    }
-
-    if (!test.instructorTitle?.trim()) {
-      toast.error("Instructor title is required", {
-        duration: 4000,
-        position: "top-right",
-        style: {
-          background: "#EF4444",
-          color: "#fff",
-        },
-      });
-      return;
-    }
-
-    if (!test.instructorExperience?.trim()) {
-      toast.error("Instructor experience is required", {
-        duration: 4000,
-        position: "top-right",
-        style: {
-          background: "#EF4444",
-          color: "#fff",
-        },
-      });
-      return;
-    }
-
-    if (!test.instructorDescription?.trim()) {
-      toast.error("Instructor description is required", {
-        duration: 4000,
-        position: "top-right",
-        style: {
-          background: "#EF4444",
-          color: "#fff",
-        },
-      });
-      return;
-    }
-
-    if (!test.instructorAvatar) {
-      toast.error("Instructor avatar is required", {
-        duration: 4000,
-        position: "top-right",
-        style: {
-          background: "#EF4444",
-          color: "#fff",
-        },
-      });
-      return;
-    }
-
-    // Validate test parts
-    const hasInvalidParts = test.testParts.some((part) => {
-      // Skip deleted parts
-      if (part.isDeleted) return false;
-
-      // Check if name is empty or only whitespace
-      if (!part.name?.trim()) {
-        toast.error(`Part ${part.order}: Name is required`, {
-          duration: 4000,
-          position: "top-right",
-          style: {
-            background: "#EF4444",
-            color: "#fff",
-          },
-        });
-        return true;
-      }
-
-      // Check if duration is 0 or missing (required for all parts)
-      if (!part.duration || part.duration <= 0) {
-        toast.error(`Part "${part.name}": Duration must be greater than 0`, {
-          duration: 4000,
-          position: "top-right",
-          style: {
-            background: "#EF4444",
-            color: "#fff",
-          },
-        });
-        return true;
-      }
-
-      // For listening tests, check if audio file is present
-      if (test.typeName === "LISTENING" && !part.audioUrl) {
-        toast.error(
-          `Part "${part.name}": Audio file is required for listening tests`,
-          {
-            duration: 4000,
-            position: "top-right",
-            style: {
-              background: "#EF4444",
-              color: "#fff",
-            },
-          }
-        );
-        return true;
-      }
-
-      // Check if part has at least one non-deleted question (excluding part instruction)
-      const hasQuestions = part.questions.some(
-        (question) =>
-          !question.isDeleted && question.typeName !== "Part Instruction"
-      );
-
-      if (!hasQuestions) {
-        toast.error(`Part "${part.name}": Must have at least one question`, {
-          duration: 4000,
-          position: "top-right",
-          style: {
-            background: "#EF4444",
-            color: "#fff",
-          },
-        });
-        return true;
-      }
-
-      // Validate each question
-      const hasInvalidQuestions = part.questions.some((question) => {
-        // Skip deleted questions and part instructions
-        if (question.isDeleted || question.typeName === "Part Instruction") {
-          return false;
-        }
-
-        // Check if question has a correct answer
-        if (!question.correctAnswer?.trim()) {
-          toast.error(
-            `Part "${part.name}" - Question "${question.title}": Correct answer is required`,
-            {
-              duration: 4000,
-              position: "top-right",
-              style: {
-                background: "#EF4444",
-                color: "#fff",
-              },
-            }
-          );
-          return true;
-        }
-
-        // For single choice and multiple choice questions, check if they have at least 2 options
-        if (
-          question.typeName === "Single Choice" ||
-          question.typeName === "Multiple Choice"
-        ) {
-          const validOptions = question.questionOptions.filter(
-            (option) => !option.isDeleted
-          );
-          if (validOptions.length < 2) {
-            toast.error(
-              `Part "${part.name}" - Question "${question.title}": Must have at least 2 options`,
-              {
-                duration: 4000,
-                position: "top-right",
-                style: {
-                  background: "#EF4444",
-                  color: "#fff",
-                },
-              }
-            );
-            return true;
-          }
-        }
-
-        return false;
-      });
-
-      if (hasInvalidQuestions) {
-        return true;
-      }
-
-      return false;
-    });
-
-    if (hasInvalidParts) {
       return;
     }
 
@@ -769,8 +546,8 @@ const TestDetailAdmin = () => {
         }
       }
 
-      const response = await fetch(`http://localhost:8080/api/tests/${id}`, {
-        method: "PUT",
+      const response = await fetch("http://localhost:8080/api/tests", {
+        method: "POST",
         headers: {
           // Don't set Content-Type header - let the browser set it with the boundary
           Accept: "application/json",
@@ -780,28 +557,17 @@ const TestDetailAdmin = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update test");
+        throw new Error(errorData.message || "Failed to create test");
       }
 
-      // Get the updated test data from the response
-      const savedTest = await response.json();
+      // Get the created test data from the response
+      const createdTest = await response.json();
 
       // Update both test and originalTest with the response data
-      setOriginalTest(savedTest);
-      setTest(savedTest);
-      // Clear image files after successful save
-      setImageFiles((prev) => ({
-        coverImg: null,
-        instructorAvatar: null,
-        questions: {},
-        // Preserve audio files
-        ...Object.fromEntries(
-          Object.entries(prev).filter(([key]) => key.startsWith("part_"))
-        ),
-      }));
-      setIsEditing(false);
-      setShowSaveModal(false);
-      toast.success("Test updated successfully!", {
+      setTest(createdTest);
+      setOriginalTest(createdTest);
+
+      toast.success("Test created successfully!", {
         duration: 4000,
         position: "top-right",
         style: {
@@ -809,8 +575,11 @@ const TestDetailAdmin = () => {
           color: "#fff",
         },
       });
+
+      // Navigate to the test detail page
+      navigate(`/test-detail-admin/${createdTest.id}`);
     } catch (err) {
-      toast.error(err.message || "Failed to update test. Please try again.", {
+      toast.error(err.message || "Failed to create test. Please try again.", {
         duration: 4000,
         position: "top-right",
         style: {
@@ -820,6 +589,7 @@ const TestDetailAdmin = () => {
       });
     } finally {
       setSaving(false);
+      setShowSaveModal(false);
     }
   };
 
@@ -878,47 +648,14 @@ const TestDetailAdmin = () => {
     }));
   };
 
-  // Update cancel handler to check for changes first
+  // Update cancel handler
   const handleCancel = () => {
-    // Check if there are any changes
-    const hasChanges = JSON.stringify(test) !== JSON.stringify(originalTest);
-
-    if (!hasChanges) {
-      setIsEditing(false);
-      toast.success("No changes to discard", {
-        duration: 4000,
-        position: "top-right",
-        style: {
-          background: "#10B981",
-          color: "#fff",
-        },
-      });
-      return;
-    }
-
-    // Only show modal if there are changes
     setShowCancelModal(true);
   };
 
   // Add confirm cancel handler
   const handleConfirmCancel = () => {
-    setTest(JSON.parse(JSON.stringify(originalTest)));
-    // Reset selected correct answers
-    const initialSelections = {};
-    originalTest.testParts.forEach((part) => {
-      part.questions.forEach((question) => {
-        if (question.correctAnswer) {
-          if (question.typeName === "Multiple Choice") {
-            initialSelections[question.id] = question.correctAnswer.split(",");
-          } else {
-            initialSelections[question.id] = question.correctAnswer;
-          }
-        }
-      });
-    });
-    setSelectedCorrectAnswers(initialSelections);
-    setIsEditing(false);
-    setShowCancelModal(false);
+    navigate("/dashboard?tab=test-management");
   };
 
   // Update the question type change handler
@@ -929,32 +666,6 @@ const TestDetailAdmin = () => {
     // Only update the type information, preserve other data
     handleQuestionChange(partIndex, questionIndex, "typeId", typeId);
     handleQuestionChange(partIndex, questionIndex, "typeName", newTypeName);
-  };
-
-  // Update delete handler
-  const handleDelete = async () => {
-    setShowDeleteModal(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    setDeleting(true);
-    try {
-      const response = await fetch(`http://localhost:8080/api/tests/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete test");
-      }
-
-      toast.success("Test deleted successfully!");
-      navigate("/dashboard?tab=test-management");
-    } catch (err) {
-      toast.error("Failed to delete test. Please try again.");
-    } finally {
-      setDeleting(false);
-      setShowDeleteModal(false);
-    }
   };
 
   // Add new part
@@ -1128,38 +839,36 @@ const TestDetailAdmin = () => {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-600"></div>
-      </div>
-    );
-  }
+  // Handle delete test
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/tests/${test.id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full transform transition-all">
-          <div className="flex flex-col items-center text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <FaExclamationCircle className="text-3xl text-red-500" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Error Loading Test
-            </h2>
-            <p className="text-gray-600 mb-6">{error}</p>
-            <button
-              onClick={fetchTest}
-              className="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              <FaUndo className="text-sm" />
-              Try Again
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+      if (!response.ok) {
+        throw new Error("Failed to delete test");
+      }
+
+      toast.success("Test deleted successfully!");
+      navigate("/dashboard?tab=test-management");
+    } catch (err) {
+      toast.error(err.message || "Failed to delete test. Please try again.", {
+        duration: 4000,
+        position: "top-right",
+        style: {
+          background: "#EF4444",
+          color: "#fff",
+        },
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4">
@@ -1194,12 +903,6 @@ const TestDetailAdmin = () => {
           },
         }}
       />
-      <DeleteModal
-        showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
-        handleConfirmDelete={handleConfirmDelete}
-        deleting={deleting}
-      />
 
       <CancelModal
         showModal={showCancelModal}
@@ -1219,109 +922,36 @@ const TestDetailAdmin = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate("/dashboard?tab=test-management")}
+              onClick={() => setShowCancelModal(true)}
               className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
             >
               <FaArrowLeft className="text-xl" />
             </button>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-                {isEditing ? "Edit Test" : test.title}
+                Create New Test
               </h1>
-              <div className="flex flex-wrap items-center gap-2 mt-1">
-                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded-full flex items-center">
-                  {test.typeName}
-                </span>
-                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
-                  {test.testLevel}
-                </span>
-                <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded-full flex items-center">
-                  <FaRegClock className="mr-1 text-xs" /> {test.duration} mins
-                </span>
-                {test.ratings >= 0 && (
-                  <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded-full flex items-center">
-                    <FaStar className="mr-1 text-yellow-500 text-xs" />{" "}
-                    {test.ratings}
-                    {test.reviewCount >= 0 && (
-                      <span className="ml-1 text-xs text-gray-500">
-                        ({test.reviewCount})
-                      </span>
-                    )}
-                  </span>
-                )}
-                {test.views && (
-                  <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded-full flex items-center">
-                    <FaEye className="mr-1 text-xs" /> {test.views}
-                  </span>
-                )}
-                {test.lastUpdated && (
-                  <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded-full flex items-center">
-                    <FaRegCalendarAlt className="mr-1 text-xs" />{" "}
-                    {new Date(test.lastUpdated).toLocaleDateString()}
-                  </span>
-                )}
-              </div>
             </div>
           </div>
           <div className="flex gap-2">
-            {isEditing ? (
-              <>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className={`px-4 py-2 bg-emerald-600 text-white rounded-lg flex items-center gap-2 hover:bg-emerald-700 transition-colors ${
-                    saving ? "opacity-75 cursor-not-allowed" : ""
-                  }`}
-                >
-                  {saving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <FaSave /> Save Changes
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={handleCancel}
-                  disabled={saving}
-                  className={`px-4 py-2 bg-gray-200 text-gray-800 rounded-lg flex items-center gap-2 hover:bg-gray-300 transition-colors ${
-                    saving ? "opacity-75 cursor-not-allowed" : ""
-                  }`}
-                >
-                  <FaTimes /> Cancel
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className={`px-4 py-2 bg-red-600 text-white rounded-lg flex items-center gap-2 hover:bg-red-700 transition-colors ${
-                    deleting ? "opacity-75 cursor-not-allowed" : ""
-                  }`}
-                >
-                  {deleting ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-                      Deleting...
-                    </>
-                  ) : (
-                    <>
-                      <FaTrash /> Delete Test
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg flex items-center gap-2 hover:bg-emerald-700 transition-colors"
-                >
-                  <FaEdit /> Edit Test
-                </button>
-              </>
-            )}
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className={`px-4 py-2 bg-emerald-600 text-white rounded-lg flex items-center gap-2 hover:bg-emerald-700 transition-colors ${
+                saving ? "opacity-75 cursor-not-allowed" : ""
+              }`}
+            >
+              {saving ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <FaSave /> Save Test
+                </>
+              )}
+            </button>
           </div>
         </div>
 
@@ -1378,16 +1008,6 @@ const TestDetailAdmin = () => {
             >
               <FaComment /> Questions
             </button>
-            <button
-              onClick={() => setActiveTab("reviews")}
-              className={`px-4 py-2 font-medium text-sm flex items-center gap-2 ${
-                activeTab === "reviews"
-                  ? "text-emerald-600 border-b-2 border-emerald-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <FaStar /> Reviews
-            </button>
           </div>
         </div>
 
@@ -1404,11 +1024,12 @@ const TestDetailAdmin = () => {
               <CoverImage
                 test={test}
                 originalTest={originalTest}
-                isEditing={isEditing}
+                isEditing={true}
                 handleChange={handleChange}
                 setTest={setTest}
                 getImageUrl={getImageUrl}
                 setImageFiles={setImageFiles}
+                mode="create"
               />
             )}
           </div>
@@ -1424,7 +1045,7 @@ const TestDetailAdmin = () => {
               <TestDetails
                 test={test}
                 originalTest={originalTest}
-                isEditing={isEditing}
+                isEditing={true}
                 handleChange={handleChange}
                 handleArrayChange={handleArrayChange}
                 handleAddArrayItem={handleAddArrayItem}
@@ -1434,6 +1055,7 @@ const TestDetailAdmin = () => {
                 filteredTestLevels={filteredTestLevels}
                 setTest={setTest}
                 refreshLevels={refreshLevels}
+                mode="create"
               />
             )}
           </div>
@@ -1448,12 +1070,11 @@ const TestDetailAdmin = () => {
             {activeTab === "instructor" && (
               <TestInstructor
                 test={test}
-                originalTest={originalTest}
-                isEditing={isEditing}
+                isEditing={true}
                 handleChange={handleChange}
                 setTest={setTest}
                 setImageFiles={setImageFiles}
-                mode="edit"
+                mode="create"
               />
             )}
           </div>
@@ -1468,7 +1089,7 @@ const TestDetailAdmin = () => {
             {activeTab === "parts" && (
               <TestParts
                 test={test}
-                isEditing={isEditing}
+                isEditing={true}
                 expandedParts={expandedParts}
                 togglePart={togglePart}
                 handlePartChange={handlePartChange}
@@ -1480,7 +1101,6 @@ const TestDetailAdmin = () => {
                 getIconComponent={getIconComponent}
                 isListeningTest={isListeningTest}
                 getImageUrl={getImageUrl}
-                originalTest={originalTest}
                 setImageFiles={setImageFiles}
               />
             )}
@@ -1496,8 +1116,7 @@ const TestDetailAdmin = () => {
             {activeTab === "questions" && (
               <TestQuestions
                 test={test}
-                originalTest={originalTest}
-                isEditing={isEditing}
+                isEditing={true}
                 expandedQuestions={expandedQuestions}
                 toggleQuestion={toggleQuestion}
                 handleQuestionChange={handleQuestionChange}
@@ -1517,19 +1136,8 @@ const TestDetailAdmin = () => {
                 handleDeleteQuestion={handleDeleteQuestion}
                 handleUndoDeleteQuestion={handleUndoDeleteQuestion}
                 setImageFiles={setImageFiles}
+                mode="create"
               />
-            )}
-          </div>
-
-          <div
-            className={`transition-all duration-300 ease-in-out ${
-              activeTab === "reviews"
-                ? "opacity-100 translate-x-0"
-                : "opacity-0 translate-x-4 absolute"
-            }`}
-          >
-            {activeTab === "reviews" && (
-              <TestReviews test={test} setTest={setTest} />
             )}
           </div>
         </div>
@@ -1538,4 +1146,4 @@ const TestDetailAdmin = () => {
   );
 };
 
-export default TestDetailAdmin;
+export default CreateTestAdmin;

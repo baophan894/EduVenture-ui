@@ -26,6 +26,7 @@ import TestHistory from "../pages/testHistory";
 import TestReviewScreen from "../pages/testReview/test-review-screen";
 import NotFound from "../pages/not-found";
 import TestDetailAdmin from "../pages/testDetailAdmin/TestDetailAdmin";
+import CreateTestAdmin from "../pages/createTestAdmin/CreateTestAdmin";
 
 const RouterManagement = () => {
   return (
@@ -47,6 +48,7 @@ const RouterManagement = () => {
           path="/test-detail-admin/:id"
           element={<TestDetailAdmin />}
         ></Route>
+        <Route path="/create-test-admin" element={<CreateTestAdmin />}></Route>
         <Route path="/expert" element={<ExpertDashboard />}></Route>
         <Route path="/courses" element={<CourseScreen />}></Route>
         <Route path="/documents" element={<Document />}></Route>
