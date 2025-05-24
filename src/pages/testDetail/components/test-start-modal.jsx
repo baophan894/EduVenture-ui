@@ -1,6 +1,10 @@
 import { FaTimes, FaExclamationTriangle, FaCheckCircle } from "react-icons/fa";
+import PropTypes from "prop-types";
+import useIsLogin from "../../../hook/user/useIsLogin";
 
 const TestStartModal = ({ isOpen, onClose, onConfirm, test }) => {
+  const isLoggedIn = useIsLogin();
+
   return (
     <>
       {/* Backdrop */}
@@ -37,8 +41,7 @@ const TestStartModal = ({ isOpen, onClose, onConfirm, test }) => {
               Start Test Confirmation
             </h3>
             <p className="text-gray-600 font-shopee">
-              You are about to start the {test.title}. This test will take
-              approximately {test.duration} minutes to complete.
+              You are about to start the {test.title}.
             </p>
             <div className="mt-4 p-3 bg-gray-100 rounded-lg">
               <p className="text-sm text-gray-700 font-shopee">
@@ -47,6 +50,20 @@ const TestStartModal = ({ isOpen, onClose, onConfirm, test }) => {
                 time to complete the test without interruptions.
               </p>
             </div>
+            {!isLoggedIn && (
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-700 font-shopee">
+                  <strong className="font-shopee">Note:</strong> You are not
+                  logged in. Your test results will not be saved and you won't
+                  be able to:
+                  <ul className="list-disc list-inside mt-2 text-left">
+                    <li>View your test history</li>
+                    <li>Track your progress</li>
+                    <li>Access detailed performance analytics</li>
+                  </ul>
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Action buttons */}
@@ -69,6 +86,16 @@ const TestStartModal = ({ isOpen, onClose, onConfirm, test }) => {
       </div>
     </>
   );
+};
+
+TestStartModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  test: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    duration: PropTypes.number.isRequired,
+  }).isRequired,
 };
 
 export default TestStartModal;

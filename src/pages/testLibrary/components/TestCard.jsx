@@ -1,95 +1,80 @@
-import { useState } from "react";
-import { FaEye, FaStar } from "react-icons/fa";
+import { Card } from "antd";
 import { useNavigate } from "react-router-dom";
+import {
+  ClockCircleOutlined,
+  EyeOutlined,
+  StarOutlined,
+} from "@ant-design/icons";
+import PropTypes from "prop-types";
 
-// Individual Test Card Component
 const TestCard = ({ test }) => {
   const navigate = useNavigate();
-  const [isHovered, setIsHovered] = useState(false);
 
   const handleClick = () => {
     navigate(`/test-library/detail/${test.id}`);
   };
 
   return (
-    <div
-      className="flex flex-col cursor-pointer w-full transition-all duration-300 transform hover:-translate-y-2 pb-3"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={handleClick}
-      style={{
-        boxShadow: isHovered
-          ? "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-          : "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-      }}
-    >
-      {/* Test Image */}
-      <div className="relative h-[180px] bg-gray-300 mb-2 overflow-hidden">
+    <Card
+      hoverable
+      cover={
         <img
+          alt={test.title}
           src={test.coverImg}
-          alt="Test Image"
-          className={`h-full w-full object-cover bg-gray-300 transition-transform duration-700 ${
-            isHovered ? "scale-110" : "scale-100"
-          }`}
+          className="h-48 w-full object-cover"
         />
-      </div>
+      }
+      onClick={handleClick}
+      className="h-full"
+    >
+      <div className="flex flex-col h-full">
+        <h3 className="text-lg font-semibold mb-2 line-clamp-2">
+          {test.title}
+        </h3>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+          {test.description}
+        </p>
 
-      {/* Test Title */}
-      <h3
-        className={`text-sm font-shopee font-medium mb-1 transition-colors duration-300 ml-3 ${
-          isHovered ? "text-[#469B74]" : "text-gray-900"
-        }`}
-      >
-        {test.title}
-      </h3>
+        <div className="mt-auto">
+          <div className="flex items-center justify-between text-sm text-gray-500">
+            <div className="flex items-center">
+              <ClockCircleOutlined className="mr-1" />
+              <span>{test.duration} min</span>
+            </div>
+            <div className="flex items-center">
+              <EyeOutlined className="mr-1" />
+              <span>{test.views}</span>
+            </div>
+            <div className="flex items-center">
+              <StarOutlined className="mr-1" />
+              <span>{test.ratings}</span>
+            </div>
+          </div>
 
-      {/* Stats Section */}
-      <div className="flex items-center gap-2 mb-1 ml-3">
-        <div className="flex items-center">
-          <FaEye
-            className={`mr-1 transition-all duration-300 ${
-              isHovered ? "scale-110 text-black" : "text-gray-500"
-            }`}
-            size={12}
-          />
-          <span className="text-xs text-gray-500 font-shopee">
-            {test.views}
-          </span>
+          {test.testLevel && (
+            <div className="mt-2">
+              <span className="text-xs px-2 py-1 bg-gray-100 rounded-full">
+                {test.testLevel}
+              </span>
+            </div>
+          )}
         </div>
-        <div className="flex items-center">
-          <FaStar className="text-yellow-500 mr-1" size={12} />
-          <span className="text-xs text-gray-500 font-shopee">
-            {test.ratings}
-          </span>
-        </div>
-        <span className="text-xs text-gray-400 font-shopee">|</span>
-        <span className="text-xs text-gray-500 font-shopee">
-          {test.participants} participants
-        </span>
       </div>
-
-      {/* Duration */}
-      <div className="text-xs text-gray-500 mb-1 font-shopee ml-3">
-        {test.duration} minutes exam
-      </div>
-
-      {/* Tags */}
-      <div className="text-xs text-gray-500 mb-3 font-shopee ml-3">
-        {test.tag}
-      </div>
-
-      {/* Button */}
-      <button
-        className={`border font-shopee text-sm py-1 px-4 rounded transition-all duration-300 w-fit ml-3 ${
-          isHovered
-            ? "bg-[#469B74] text-white border-[#469B74] shadow-lg scale-105"
-            : "border-gray-300 text-gray-700 hover:bg-gray-100"
-        }`}
-      >
-        Details
-      </button>
-    </div>
+    </Card>
   );
+};
+
+TestCard.propTypes = {
+  test: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    coverImg: PropTypes.string.isRequired,
+    duration: PropTypes.number.isRequired,
+    views: PropTypes.number.isRequired,
+    ratings: PropTypes.number.isRequired,
+    testLevel: PropTypes.string,
+  }).isRequired,
 };
 
 export default TestCard;

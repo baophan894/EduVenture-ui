@@ -97,6 +97,7 @@ const ListUser = () => {
 
   const dataSource = displayUsers?.map((user, index) => {
     return {
+      key: user.id || index,
       index: index + 1,
       userName: user.fullName,
       email: user.email,

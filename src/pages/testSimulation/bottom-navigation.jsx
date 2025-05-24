@@ -1,15 +1,26 @@
 "use client";
 
-import { FaArrowLeft, FaArrowRight, FaCheck, FaList } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaArrowRight,
+  FaCheck,
+  FaList,
+  FaHistory,
+} from "react-icons/fa";
+import PropTypes from "prop-types";
 
 const BottomNavigation = ({
   currentQuestionIndex,
+  currentQuestion,
+  filteredTotalQuestions,
   totalQuestions,
   onPrevious,
   onNext,
   onFinish,
   onOpenNavigation,
   disableNavigation = false,
+  actualIndex,
+  isReviewMode = false,
 }) => {
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
 
@@ -26,7 +37,11 @@ const BottomNavigation = ({
           </button>
 
           <div className="text-sm text-gray-600 font-shopee">
-            Question {currentQuestionIndex + 1} of {totalQuestions}
+            {currentQuestion.typeName === "Part Instruction"
+              ? "Instruction"
+              : `Question ${actualIndex + 1} of ${
+                  filteredTotalQuestions.length
+                }`}
           </div>
         </div>
 
@@ -51,8 +66,17 @@ const BottomNavigation = ({
               onClick={onFinish}
               className="py-2 px-4 bg-[#FCB80B] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-opacity-90 font-shopee"
             >
-              Finish Test
-              <FaCheck size={14} />
+              {isReviewMode ? (
+                <>
+                  Return to Test History
+                  <FaHistory size={14} />
+                </>
+              ) : (
+                <>
+                  Finish Test
+                  <FaCheck size={14} />
+                </>
+              )}
             </button>
           ) : (
             !disableNavigation && (
@@ -69,6 +93,22 @@ const BottomNavigation = ({
       </div>
     </div>
   );
+};
+
+BottomNavigation.propTypes = {
+  currentQuestionIndex: PropTypes.number.isRequired,
+  currentQuestion: PropTypes.shape({
+    typeName: PropTypes.string.isRequired,
+  }).isRequired,
+  filteredTotalQuestions: PropTypes.array.isRequired,
+  totalQuestions: PropTypes.number.isRequired,
+  onPrevious: PropTypes.func.isRequired,
+  onNext: PropTypes.func.isRequired,
+  onFinish: PropTypes.func.isRequired,
+  onOpenNavigation: PropTypes.func.isRequired,
+  disableNavigation: PropTypes.bool,
+  actualIndex: PropTypes.number.isRequired,
+  isReviewMode: PropTypes.bool,
 };
 
 export default BottomNavigation;

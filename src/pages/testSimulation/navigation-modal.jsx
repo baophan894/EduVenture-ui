@@ -1,7 +1,7 @@
 "use client";
 
-import { FaTimes } from "react-icons/fa";
-import { TEST_TYPES } from "./test-types";
+import { FaTimes, FaInfoCircle } from "react-icons/fa";
+import PropTypes from "prop-types";
 
 const NavigationModal = ({
   isOpen,
@@ -13,8 +13,120 @@ const NavigationModal = ({
   flaggedQuestions,
   onQuestionSelect,
   onFinish,
+  isReviewMode = false,
 }) => {
-  const isListeningTest = test.type === TEST_TYPES.LISTENING;
+  const filteredTestQuestions = questions.filter(
+    (question) => question.typeName !== "Part Instruction"
+  );
+
+  const currentQuestion = questions[currentQuestionIndex];
+
+  // Find the actual index of the current question among non-instruction questions
+  const actualIndex = filteredTestQuestions.findIndex(
+    (q) => q.id === currentQuestion.id
+  );
+
+  // Get the display number for each question
+  const getQuestionNumber = (index) => {
+    let questionCount = 0;
+    for (let i = 0; i <= index; i++) {
+      if (questions[i].typeName !== "Part Instruction") {
+        questionCount++;
+      }
+    }
+    return questionCount;
+  };
+
+  // Get button color based on answer status
+  const getButtonColor = (question, index) => {
+    if (question.typeName === "Part Instruction") {
+      return index === currentQuestionIndex
+        ? "bg-blue-500 text-white"
+        : "bg-blue-100 text-blue-600";
+    }
+
+    const isCurrent = index === currentQuestionIndex;
+    if (isCurrent) {
+      return "bg-[#469B74] text-white";
+    }
+
+    if (isReviewMode) {
+      const answer = answers[question.id];
+      if (answer?.isCorrect) {
+        return "bg-green-100 text-green-700";
+      } else if (answer?.isCorrect === false) {
+        return "bg-red-100 text-red-700";
+      }
+      return "bg-gray-100 text-gray-600";
+    }
+
+    const isAnswered = answers[question.id];
+    const isFlagged = flaggedQuestions.includes(question.id);
+    if (isFlagged) {
+      return "bg-yellow-100 text-yellow-700";
+    }
+    if (isAnswered) {
+      return "bg-green-100 text-green-700";
+    }
+    return "bg-gray-100 text-gray-600";
+  };
+
+  // Render color legend based on mode
+  const renderColorLegend = () => {
+    if (isReviewMode) {
+      return (
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+          <h3 className="text-sm font-medium text-gray-700 mb-2 font-shopee">
+            Color Guide:
+          </h3>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-green-100 border border-green-700"></div>
+              <span className="text-gray-600">Correct Answer</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-red-100 border border-red-700"></div>
+              <span className="text-gray-600">Incorrect Answer</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-gray-100 border border-gray-600"></div>
+              <span className="text-gray-600">Not Answered</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-[#469B74]"></div>
+              <span className="text-gray-600">Current Question</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <h3 className="text-sm font-medium text-gray-700 mb-2 font-shopee">
+          Color Guide:
+        </h3>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-green-100 border border-green-700"></div>
+            <span className="text-gray-600">Answered</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-yellow-100 border border-yellow-700"></div>
+            <span className="text-gray-600">Flagged</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-gray-100 border border-gray-600"></div>
+            <span className="text-gray-600">Not Answered</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-[#469B74]"></div>
+            <span className="text-gray-600">Current Question</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -23,10 +135,7 @@ const NavigationModal = ({
         className={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 ${
           isOpen ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
-        onClick={() => {
-          console.log("Hello");
-          onClose();
-        }}
+        onClick={onClose}
       ></div>
 
       {/* Modal Content */}
@@ -56,89 +165,112 @@ const NavigationModal = ({
               <div className="mb-6">
                 <div className="flex justify-between text-sm text-gray-600 mb-2">
                   <span className="font-shopee">
-                    Question {currentQuestionIndex + 1} of {questions.length}
+                    {currentQuestion.typeName === "Part Instruction"
+                      ? `Instruction`
+                      : `Question ${actualIndex + 1} of ${
+                          filteredTestQuestions.length
+                        }`}
                   </span>
-                  <span className="font-shopee">
-                    {Object.keys(answers).length} of {questions.length} answered
-                  </span>
+                  {!isReviewMode && (
+                    <span className="font-shopee">
+                      {Object.keys(answers).length} of{" "}
+                      {filteredTestQuestions.length} answered
+                    </span>
+                  )}
                 </div>
 
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
-                  <div
-                    className="h-full bg-[#469B74]"
-                    style={{
-                      width: `${
-                        (Object.keys(answers).length / questions.length) * 100
-                      }%`,
-                    }}
-                  ></div>
-                </div>
+                {!isReviewMode && (
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
+                    <div
+                      className="h-full bg-[#469B74]"
+                      style={{
+                        width: `${
+                          (Object.keys(answers).length /
+                            filteredTestQuestions.length) *
+                          100
+                        }%`,
+                      }}
+                    ></div>
+                  </div>
+                )}
               </div>
+
+              {/* Color Legend */}
+              {renderColorLegend()}
 
               {/* Question navigation grid */}
               <div className="grid grid-cols-5 gap-2 mb-6">
-                {questions.map((question, index) => (
-                  <button
-                    key={question.id}
-                    onClick={() => {
-                      if (!isListeningTest || index === currentQuestionIndex) {
-                        onQuestionSelect(index);
-                        onClose();
-                      }
-                    }}
-                    disabled={isListeningTest && index !== currentQuestionIndex}
-                    className={`h-12 rounded-md flex flex-col items-center justify-center font-medium transition-colors ${
-                      index === currentQuestionIndex
-                        ? "bg-[#469B74] text-white"
-                        : flaggedQuestions.includes(question.id)
-                        ? "bg-[#FCB80B] bg-opacity-20 text-[#FCB80B]"
-                        : answers[question.id]
-                        ? "bg-[#469B74] bg-opacity-20 text-[#469B74]"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    } ${
-                      isListeningTest && index !== currentQuestionIndex
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    } font-shopee`}
-                  >
-                    <span>{index + 1}</span>
-                  </button>
-                ))}
+                {questions.map((question, index) => {
+                  // For part instructions, render a special instruction button
+                  if (question.typeName === "Part Instruction") {
+                    return (
+                      <button
+                        key={question.id}
+                        className={`p-2 rounded-lg text-sm font-medium ${getButtonColor(
+                          question,
+                          index
+                        )}`}
+                        onClick={() => onQuestionSelect(index)}
+                      >
+                        <FaInfoCircle className="mx-auto mb-1" />
+                        <span className="block text-xs">Instruction</span>
+                      </button>
+                    );
+                  }
+
+                  // For regular questions
+                  const questionNumber = getQuestionNumber(index);
+
+                  return (
+                    <button
+                      key={question.id}
+                      className={`p-2 rounded-lg text-sm font-medium ${getButtonColor(
+                        question,
+                        index
+                      )}`}
+                      onClick={() => onQuestionSelect(index)}
+                    >
+                      {questionNumber}
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* Legend */}
-              <div className="mb-6 space-y-2">
-                <div className="flex items-center text-sm text-gray-600">
-                  <div className="w-4 h-4 bg-[#469B74] bg-opacity-20 mr-2"></div>
-                  <span className="font-shopee">Answered</span>
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <div className="w-4 h-4 bg-[#FCB80B] bg-opacity-20 mr-2"></div>
-                  <span className="font-shopee">Flagged for review</span>
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <div className="w-4 h-4 bg-gray-100 mr-2"></div>
-                  <span className="font-shopee">Not visited</span>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              {/* Finish button - only show in test mode */}
+              {!isReviewMode && (
                 <button
-                  onClick={() => {
-                    onFinish();
-                    onClose();
-                  }}
-                  className="w-full py-3 px-4 bg-[#FCB80B] text-white rounded-lg font-medium hover:bg-opacity-90 transition-colors flex items-center justify-center gap-2 font-shopee"
+                  onClick={onFinish}
+                  className="w-full bg-[#469B74] text-white py-2 rounded-lg font-medium hover:bg-green-700 transition-colors"
                 >
-                  Submit Test
+                  Finish Test
                 </button>
-              </div>
+              )}
             </div>
           </div>
         </div>
       </div>
     </>
   );
+};
+
+NavigationModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  test: PropTypes.shape({
+    typeName: PropTypes.string.isRequired,
+  }).isRequired,
+  questions: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      typeName: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  currentQuestionIndex: PropTypes.number.isRequired,
+  answers: PropTypes.object.isRequired,
+  flaggedQuestions: PropTypes.arrayOf(PropTypes.number).isRequired,
+  onQuestionSelect: PropTypes.func.isRequired,
+  onFinish: PropTypes.func.isRequired,
+  isReviewMode: PropTypes.bool,
 };
 
 export default NavigationModal;

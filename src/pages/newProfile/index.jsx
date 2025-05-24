@@ -213,6 +213,10 @@ const Profile = () => {
         navigate("/expert");
         break;
       }
+      case "testHistory": {
+        navigate("/test-history");
+        break;
+      }
     }
   };
   const getManagement = () => {
@@ -222,7 +226,7 @@ const Profile = () => {
           key: "sub1",
           icon: <AppstoreOutlined />,
           label: "Management",
-          
+
           children: [{ key: "dashboard", label: "Admin Dashboard" }],
         };
       }
@@ -279,6 +283,12 @@ const Profile = () => {
     getManagement(),
     {
       key: "sub2",
+      icon: <AppstoreOutlined />,
+      label: "Test History",
+      children: [{ key: "testHistory", label: "My Test Submissions" }],
+    },
+    {
+      key: "sub3",
       label: "Security",
       icon: <SettingOutlined />,
       children: [
@@ -291,137 +301,190 @@ const Profile = () => {
     <Loading />
   ) : (
     <ProfileStyle>
-     <div className="profile">
-      <div className="profile_avatar">
-        <div className="profile_avatar_top">
-          {uploadAvatar.isPending ? (
-            <div className="flex items-center justify-center w-32 h-32 bg-gray-200 rounded-full">
-              <span className="text-gray-500 font-shopee">Uploading...</span>
-            </div>
-          ) : (
-            <div className="relative group">
-              <Avatar className="profile_avatar_top_image" size={120} src={user?.avatarUrl} />
-              <button
-                onClick={showModal}
-                className="font-shopee profile_avatar_top_update absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-              >
-                Update
-              </button>
-            </div>
-          )}
-          <p className=" font-shopee mt-3 text-lg font-semibold text-gray-800">{user?.fullName}</p>
-        </div>
-
-        <div className="flex items-center gap-2 mb-3">
-          {getRoleTag()}
-          <Popover content={getLegitHoverContent(user?.legitMark)}>
-            <span className="cursor-pointer font-shopee ">{getLegitMarkTag(user?.legitMark)}</span>
-          </Popover>
-        </div>
-
-        {!!userBalance && (
-          <div className="mb-4">
-            <Tag color="#FCB80B" className="font-shopee mb-2 py-1 px-2">
-              Balance: {Number(user.balance).toLocaleString()}$
-            </Tag>
-            {userBalance > 5 && (
-              <Button
-                onClick={handleOpenWithdrawModal}
-                className="font-shopee w-full flex items-center justify-center gap-2 border-[#469B74] text-[#469B74] hover:text-white hover:bg-[#469B74]"
-              >
-                <FaMoneyBillWave />
-                <span className="font-shopee ">Withdraw</span>
-              </Button>
+      <div className="profile">
+        <div className="profile_avatar">
+          <div className="profile_avatar_top">
+            {uploadAvatar.isPending ? (
+              <div className="flex items-center justify-center w-32 h-32 bg-gray-200 rounded-full">
+                <span className="text-gray-500 font-shopee">Uploading...</span>
+              </div>
+            ) : (
+              <div className="relative group">
+                <Avatar
+                  className="profile_avatar_top_image"
+                  size={120}
+                  src={user?.avatarUrl}
+                />
+                <button
+                  onClick={showModal}
+                  className="font-shopee profile_avatar_top_update absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                >
+                  Update
+                </button>
+              </div>
             )}
+            <p className=" font-shopee mt-3 text-lg font-semibold text-gray-800">
+              {user?.fullName}
+            </p>
           </div>
-        )}
 
-        {isShowRequestButton && (
-          <Button
-            onClick={() => setIsShowExertRequest(true)}
-            type="primary"
-            className="font-shopee mb-4 w-full bg-[#FCB80B] border-[#FCB80B] hover:bg-[#e0a50a] hover:border-[#e0a50a]"
-          >
-            Apply to be Platform Expert
-          </Button>
-        )}
+          <div className="flex items-center gap-2 mb-3">
+            {getRoleTag()}
+            <Popover content={getLegitHoverContent(user?.legitMark)}>
+              <span className="cursor-pointer font-shopee ">
+                {getLegitMarkTag(user?.legitMark)}
+              </span>
+            </Popover>
+          </div>
 
-        <div className="font-shopee-bold w-full mt-2">
-          <Menu onClick={menuOnclick} mode="vertical" items={menuItems} className="font-shopee-bold rounded-lg menu-custom" />
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md overflow-hidden profile_information">
-        <div className="bg-[#469B74] px-6 py-4">
-          <h2 className="font-shopee text-xl font-semibold text-white">Public profile</h2>
-          <p className="font-shopee text-white/80 text-sm mt-1">Add information about yourself</p>
-        </div>
-
-        <div className="p-6 profile_information_content">
-          <Form onFinish={onFinish} form={form} layout="vertical">
-            <Form.Item
-              label={<span className="font-shopee-bold text-gray-700 font-medium">Full Name</span>}
-              name="fullName"
-              rules={[{ required: true }]}
-            >
-              <Input
-                className="font-shopee border-gray-300 hover:border-[#469B74] focus:border-[#469B74]"
-                placeholder="Enter your full name"
-              />
-            </Form.Item>
-
-            <Form.Item label={<span className="font-shopee-bold text-gray-700 font-medium">Email</span>} name="email">
-              <Input readOnly className="font-shopee bg-gray-50 border-gray-300" placeholder="Email" />
-            </Form.Item>
-
-            <Form.Item label={<span className="font-shopee-bold text-gray-700 font-medium">Gender</span>} name="gender">
-              <Select
-                options={genderOptions}
-                placeholder="Select your gender"
-                className="font-shopee border-gray-300 hover:border-[#469B74]"
-              />
-            </Form.Item>
-
-            <Form.Item label={<span className="font-shopee-bold text-gray-700 font-medium">Birthday</span>} name="dob">
-              <DatePicker
-                onChange={(_, dateString) => {
-                  setDob(dateString)
-                }}
-                placeholder="Select your birthday"
-                className="font-shopee w-full border-gray-300 hover:border-[#469B74]"
-              />
-            </Form.Item>
-
-            <Form.Item label={<span className="font-shopee-bold text-gray-700 font-medium">About you</span>} name="about">
-              <Input.TextArea
-                placeholder="Tell us about yourself..."
-                className="font-shopee border-gray-300 hover:border-[#469B74] focus:border-[#469B74]"
-                rows={4}
-              />
-            </Form.Item>
-
-            <Form.Item className="flex justify-end mb-0">
-              {updateProfile.isPending ? (
+          {!!userBalance && (
+            <div className="mb-4">
+              <Tag color="#FCB80B" className="font-shopee mb-2 py-1 px-2">
+                Balance: {Number(user.balance).toLocaleString()}$
+              </Tag>
+              {userBalance > 5 && (
                 <Button
-                  loading
-                  className="font-shopee bg-[#469B74] hover:bg-[#3d8a67] border-[#469B74] hover:border-[#3d8a67] text-white"
+                  onClick={handleOpenWithdrawModal}
+                  className="font-shopee w-full flex items-center justify-center gap-2 border-[#469B74] text-[#469B74] hover:text-white hover:bg-[#469B74]"
                 >
-                  Saving...
-                </Button>
-              ) : (
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className="font-shopee-bold bg-[#FCB80B] hover:bg-[#e0a50a] border-[#FCB80B] hover:border-[#e0a50a] text-white"
-                >
-                  Save Changes
+                  <FaMoneyBillWave />
+                  <span className="font-shopee ">Withdraw</span>
                 </Button>
               )}
-            </Form.Item>
-          </Form>
+            </div>
+          )}
+
+          {isShowRequestButton && (
+            <Button
+              onClick={() => setIsShowExertRequest(true)}
+              type="primary"
+              className="font-shopee mb-4 w-full bg-[#FCB80B] border-[#FCB80B] hover:bg-[#e0a50a] hover:border-[#e0a50a]"
+            >
+              Apply to be Platform Expert
+            </Button>
+          )}
+
+          <div className="font-shopee-bold w-full mt-2">
+            <Menu
+              onClick={menuOnclick}
+              mode="vertical"
+              items={menuItems}
+              className="font-shopee-bold rounded-lg menu-custom"
+            />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md overflow-hidden profile_information">
+          <div className="bg-[#469B74] px-6 py-4">
+            <h2 className="font-shopee text-xl font-semibold text-white">
+              Public profile
+            </h2>
+            <p className="font-shopee text-white/80 text-sm mt-1">
+              Add information about yourself
+            </p>
+          </div>
+
+          <div className="p-6 profile_information_content">
+            <Form onFinish={onFinish} form={form} layout="vertical">
+              <Form.Item
+                label={
+                  <span className="font-shopee-bold text-gray-700 font-medium">
+                    Full Name
+                  </span>
+                }
+                name="fullName"
+                rules={[{ required: true }]}
+              >
+                <Input
+                  className="font-shopee border-gray-300 hover:border-[#469B74] focus:border-[#469B74]"
+                  placeholder="Enter your full name"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={
+                  <span className="font-shopee-bold text-gray-700 font-medium">
+                    Email
+                  </span>
+                }
+                name="email"
+              >
+                <Input
+                  readOnly
+                  className="font-shopee bg-gray-50 border-gray-300"
+                  placeholder="Email"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={
+                  <span className="font-shopee-bold text-gray-700 font-medium">
+                    Gender
+                  </span>
+                }
+                name="gender"
+              >
+                <Select
+                  options={genderOptions}
+                  placeholder="Select your gender"
+                  className="font-shopee border-gray-300 hover:border-[#469B74]"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={
+                  <span className="font-shopee-bold text-gray-700 font-medium">
+                    Birthday
+                  </span>
+                }
+                name="dob"
+              >
+                <DatePicker
+                  onChange={(_, dateString) => {
+                    setDob(dateString);
+                  }}
+                  placeholder="Select your birthday"
+                  className="font-shopee w-full border-gray-300 hover:border-[#469B74]"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={
+                  <span className="font-shopee-bold text-gray-700 font-medium">
+                    About you
+                  </span>
+                }
+                name="about"
+              >
+                <Input.TextArea
+                  placeholder="Tell us about yourself..."
+                  className="font-shopee border-gray-300 hover:border-[#469B74] focus:border-[#469B74]"
+                  rows={4}
+                />
+              </Form.Item>
+
+              <Form.Item className="flex justify-end mb-0">
+                {updateProfile.isPending ? (
+                  <Button
+                    loading
+                    className="font-shopee bg-[#469B74] hover:bg-[#3d8a67] border-[#469B74] hover:border-[#3d8a67] text-white"
+                  >
+                    Saving...
+                  </Button>
+                ) : (
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="font-shopee-bold bg-[#FCB80B] hover:bg-[#e0a50a] border-[#FCB80B] hover:border-[#e0a50a] text-white"
+                  >
+                    Save Changes
+                  </Button>
+                )}
+              </Form.Item>
+            </Form>
+          </div>
         </div>
       </div>
-    </div>
       <MyLearning />
       <Modal
         title="Update avatar ?"
