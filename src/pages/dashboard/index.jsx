@@ -7,6 +7,9 @@ import {
   DollarOutlined,
   ExclamationCircleFilled,
   FormOutlined,
+  GlobalOutlined,
+  BarsOutlined,
+  AppstoreOutlined,
 } from "@ant-design/icons";
 import { Menu } from "antd";
 import DashboardStyle from "./Dashboard.style";
@@ -21,6 +24,9 @@ import ExpertRequest from "./tab/ExpertRequest.jsx";
 import Topic from "./tab/Topic.jsx";
 import Withdraw from "./tab/Withdraw.jsx";
 import TestManagement from "./tab/TestManagement.jsx";
+import LanguageManagement from "./tab/LanguageManagement.jsx";
+import TestLevelManagement from "./tab/TestLevelManagement.jsx";
+import TestTypeManagement from "./tab/TestTypeManagement.jsx";
 import { useSearchParams } from "react-router-dom";
 
 const items = [
@@ -33,6 +39,9 @@ const items = [
   { key: "7", icon: <ContainerOutlined />, label: "Expert request" },
   { key: "8", icon: <DollarOutlined />, label: "Withdraw" },
   { key: "9", icon: <FormOutlined />, label: "Test Management" },
+  { key: "10", icon: <GlobalOutlined />, label: "Language Management" },
+  { key: "11", icon: <BarsOutlined />, label: "Test Level Management" },
+  { key: "12", icon: <AppstoreOutlined />, label: "Test Type Management" },
 ];
 
 const Dashboard = () => {
@@ -45,6 +54,12 @@ const Dashboard = () => {
     const tab = searchParams.get("tab");
     if (tab === "test-management") {
       setSelectedKey("9");
+    } else if (tab === "language-management") {
+      setSelectedKey("10");
+    } else if (tab === "test-level-management") {
+      setSelectedKey("11");
+    } else if (tab === "test-type-management") {
+      setSelectedKey("12");
     }
   }, [searchParams]);
 
@@ -71,6 +86,12 @@ const Dashboard = () => {
         return <Withdraw />;
       case "9":
         return <TestManagement />;
+      case "10":
+        return <LanguageManagement />;
+      case "11":
+        return <TestLevelManagement />;
+      case "12":
+        return <TestTypeManagement />;
       default:
         return <div>Default Content</div>;
     }

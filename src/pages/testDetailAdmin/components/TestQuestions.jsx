@@ -14,6 +14,7 @@ import {
   FaUndo,
   FaTrash,
   FaPlus,
+  FaBook,
 } from "react-icons/fa";
 
 const TestQuestions = ({
@@ -41,7 +42,7 @@ const TestQuestions = ({
   setImageFiles,
 }) => {
   // Add function to handle question reordering
-  const handleMoveQuestion = (partOrder, questionIndex, direction) => {
+  const handleMoveQuestion = (partOrder, questionOrder, direction) => {
     if (!isEditing) return;
 
     const part = test.testParts.find((part) => part.order === partOrder);
@@ -52,10 +53,18 @@ const TestQuestions = ({
       .filter((q) => !q.isDeleted)
       .sort((a, b) => a.order - b.order);
 
-    const questionToMove = activeQuestions[questionIndex];
+    // If only one active question left, don't allow moving
+    if (activeQuestions.length <= 1) return;
+
+    const questionToMove = activeQuestions.find(
+      (q) => q.order === questionOrder
+    );
     if (!questionToMove) return;
 
-    const newIndex = questionIndex + direction;
+    const currentIndex = activeQuestions.findIndex(
+      (q) => q.order === questionOrder
+    );
+    const newIndex = currentIndex + direction;
 
     // Check if move is valid
     if (newIndex < 0 || newIndex >= activeQuestions.length) return;
@@ -66,18 +75,40 @@ const TestQuestions = ({
     // Create new array with updated orders
     const newQuestions = part.questions.map((question) => {
       if (!question) return question;
-      if (question.id === questionToMove.id) {
+      if (question.order === questionToMove.order) {
         return { ...question, order: questionToSwap.order };
       }
-      if (question.id === questionToSwap.id) {
+      if (question.order === questionToSwap.order) {
         return { ...question, order: questionToMove.order };
       }
       return question;
     });
 
+    // Sort questions by order before updating
+    const sortedQuestions = newQuestions.sort((a, b) => a.order - b.order);
+
     // Update questions
-    handleQuestionChange(partOrder - 1, -1, "questions", newQuestions);
+    handleQuestionChange(partOrder - 1, -1, "questions", sortedQuestions);
   };
+
+  // Add this before the main return statement
+  if (!test.testParts || test.testParts.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px] bg-white rounded-lg shadow-lg border-2 border-dashed border-gray-200">
+        <div className="text-center space-y-3">
+          <div className="text-gray-400">
+            <FaBook className="w-12 h-12 mx-auto mb-4" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-700">
+            No Parts Available
+          </h3>
+          <p className="text-gray-500 max-w-sm">
+            Start by adding a part to organize your test questions
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -112,26 +143,41 @@ const TestQuestions = ({
                   Deleted
                 </span>
               )}
+              {!part.isDeleted && (
+                <span className="ml-auto px-2 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">
+                  {
+                    part.questions.filter(
+                      (q) => !q.isDeleted && q.typeName !== "Part Instruction"
+                    ).length
+                  }{" "}
+                  Questions
+                </span>
+              )}
             </div>
 
             <div className="space-y-4 pl-11">
               {[...part.questions]
                 .sort((a, b) => a.order - b.order)
-                .map((question, sortedIndex) => {
+                .map((question) => {
                   const isExpanded =
                     expandedQuestions[`${part.order}-${question.order}`];
                   const isPartInstruction =
                     question.typeName === "Part Instruction";
 
+                  // Get active questions for this part
+                  const activeQuestions = part.questions
+                    .filter((q) => !q.isDeleted)
+                    .sort((a, b) => a.order - b.order);
+
+                  // Find the index of this question in active questions
+                  const questionIndex = activeQuestions.findIndex(
+                    (q) => q.order === question.order
+                  );
+
                   // Simple counter for active questions
                   const questionNumber =
                     !isPartInstruction && !question.isDeleted
-                      ? part.questions
-                          .slice(0, part.questions.indexOf(question) + 1)
-                          .filter(
-                            (q) =>
-                              !q.isDeleted && q.typeName !== "Part Instruction"
-                          ).length
+                      ? questionIndex + 1
                       : null;
 
                   return (
@@ -184,13 +230,13 @@ const TestQuestions = ({
                                       e.stopPropagation();
                                       handleMoveQuestion(
                                         part.order,
-                                        sortedIndex,
+                                        question.order,
                                         -1
                                       );
                                     }}
-                                    disabled={question.order === 1}
+                                    disabled={questionIndex === 0}
                                     className={`p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors ${
-                                      question.order === 1
+                                      questionIndex === 0
                                         ? "opacity-50 cursor-not-allowed"
                                         : ""
                                     }`}
@@ -203,15 +249,17 @@ const TestQuestions = ({
                                       e.stopPropagation();
                                       handleMoveQuestion(
                                         part.order,
-                                        sortedIndex,
+                                        question.order,
                                         1
                                       );
                                     }}
                                     disabled={
-                                      question.order === part.questions.length
+                                      questionIndex ===
+                                      activeQuestions.length - 1
                                     }
                                     className={`p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors ${
-                                      question.order === part.questions.length
+                                      questionIndex ===
+                                      activeQuestions.length - 1
                                         ? "opacity-50 cursor-not-allowed"
                                         : ""
                                     }`}

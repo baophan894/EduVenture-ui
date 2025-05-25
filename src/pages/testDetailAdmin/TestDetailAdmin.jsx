@@ -93,10 +93,10 @@ const TestDetailAdmin = () => {
   };
 
   // Toggle part expansion
-  const togglePart = (partId) => {
+  const togglePart = (partOrder) => {
     setExpandedParts((prev) => ({
       ...prev,
-      [partId]: !prev[partId],
+      [partOrder]: !prev[partOrder],
     }));
   };
 
@@ -947,8 +947,10 @@ const TestDetailAdmin = () => {
         throw new Error("Failed to delete test");
       }
 
-      toast.success("Test deleted successfully!");
-      navigate("/dashboard?tab=test-management");
+      // Navigate with state containing the success message
+      navigate("/dashboard?tab=test-management", {
+        state: { message: "Test deleted successfully!" },
+      });
     } catch (err) {
       toast.error("Failed to delete test. Please try again.");
     } finally {
@@ -960,6 +962,7 @@ const TestDetailAdmin = () => {
   // Add new part
   const handleAddPart = () => {
     const newPart = {
+      id: Date.now(), // Add unique ID using timestamp
       name: "New Part",
       description: "",
       icon: "FaBook", // Default icon
