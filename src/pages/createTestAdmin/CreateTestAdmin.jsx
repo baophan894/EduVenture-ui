@@ -844,6 +844,7 @@ const CreateTestAdmin = () => {
       correctAnswer: "",
       questionOptions: [],
       imageUrl: "",
+      postAnswerDetail: "",
       order: highestOrder + 1, // Set order to highest existing order + 1
     };
 

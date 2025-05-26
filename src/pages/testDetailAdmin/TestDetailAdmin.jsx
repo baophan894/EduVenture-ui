@@ -26,6 +26,7 @@ import {
   FaUser,
   FaUsers,
   FaUndo,
+  FaArrowUp,
 } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import TestDetails from "./components/TestDetails";
@@ -64,6 +65,7 @@ const TestDetailAdmin = () => {
     instructorAvatar: null,
     questions: {},
   });
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Available icons for parts
   const availableIcons = [
@@ -107,11 +109,12 @@ const TestDetailAdmin = () => {
       test.testParts.forEach((part) => {
         part.questions.forEach((question) => {
           if (question.correctAnswer) {
+            const questionKey = `${part.order}-${question.order}`;
             if (question.typeName === "Multiple Choice") {
-              initialSelections[question.id] =
+              initialSelections[questionKey] =
                 question.correctAnswer.split(",");
             } else {
-              initialSelections[question.id] = question.correctAnswer;
+              initialSelections[questionKey] = question.correctAnswer;
             }
           }
         });
@@ -257,7 +260,7 @@ const TestDetailAdmin = () => {
       // Otherwise update a single question's field using order
       const partOrder = partIndex + 1;
       const questionOrder = questionIndex + 1;
-      return {
+      const updatedTest = {
         ...prev,
         testParts: prev.testParts.map((part) =>
           part.order === partOrder
@@ -272,6 +275,28 @@ const TestDetailAdmin = () => {
             : part
         ),
       };
+
+      // If we're updating the correctAnswer field, also update selectedCorrectAnswers
+      if (field === "correctAnswer") {
+        const questionKey = `${partOrder}-${questionOrder}`;
+        setSelectedCorrectAnswers((prev) => {
+          if (value.includes(",")) {
+            // Multiple choice
+            return {
+              ...prev,
+              [questionKey]: value.split(","),
+            };
+          } else {
+            // Single choice or fill in blank
+            return {
+              ...prev,
+              [questionKey]: value,
+            };
+          }
+        });
+      }
+
+      return updatedTest;
     });
   };
 
@@ -333,35 +358,35 @@ const TestDetailAdmin = () => {
   };
 
   // Handle single choice answer selection
-  const handleSingleChoiceSelection = (questionId, optionId) => {
+  const handleSingleChoiceSelection = (partOrder, questionOrder, optionId) => {
     if (!isEditing) return;
 
+    const questionKey = `${partOrder}-${questionOrder}`;
     setSelectedCorrectAnswers((prev) => ({
       ...prev,
-      [questionId]: optionId,
+      [questionKey]: optionId,
     }));
 
     // Update the test data
-    test.testParts.forEach((part) => {
-      part.questions.forEach((question) => {
-        if (question.id === questionId) {
-          handleQuestionChange(
-            part.order - 1,
-            question.order - 1,
-            "correctAnswer",
-            optionId
-          );
-        }
-      });
-    });
+    handleQuestionChange(
+      partOrder - 1,
+      questionOrder - 1,
+      "correctAnswer",
+      optionId
+    );
   };
 
   // Handle multiple choice answer selection
-  const handleMultipleChoiceSelection = (questionId, optionId) => {
+  const handleMultipleChoiceSelection = (
+    partOrder,
+    questionOrder,
+    optionId
+  ) => {
     if (!isEditing) return;
 
+    const questionKey = `${partOrder}-${questionOrder}`;
     setSelectedCorrectAnswers((prev) => {
-      const currentSelections = prev[questionId] || [];
+      const currentSelections = prev[questionKey] || [];
       let newSelections;
 
       if (currentSelections.includes(optionId)) {
@@ -371,22 +396,16 @@ const TestDetailAdmin = () => {
       }
 
       // Update the test data
-      test.testParts.forEach((part) => {
-        part.questions.forEach((question) => {
-          if (question.id === questionId) {
-            handleQuestionChange(
-              part.order - 1,
-              question.order - 1,
-              "correctAnswer",
-              newSelections.join(",")
-            );
-          }
-        });
-      });
+      handleQuestionChange(
+        partOrder - 1,
+        questionOrder - 1,
+        "correctAnswer",
+        newSelections.join(",")
+      );
 
       return {
         ...prev,
-        [questionId]: newSelections,
+        [questionKey]: newSelections,
       };
     });
   };
@@ -713,12 +732,14 @@ const TestDetailAdmin = () => {
           .filter((part) => !part.isDeleted)
           .map((part, index) => ({
             ...part,
-            order: index, // Start from 0
+            order: index + 1, // Start from 1 to match the UI
             questions: part.questions
               .filter((question) => !question.isDeleted)
-              .map((question, qIndex) => ({
+              .sort((a, b) => a.order - b.order) // Sort by existing order
+              .map((question) => ({
                 ...question,
-                order: qIndex, // Start from 0
+                // Preserve the existing order instead of resetting it
+                order: question.order,
               })),
           })),
       };
@@ -853,8 +874,9 @@ const TestDetailAdmin = () => {
   };
 
   // Check if an option is selected for a question
-  const isOptionSelected = (questionId, optionId) => {
-    const selection = selectedCorrectAnswers[questionId];
+  const isOptionSelected = (partOrder, questionOrder, optionId) => {
+    const questionKey = `${partOrder}-${questionOrder}`;
+    const selection = selectedCorrectAnswers[questionKey];
 
     if (Array.isArray(selection)) {
       return selection.includes(optionId);
@@ -908,10 +930,11 @@ const TestDetailAdmin = () => {
     originalTest.testParts.forEach((part) => {
       part.questions.forEach((question) => {
         if (question.correctAnswer) {
+          const questionKey = `${part.order}-${question.order}`;
           if (question.typeName === "Multiple Choice") {
-            initialSelections[question.id] = question.correctAnswer.split(",");
+            initialSelections[questionKey] = question.correctAnswer.split(",");
           } else {
-            initialSelections[question.id] = question.correctAnswer;
+            initialSelections[questionKey] = question.correctAnswer;
           }
         }
       });
@@ -962,7 +985,6 @@ const TestDetailAdmin = () => {
   // Add new part
   const handleAddPart = () => {
     const newPart = {
-      id: Date.now(), // Add unique ID using timestamp
       name: "New Part",
       description: "",
       icon: "FaBook", // Default icon
@@ -1073,6 +1095,7 @@ const TestDetailAdmin = () => {
       correctAnswer: "",
       questionOptions: [],
       imageUrl: "",
+      postAnswerDetail: "",
       order: highestOrder + 1, // Set order to highest existing order + 1
     };
 
@@ -1128,6 +1151,24 @@ const TestDetailAdmin = () => {
           p.order === partOrder ? { ...p, questions: updatedQuestions } : p
         ),
       };
+    });
+  };
+
+  // Add scroll event listener
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Add scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
     });
   };
 
@@ -1537,6 +1578,17 @@ const TestDetailAdmin = () => {
           </div>
         </div>
       </div>
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 p-3 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 transition-colors z-50"
+          title="Go to top"
+        >
+          <FaArrowUp className="text-xl" />
+        </button>
+      )}
     </div>
   );
 };

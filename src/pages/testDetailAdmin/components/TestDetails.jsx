@@ -177,6 +177,7 @@ const TestDetails = ({
                   style={{ height: "42px" }}
                   placeholder="Select a level"
                   required
+                  disabled={!test.languageId}
                 />
                 {showRestoreButtons && (
                   <button
