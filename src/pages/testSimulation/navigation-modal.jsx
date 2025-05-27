@@ -140,113 +140,107 @@ const NavigationModal = ({
 
       {/* Modal Content */}
       <div
-        className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl z-50 w-11/12 max-w-md p-6 transition-all duration-300 ${
+        className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl z-50 w-[550px] max-h-[90vh] overflow-auto transition-all duration-300 ${
           isOpen
             ? "opacity-100 scale-100 visible"
             : "opacity-0 scale-95 invisible"
         }`}
       >
-        <div className="rounded-lg overflow-hidden max-h-[90vh] w-[400px]">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-800 font-shopee">
-                  Navigation
-                </h2>
-                <button
-                  onClick={onClose}
-                  className="text-gray-500 hover:text-gray-700"
-                  aria-label="Close navigation"
-                >
-                  <FaTimes size={20} />
-                </button>
-              </div>
+        <div className="p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800 font-shopee">
+              Navigation
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+              aria-label="Close navigation"
+            >
+              <FaTimes size={20} />
+            </button>
+          </div>
 
-              <div className="mb-6">
-                <div className="flex justify-between text-sm text-gray-600 mb-2">
-                  <span className="font-shopee">
-                    {currentQuestion.typeName === "Part Instruction"
-                      ? `Instruction`
-                      : `Question ${actualIndex + 1} of ${
-                          filteredTestQuestions.length
-                        }`}
-                  </span>
-                  {!isReviewMode && (
-                    <span className="font-shopee">
-                      {Object.keys(answers).length} of{" "}
-                      {filteredTestQuestions.length} answered
-                    </span>
-                  )}
-                </div>
-
-                {!isReviewMode && (
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
-                    <div
-                      className="h-full bg-[#469B74]"
-                      style={{
-                        width: `${
-                          (Object.keys(answers).length /
-                            filteredTestQuestions.length) *
-                          100
-                        }%`,
-                      }}
-                    ></div>
-                  </div>
-                )}
-              </div>
-
-              {/* Color Legend */}
-              {renderColorLegend()}
-
-              {/* Question navigation grid */}
-              <div className="grid grid-cols-5 gap-2 mb-6">
-                {questions.map((question, index) => {
-                  // For part instructions, render a special instruction button
-                  if (question.typeName === "Part Instruction") {
-                    return (
-                      <button
-                        key={question.id}
-                        className={`p-2 rounded-lg text-sm font-medium ${getButtonColor(
-                          question,
-                          index
-                        )}`}
-                        onClick={() => onQuestionSelect(index)}
-                      >
-                        <FaInfoCircle className="mx-auto mb-1" />
-                        <span className="block text-xs">Instruction</span>
-                      </button>
-                    );
-                  }
-
-                  // For regular questions
-                  const questionNumber = getQuestionNumber(index);
-
-                  return (
-                    <button
-                      key={question.id}
-                      className={`p-2 rounded-lg text-sm font-medium ${getButtonColor(
-                        question,
-                        index
-                      )}`}
-                      onClick={() => onQuestionSelect(index)}
-                    >
-                      {questionNumber}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Finish button - only show in test mode */}
+          <div className="mb-8">
+            <div className="flex justify-between text-sm text-gray-600 mb-3">
+              <span className="font-shopee">
+                {currentQuestion.typeName === "Part Instruction"
+                  ? `Instruction`
+                  : `Question ${actualIndex + 1} of ${
+                      filteredTestQuestions.length
+                    }`}
+              </span>
               {!isReviewMode && (
-                <button
-                  onClick={onFinish}
-                  className="w-full bg-[#469B74] text-white py-2 rounded-lg font-medium hover:bg-green-700 transition-colors"
-                >
-                  Finish Test
-                </button>
+                <span className="font-shopee">
+                  {Object.keys(answers).length} of{" "}
+                  {filteredTestQuestions.length} answered
+                </span>
               )}
             </div>
+
+            {!isReviewMode && (
+              <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden mb-4">
+                <div
+                  className="h-full bg-[#469B74]"
+                  style={{
+                    width: `${
+                      (Object.keys(answers).length /
+                        filteredTestQuestions.length) *
+                      100
+                    }%`,
+                  }}
+                ></div>
+              </div>
+            )}
           </div>
+
+          {/* Color Legend */}
+          {renderColorLegend()}
+
+          {/* Question navigation grid */}
+          <div className="grid grid-cols-5 gap-3 mb-8 max-w-[350px] mx-auto">
+            {questions.map((question, index) => {
+              if (question.typeName === "Part Instruction") {
+                return (
+                  <button
+                    key={question.id}
+                    className={`aspect-square w-full p-1 rounded-lg text-xs font-medium flex flex-col items-center justify-center ${getButtonColor(
+                      question,
+                      index
+                    )}`}
+                    onClick={() => onQuestionSelect(index)}
+                  >
+                    <FaInfoCircle className="mb-0.5 text-[10px]" />
+                    <span className="text-[8px]">Instruction</span>
+                  </button>
+                );
+              }
+
+              const questionNumber = getQuestionNumber(index);
+
+              return (
+                <button
+                  key={question.id}
+                  className={`aspect-square w-full p-1 rounded-lg text-xs font-medium flex items-center justify-center ${getButtonColor(
+                    question,
+                    index
+                  )}`}
+                  onClick={() => onQuestionSelect(index)}
+                >
+                  {questionNumber}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Finish button - only show in test mode */}
+          {!isReviewMode && (
+            <button
+              onClick={onFinish}
+              className="w-full bg-[#469B74] text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
+            >
+              Finish Test
+            </button>
+          )}
         </div>
       </div>
     </>
