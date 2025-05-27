@@ -183,7 +183,7 @@ const TestQuestions = ({
                   : "max-h-0 opacity-0"
               }`}
             >
-              <div className="p-6 space-y-4">
+              <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(100vh-200px)]">
                 <div className="space-y-4 pl-11">
                   {[...part.questions]
                     .sort((a, b) => a.order - b.order)
