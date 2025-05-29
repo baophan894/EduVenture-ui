@@ -36,7 +36,7 @@ const FlashCard = ({ flashcard }) => {
   return (
     <div
       onClick={handleViewDocument}
-      className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer h-[320px] flex flex-col border border-gray-100"
+      className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer w-[300px] h-[420px] flex flex-col border border-gray-100"
     >
       {/* Card Header with colored accent */}
       <div className="h-2 bg-[#469B74]"></div>
@@ -55,7 +55,7 @@ const FlashCard = ({ flashcard }) => {
         </div>
 
         {/* Card Count and Status */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-4 ">
           <span className="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-md flex items-center">
             <BookOutlined className="mr-1" />
             {flashcard.questions.length} cards

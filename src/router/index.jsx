@@ -27,6 +27,7 @@ import TestReviewScreen from "../pages/testReview/test-review-screen";
 import NotFound from "../pages/not-found";
 import TestDetailAdmin from "../pages/testDetailAdmin/TestDetailAdmin";
 import CreateTestAdmin from "../pages/createTestAdmin/CreateTestAdmin";
+import CourseDetailPayment from "../pages/CourseDetailPayment";
 
 const RouterManagement = () => {
   return (
@@ -53,6 +54,7 @@ const RouterManagement = () => {
         <Route path="/courses" element={<CourseScreen />}></Route>
         <Route path="/documents" element={<Document />}></Route>
         <Route path="/course/detail/:id" element={<CourseDetail />}></Route>
+        <Route path="/coursepayment/detail" element={<CourseDetailPayment />}></Route>
         <Route path="/learn/:id" element={<CourseBought />}></Route>
         <Route path="/payment/result" element={<PaymentResult />}></Route>
         <Route path="/document/detail/:id" element={<DocumentDetail />}></Route>

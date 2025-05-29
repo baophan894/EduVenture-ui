@@ -2,13 +2,16 @@ import {
   Avatar,
   Button,
   DatePicker,
+  Divider,
   Form,
   Input,
   Menu,
   Modal,
   Popover,
   Select,
+  Space,
   Tag,
+  Typography,
   notification,
 } from "antd";
 import useUserInfo from "../../hook/user/useUserInfo";
@@ -17,7 +20,7 @@ import { useEffect, useState } from "react";
 import moment from "moment";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/http";
-import { AppstoreOutlined, SettingOutlined } from "@ant-design/icons";
+import { AppstoreOutlined, CalendarOutlined, CloseOutlined, EditOutlined, FileTextOutlined, MailOutlined, SaveOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
 import MyLearning from "./components/myLearning";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../components/loading";
@@ -107,6 +110,10 @@ const Profile = () => {
       });
     },
   });
+  const handleSave = (values) => {
+    onFinish(values)
+    setIsEditing(false)
+  }
   const [files, setFiles] = useState(null);
   const handleChangeCV = (info) => {
     const file = info.files[0];
@@ -117,6 +124,14 @@ const Profile = () => {
       setFiles(info.files);
     }
   };
+  const getGenderLabel = (value) => {
+    const option = genderOptions.find((opt) => opt.value === value)
+    return option ? option.label : "Not specified"
+  }
+  const formatDate = (dateString) => {
+    if (!dateString) return "Not specified"
+    return moment(dateString).format("MMMM DD, YYYY")
+  }
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isShowExertRequest, setIsShowExertRequest] = useState(false);
   const [isShowWithdrawModal, setIsShowWithdrawModal] = useState(false);
@@ -219,6 +234,11 @@ const Profile = () => {
       }
     }
   };
+  const { Title, Text } = Typography
+  const [isEditing, setIsEditing] = useState(false)
+  const handleEdit = () => {
+    setIsEditing(true)
+  }
   const getManagement = () => {
     switch (role) {
       case ADMIN: {
@@ -375,113 +395,213 @@ const Profile = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden profile_information">
-          <div className="bg-[#469B74] px-6 py-4">
-            <h2 className="font-shopee text-xl font-semibold text-white">
-              Public profile
-            </h2>
-            <p className="font-shopee text-white/80 text-sm mt-1">
-              Add information about yourself
-            </p>
+          {/* Header */}
+          <div className="bg-gradient-to-r from-[#469B74] to-[#3d8a67] px-6 py-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <Title
+                  level={2}
+                  className="font-shopee mb-1"
+                  style={{ color: 'white' }}
+                >
+                  Public Profile
+                </Title>
+
+                <Text className="font-shopee text-white/90 text-sm">
+                  {isEditing ? "Update your information" : "Your personal information"}
+                </Text>
+              </div>
+              {!isEditing && (
+                <Button
+                  type="primary"
+                  icon={<EditOutlined />}
+                  onClick={handleEdit}
+                  style={{ color: 'white' }}
+                  className="font-shopee hover:bg-white/20 hover:border-white/30"
+                  ghost
+                >
+                  Edit Profile
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="p-6 profile_information_content">
-            <Form onFinish={onFinish} form={form} layout="vertical">
-              <Form.Item
-                label={
-                  <span className="font-shopee-bold text-gray-700 font-medium">
-                    Full Name
-                  </span>
-                }
-                name="fullName"
-                rules={[{ required: true }]}
-              >
-                <Input
-                  className="font-shopee border-gray-300 hover:border-[#469B74] focus:border-[#469B74]"
-                  placeholder="Enter your full name"
-                />
-              </Form.Item>
+            {!isEditing ? (
+              /* View Mode */
+              <div className="space-y-6">
+                {/* Full Name */}
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 bg-[#469B74]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <UserOutlined className="text-[#469B74] text-lg" />
+                  </div>
+                  <div className="flex-1">
+                    <Text className="font-shopee-bold text-gray-500 text-xs uppercase tracking-wide block mb-1">
+                      Full Name
+                    </Text>
+                    <Text className="font-shopee text-gray-900 text-lg font-medium">
+                      {user?.fullName || "Not specified"}
+                    </Text>
+                  </div>
+                </div>
 
-              <Form.Item
-                label={
-                  <span className="font-shopee-bold text-gray-700 font-medium">
-                    Email
-                  </span>
-                }
-                name="email"
-              >
-                <Input
-                  readOnly
-                  className="font-shopee bg-gray-50 border-gray-300"
-                  placeholder="Email"
-                />
-              </Form.Item>
+                <Divider className="my-4" />
 
-              <Form.Item
-                label={
-                  <span className="font-shopee-bold text-gray-700 font-medium">
-                    Gender
-                  </span>
-                }
-                name="gender"
-              >
-                <Select
-                  options={genderOptions}
-                  placeholder="Select your gender"
-                  className="font-shopee border-gray-300 hover:border-[#469B74]"
-                />
-              </Form.Item>
+                {/* Email */}
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <MailOutlined className="text-blue-600 text-lg" />
+                  </div>
+                  <div className="flex-1">
+                    <Text className="font-shopee-bold text-gray-500 text-xs uppercase tracking-wide block mb-1">
+                      Email Address
+                    </Text>
+                    <Text className="font-shopee text-gray-900 text-lg">{user?.email}</Text>
+                    <div className="mt-2">
+                      <Tag color="green" className="font-shopee text-xs">
+                        Verified
+                      </Tag>
+                    </div>
+                  </div>
+                </div>
 
-              <Form.Item
-                label={
-                  <span className="font-shopee-bold text-gray-700 font-medium">
-                    Birthday
-                  </span>
-                }
-                name="dob"
-              >
-                <DatePicker
-                  onChange={(_, dateString) => {
-                    setDob(dateString);
-                  }}
-                  placeholder="Select your birthday"
-                  className="font-shopee w-full border-gray-300 hover:border-[#469B74]"
-                />
-              </Form.Item>
+                <Divider className="my-4" />
 
-              <Form.Item
-                label={
-                  <span className="font-shopee-bold text-gray-700 font-medium">
-                    About you
-                  </span>
-                }
-                name="about"
-              >
-                <Input.TextArea
-                  placeholder="Tell us about yourself..."
-                  className="font-shopee border-gray-300 hover:border-[#469B74] focus:border-[#469B74]"
-                  rows={4}
-                />
-              </Form.Item>
+                {/* Gender */}
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <TeamOutlined className="text-purple-600 text-lg" />
+                  </div>
+                  <div className="flex-1">
+                    <Text className="font-shopee-bold text-gray-500 text-xs uppercase tracking-wide block mb-1">
+                      Gender
+                    </Text>
+                    <Text className="font-shopee text-gray-900 text-lg">{getGenderLabel(user?.gender)}</Text>
+                  </div>
+                </div>
 
-              <Form.Item className="flex justify-end mb-0">
-                {updateProfile.isPending ? (
-                  <Button
-                    loading
-                    className="font-shopee bg-[#469B74] hover:bg-[#3d8a67] border-[#469B74] hover:border-[#3d8a67] text-white"
-                  >
-                    Saving...
-                  </Button>
-                ) : (
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    className="font-shopee-bold bg-[#FCB80B] hover:bg-[#e0a50a] border-[#FCB80B] hover:border-[#e0a50a] text-white"
-                  >
-                    Save Changes
-                  </Button>
-                )}
-              </Form.Item>
-            </Form>
+                <Divider className="my-4" />
+
+                {/* Birthday */}
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <CalendarOutlined className="text-orange-600 text-lg" />
+                  </div>
+                  <div className="flex-1">
+                    <Text className="font-shopee-bold text-gray-500 text-xs uppercase tracking-wide block mb-1">
+                      Birthday
+                    </Text>
+                    <Text className="font-shopee text-gray-900 text-lg">{formatDate(user?.dob)}</Text>
+                  </div>
+                </div>
+
+                <Divider className="my-4" />
+
+                {/* About */}
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <FileTextOutlined className="text-green-600 text-lg" />
+                  </div>
+                  <div className="flex-1">
+                    <Text className="font-shopee-bold text-gray-500 text-xs uppercase tracking-wide block mb-1">
+                      About You
+                    </Text>
+                    <Text className="font-shopee text-gray-900 text-base leading-relaxed">
+                      {user?.about || "No description provided"}
+                    </Text>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Edit Mode */
+              <Form onFinish={handleSave} form={form} layout="vertical">
+                <Form.Item
+                  label={<span className="font-shopee-bold text-gray-700 font-medium">Full Name</span>}
+                  name="fullName"
+                  rules={[{ required: true, message: "Please enter your full name" }]}
+                >
+                  <Input
+                    className="font-shopee border-gray-300 hover:border-[#469B74] focus:border-[#469B74]"
+                    placeholder="Enter your full name"
+                    size="large"
+                  />
+                </Form.Item>
+
+                <Form.Item label={<span className="font-shopee-bold text-gray-700 font-medium">Email</span>} name="email">
+                  <Input
+                    readOnly
+                    className="font-shopee bg-gray-50 border-gray-300"
+                    placeholder="Email"
+                    size="large"
+                    suffix={
+                      <Tag color="green" className="font-shopee">
+                        Verified
+                      </Tag>
+                    }
+                  />
+                </Form.Item>
+
+                <Form.Item label={<span className="font-shopee-bold text-gray-700 font-medium">Gender</span>} name="gender">
+                  <Select options={genderOptions} placeholder="Select your gender" className="font-shopee" size="large" />
+                </Form.Item>
+
+                <Form.Item label={<span className="font-shopee-bold text-gray-700 font-medium">Birthday</span>} name="dob">
+                  <DatePicker
+                    onChange={(_, dateString) => {
+                      setDob(dateString)
+                    }}
+                    placeholder="Select your birthday"
+                    className="font-shopee w-full"
+                    size="large"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  label={<span className="font-shopee-bold text-gray-700 font-medium">About you</span>}
+                  name="about"
+                >
+                  <Input.TextArea
+                    placeholder="Tell us about yourself..."
+                    className="font-shopee border-gray-300 hover:border-[#469B74] focus:border-[#469B74]"
+                    rows={4}
+                    size="large"
+                  />
+                </Form.Item>
+
+                {/* Action Buttons */}
+                <Form.Item className="mb-0">
+                  <Space className="w-full justify-end">
+                    <Button
+                      onClick={handleCancel}
+                      className="font-shopee border-gray-300 text-gray-700 hover:text-gray-900 hover:border-gray-400"
+                      size="large"
+                      icon={<CloseOutlined />}
+                    >
+                      Cancel
+                    </Button>
+                    {updateProfile.isPending ? (
+                      <Button
+                        loading
+                        className="font-shopee bg-[#469B74] hover:bg-[#3d8a67] border-[#469B74] hover:border-[#3d8a67] text-white"
+                        size="large"
+                      >
+                        Saving...
+                      </Button>
+                    ) : (
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        className="font-shopee-bold bg-[#FCB80B] hover:bg-[#e0a50a] border-[#FCB80B] hover:border-[#e0a50a] text-white"
+                        size="large"
+                        icon={<SaveOutlined />}
+                      >
+                        Save Changes
+                      </Button>
+                    )}
+                  </Space>
+                </Form.Item>
+              </Form>
+            )}
           </div>
         </div>
       </div>

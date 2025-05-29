@@ -21,8 +21,8 @@ const PaymentResult = () => {
           {isSuccess ? (
             <div>
               Let check{" "}
-              <Link className="text-[#469B74]" to={"/profile#learn"}>
-                Your learning
+              <Link className="text-[#469B74]" to={"/coursepayment/detail"}>
+                Your course
               </Link>
             </div>
           ) : (

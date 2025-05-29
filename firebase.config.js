@@ -1,13 +1,13 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signOut } from "firebase/auth";
 const firebaseConfig = {
-  apiKey: "AIzaSyDlbwNJ2dtGd9q9If0JzK6k4YN7kX505hQ",
-  authDomain: "testmely-b58bd.firebaseapp.com",
-  projectId: "testmely-b58bd",
-  storageBucket: "testmely-b58bd.appspot.com",
-  messagingSenderId: "541613429718",
-  appId: "1:541613429718:web:0d0a2dc9badb316c3d0a77",
-  measurementId: "G-GBSPFJFHPK",
+  apiKey: "AIzaSyC8p4FpP9UfxhFJw9f9GL0CJD0RupcHmuo",
+  authDomain: "eduveneture.firebaseapp.com",
+  projectId: "eduveneture",
+  storageBucket: "eduveneture.firebasestorage.app",
+  messagingSenderId: "494037332399",
+  appId: "1:494037332399:web:06d0bbeb3ec3e90e057f5a",
+  measurementId: "G-NKN9130R90"
 };
 
 // Initialize Firebase
