@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import {
   FaChevronDown,
   FaChevronUp,
-  FaPlay,
   FaPlus,
   FaTrash,
   FaUndo,
@@ -31,7 +30,7 @@ const TestParts = ({
   setImageFiles,
 }) => {
   // Add function to handle part reordering
-  const handleMovePart = (partIndex, direction) => {
+  const handleMovePart = (partOrder, direction) => {
     if (!isEditing) return;
 
     // Get only active parts and sort them
@@ -39,10 +38,14 @@ const TestParts = ({
       .filter((p) => !p.isDeleted)
       .sort((a, b) => a.order - b.order);
 
-    const partToMove = activeParts[partIndex];
+    // If only one active part left, don't allow moving
+    if (activeParts.length <= 1) return;
+
+    const partToMove = activeParts.find((p) => p.order === partOrder);
     if (!partToMove) return;
 
-    const newIndex = partIndex + direction;
+    const currentIndex = activeParts.findIndex((p) => p.order === partOrder);
+    const newIndex = currentIndex + direction;
 
     // Check if move is valid
     if (newIndex < 0 || newIndex >= activeParts.length) return;
@@ -53,10 +56,10 @@ const TestParts = ({
     // Create new array with updated orders
     const newParts = test.testParts.map((part) => {
       if (!part) return part;
-      if (part.id === partToMove.id) {
+      if (part.order === partToMove.order) {
         return { ...part, order: partToSwap.order };
       }
-      if (part.id === partToSwap.id) {
+      if (part.order === partToSwap.order) {
         return { ...part, order: partToMove.order };
       }
       return part;
@@ -65,6 +68,11 @@ const TestParts = ({
     // Update parts
     handlePartChange(-1, "testParts", newParts);
   };
+
+  // Get count of active parts and highest order
+  const activeParts = test.testParts.filter((p) => !p.isDeleted);
+  const activePartsCount = activeParts.length;
+  const highestOrder = Math.max(...activeParts.map((p) => p.order), 0);
 
   return (
     <div className="space-y-6">
@@ -83,7 +91,7 @@ const TestParts = ({
                   ? "bg-red-50 hover:bg-red-100"
                   : "bg-gray-50 hover:bg-gray-100"
               }`}
-              onClick={() => togglePart(part.id)}
+              onClick={() => togglePart(part.order)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -98,6 +106,7 @@ const TestParts = ({
                         onChange={(value) =>
                           handlePartIconChange(partIndex, value)
                         }
+                        onClick={(e) => e.stopPropagation()}
                         options={availableIcons.map((icon) => ({
                           value: icon.name,
                           label: (
@@ -122,6 +131,7 @@ const TestParts = ({
                             e.target.value
                           )
                         }
+                        onClick={(e) => e.stopPropagation()}
                         className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Part Title"
                         required
@@ -135,6 +145,18 @@ const TestParts = ({
                       <h3 className="text-lg font-semibold">
                         {part.title || part.name}
                       </h3>
+                      {!part.isDeleted && (
+                        <span className="ml-auto px-2 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">
+                          {
+                            part.questions.filter(
+                              (q) =>
+                                !q.isDeleted &&
+                                q.typeName !== "Part Instruction"
+                            ).length
+                          }{" "}
+                          Questions
+                        </span>
+                      )}
                     </>
                   )}
                 </div>
@@ -157,11 +179,11 @@ const TestParts = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleMovePart(partIndex, -1);
+                              handleMovePart(part.order, -1);
                             }}
-                            disabled={partIndex === 0}
+                            disabled={part.order === 1 || activePartsCount <= 1}
                             className={`p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors ${
-                              partIndex === 0
+                              part.order === 1 || activePartsCount <= 1
                                 ? "opacity-50 cursor-not-allowed"
                                 : ""
                             }`}
@@ -172,11 +194,15 @@ const TestParts = ({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleMovePart(partIndex, 1);
+                              handleMovePart(part.order, 1);
                             }}
-                            disabled={partIndex === test.testParts.length - 1}
+                            disabled={
+                              part.order === highestOrder ||
+                              activePartsCount <= 1
+                            }
                             className={`p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors ${
-                              partIndex === test.testParts.length - 1
+                              part.order === highestOrder ||
+                              activePartsCount <= 1
                                 ? "opacity-50 cursor-not-allowed"
                                 : ""
                             }`}
@@ -198,13 +224,17 @@ const TestParts = ({
                       )}
                     </>
                   )}
-                  {expandedParts[part.id] ? <FaChevronUp /> : <FaChevronDown />}
+                  {expandedParts[part.order] ? (
+                    <FaChevronUp />
+                  ) : (
+                    <FaChevronDown />
+                  )}
                 </div>
               </div>
             </div>
             <div
               className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                expandedParts[part.id]
+                expandedParts[part.order]
                   ? "max-h-[1000px] opacity-100"
                   : "max-h-0 opacity-0"
               }`}
@@ -224,13 +254,16 @@ const TestParts = ({
                         <input
                           type="number"
                           value={part.duration}
-                          onChange={(e) =>
-                            handlePartChange(
-                              part.order - 1,
-                              "duration",
-                              parseInt(e.target.value) || 0
-                            )
-                          }
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value);
+                            if (!isNaN(value) && value > 0) {
+                              handlePartChange(
+                                part.order - 1,
+                                "duration",
+                                value
+                              );
+                            }
+                          }}
                           className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="Duration (minutes)"
                           min="1"

@@ -70,7 +70,10 @@ const TestDetails = ({
               <div className="flex gap-2">
                 <Select
                   className="flex-1"
-                  value={test.typeId || undefined}
+                  value={
+                    test.typeId ||
+                    sortedTestTypes.find((type) => type.name === "READING")?.id
+                  }
                   onChange={(value) => {
                     const selectedType = sortedTestTypes.find(
                       (type) => type.id === value
@@ -174,6 +177,7 @@ const TestDetails = ({
                   style={{ height: "42px" }}
                   placeholder="Select a level"
                   required
+                  disabled={!test.languageId}
                 />
                 {showRestoreButtons && (
                   <button

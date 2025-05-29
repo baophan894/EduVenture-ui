@@ -185,6 +185,18 @@ const AnswerSection = ({ question }) => {
       {question.questionType === "Multiple Choice" &&
         renderMultipleChoiceAnswer()}
       {question.questionType === "Fill in Blank" && renderFillInBlankAnswer()}
+
+      {/* Post Answer Detail */}
+      {question.postAnswerDetail && (
+        <div className="mt-6 p-4 border-2 rounded-lg bg-blue-50">
+          <h4 className="text-sm font-medium text-blue-700 mb-2">
+            Additional Information
+          </h4>
+          <p className="text-sm text-blue-600 whitespace-pre-wrap">
+            {question.postAnswerDetail}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
@@ -212,6 +224,7 @@ AnswerSection.propTypes = {
         text: PropTypes.string.isRequired,
       })
     ),
+    postAnswerDetail: PropTypes.string,
   }).isRequired,
 };
 

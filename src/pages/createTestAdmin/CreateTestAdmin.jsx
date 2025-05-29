@@ -155,6 +155,18 @@ const CreateTestAdmin = () => {
         setTestTypes(testTypesData);
         setTestLevels(levelsData);
         setLanguages(languagesData);
+
+        // Set default type to READING after fetching test types
+        const readingType = testTypesData.find(
+          (type) => type.name === "READING"
+        );
+        if (readingType) {
+          setTest((prev) => ({
+            ...prev,
+            typeId: readingType.id,
+            typeName: readingType.name,
+          }));
+        }
       } catch (error) {
         toast.error("Failed to fetch data");
         console.error("Error fetching data:", error);
@@ -471,6 +483,57 @@ const CreateTestAdmin = () => {
       return;
     }
 
+    // Validate instructor description
+    if (!test.instructorDescription?.trim()) {
+      toast.error("Instructor description is required", {
+        duration: 4000,
+        position: "top-right",
+        style: {
+          background: "#EF4444",
+          color: "#fff",
+        },
+      });
+      return;
+    }
+
+    // Validate test parts
+    const hasInvalidParts = test.testParts.some((part) => {
+      // Skip deleted parts
+      if (part.isDeleted) return false;
+
+      // Check if name is empty or only whitespace
+      if (!part.name?.trim()) {
+        toast.error(`Part ${part.order}: Name is required`, {
+          duration: 4000,
+          position: "top-right",
+          style: {
+            background: "#EF4444",
+            color: "#fff",
+          },
+        });
+        return true;
+      }
+
+      // Check if duration is 0 or missing (required for all parts)
+      if (!part.duration || part.duration <= 0) {
+        toast.error(`Part "${part.name}": Duration must be greater than 0`, {
+          duration: 4000,
+          position: "top-right",
+          style: {
+            background: "#EF4444",
+            color: "#fff",
+          },
+        });
+        return true;
+      }
+
+      return false;
+    });
+
+    if (hasInvalidParts) {
+      return;
+    }
+
     setSaving(true);
     try {
       // Create FormData object
@@ -781,6 +844,7 @@ const CreateTestAdmin = () => {
       correctAnswer: "",
       questionOptions: [],
       imageUrl: "",
+      postAnswerDetail: "",
       order: highestOrder + 1, // Set order to highest existing order + 1
     };
 

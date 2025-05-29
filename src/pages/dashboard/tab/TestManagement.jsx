@@ -25,10 +25,11 @@ import {
 } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import debounce from "lodash/debounce";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function TestManagement() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
@@ -45,6 +46,15 @@ export default function TestManagement() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [editingId, setEditingId] = useState(null);
+
+  // Check for message in location state
+  useEffect(() => {
+    if (location.state?.message) {
+      message.success(location.state.message);
+      // Clear the message from state to prevent showing it again
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   // Fetch test types, levels and languages
   useEffect(() => {
@@ -286,7 +296,6 @@ export default function TestManagement() {
         }
       );
       setTests(tests.filter((test) => test.id !== id));
-      message.success("Test deleted successfully");
     } catch (error) {
       message.error("Failed to delete test");
     }
