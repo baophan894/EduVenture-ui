@@ -13,7 +13,7 @@ const ProfileStyle = styled.div`
     
     &_avatar {
       width: 25%;
-      height: 100%;
+     
       padding: 24px 16px;
       border-right: 1px solid #e5e7eb;
       display: flex;

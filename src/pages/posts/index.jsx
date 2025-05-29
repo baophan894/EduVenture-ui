@@ -1,191 +1,33 @@
 "use client"
 
 import React from "react"
-
-import { Avatar, Button, Input, Modal, notification } from "antd"
-import useUserInfo from "../../hook/user/useUserInfo"
-import PostScreenStyle from "./PostScreenStyle"
+import { Avatar, Button, Input, Modal, notification, Card, Typography, Divider, Tooltip } from "antd"
+import {
+  ImageIcon,
+  SmileIcon,
+  MapPinIcon,
+  Users,
+  X,
+  Camera,
+  Globe,
+  MessageCircle,
+  Heart,
+  MoreHorizontal,
+} from "lucide-react"
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import useUserInfo from "../../hook/user/useUserInfo"
+import PostScreenStyle from "./PostScreenStyle"
 import api from "../../api/http"
 import useAllPost from "../../hook/posts/useAllPost"
 import useAllUser from "../../hook/user/useAllUser"
 import Post from "./components/post"
 import Loading from "../../components/loading"
 import useIsLogin from "../../hook/user/useIsLogin"
-import styled from "styled-components"
-import { ImageIcon, SmileIcon, MapPinIcon, Users, X } from "lucide-react"
 
-const StyledModal = styled(Modal)`
-  .ant-modal-content {
-    background-color: #ffffff;
-    border-radius: 8px;
-    
-    padding: 0;
-  }
+const { Title, Text } = Typography
 
-  .ant-modal-header {
-    background-color: #ffffff;
-    border-bottom: 1px solid #469B74;
-    padding: 16px;
-    margin: 0;
-    border-radius: 8px 8px 0 0;
-    text-align: center;
-    position: relative;
-  }
-
-  .ant-modal-title {
-    color: #469B74 !important;
-    font-size: 20px;
-    font-weight: 700;
-  }
-
-  .ant-modal-body {
-    padding: 0;
-  }
-
-  .ant-modal-close {
-    color: #469B74;
-    
-    &:hover {
-      color: #469B74;
-      background-color: #949997;
-    }
-  }
-
-  .close-button {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: #469B74;
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #e4e6eb;
-    
-    &:hover {
-      background-color: #469B74;
-    }
-  }
-
-  .user-section {
-    padding: 16px 16px 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .privacy-button {
-    background-color: #469B74;
-    border: none;
-    color: #e4e6eb;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    
-    &:hover {
-      background-color: #539f7b;
-    }
-  }
-
-  .composer {
-    padding: 0 16px;
-    margin-top: 12px;
-
-    .ant-input {
-      background-color: transparent;
-      border: none;
-      color: #3a3b3c;
-      font-size: 18px;
-      padding: 0;
-      resize: none;
-      
-      &::placeholder {
-        color: #3a3b3c;
-      }
-      
-      &:focus {
-        box-shadow: none;
-      }
-    }
-  }
-
-  .toolbar {
-    margin-top: 20px;
-    padding: 8px 16px;
-    border-top: 1px solid #469B74;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .tools {
-    display: flex;
-    gap: 8px;
-  }
-
-  .tool-button {
-    background: none;
-    border: none;
-    color: #469B74;
-    padding: 8px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    &:hover {
-      background-color: #d9dee4;
-    }
-  }
-
-  .post-button {
-    width: 94%;
-    background-color: #469B74;
-    border: none;
-    color: white;
-    padding: 8px;
-    border-radius: 6px;
-    font-weight: 600;
-    margin: 16px;
-
-    &:hover {
-      background-color: #FCB80B;
-    }
-
-    &:disabled {
-      background-color: #bac0bd;
-      color: #4e4f50;
-      cursor: not-allowed;
-    }
-  }
-
-  .file-input {
-    display: none;
-  }
-
-  .selected-file {
-    margin-top: 8px;
-    color: #3a3b3c;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 0 16px;
-  }
-`
-
-const PostScreen = () => {
+const EnhancedPostScreen = () => {
   const queryClient = useQueryClient()
   const user = useUserInfo()
   const isLogin = useIsLogin()
@@ -254,93 +96,210 @@ const PostScreen = () => {
     <Loading />
   ) : (
     <PostScreenStyle>
-      <div className="posts">
+      <div className="max-w-2xl mx-auto space-y-6">
+        {/* Create Post Card */}
         {!!user && (
-          <div className="posts_heading">
-            <Avatar size={50} src={user?.avatarUrl} />
-            <Input
-              onClick={() => setIsViewModal(true)}
-              placeholder={`Hello ${user?.fullName}, do you have question to discuss ?`}
-            />
-          </div>
+          <Card className="shadow-lg border-0 rounded-xl overflow-hidden">
+            <div className="p-4">
+              <div className="flex items-center space-x-3">
+                <Avatar size={50} src={user?.avatarUrl} className="border-2 border-[#469B74]" />
+                <div className="flex-1">
+                  <Input
+                    onClick={() => setIsViewModal(true)}
+                    placeholder={`Hello ${user?.fullName}, do you have question to discuss?`}
+                    className="rounded-full border-gray-300 hover:border-[#469B74] focus:border-[#469B74] cursor-pointer"
+                    size="large"
+                    style={{
+                      backgroundColor: "#f0f2f5",
+                      border: "none",
+                      fontSize: "16px",
+                    }}
+                  />
+                </div>
+              </div>
+
+              <Divider className="my-4" />
+
+              <div className="flex justify-around">
+                <Button
+                  type="text"
+                  icon={<Camera className="w-5 h-5 text-[#469B74]" />}
+                  className="flex items-center space-x-2 text-gray-600 hover:bg-gray-100 rounded-lg px-4 py-2 font-medium"
+                  onClick={() => setIsViewModal(true)}
+                >
+                  <span>Photo</span>
+                </Button>
+                <Button
+                  type="text"
+                  icon={<MessageCircle className="w-5 h-5 text-[#FCB80B]" />}
+                  className="flex items-center space-x-2 text-gray-600 hover:bg-gray-100 rounded-lg px-4 py-2 font-medium"
+                  onClick={() => setIsViewModal(true)}
+                >
+                  <span>Discussion</span>
+                </Button>
+                <Button
+                  type="text"
+                  icon={<Heart className="w-5 h-5 text-red-500" />}
+                  className="flex items-center space-x-2 text-gray-600 hover:bg-gray-100 rounded-lg px-4 py-2 font-medium"
+                  onClick={() => setIsViewModal(true)}
+                >
+                  <span>Feeling</span>
+                </Button>
+              </div>
+            </div>
+          </Card>
         )}
-        <div className="posts_content mt-10">
+
+        {/* Posts Feed */}
+        <div className="space-y-6">
           {posts?.map((post) => (
             <Post key={post.id} post={post} author={getAuthorByUserId(post.userId)} />
           ))}
         </div>
 
+        {/* Create Post Modal */}
         {isLogin && user && (
-          <StyledModal
-            title="Tạo bài viết"
+          <Modal
+            title={null}
             open={isViewModal}
             onCancel={() => setIsViewModal(false)}
             footer={null}
-            closeIcon={<X />}
-            width={500}
+            closeIcon={null}
+            width={540}
+            className="create-post-modal"
+            styles={{
+              content: {
+                padding: 0,
+                borderRadius: "12px",
+                overflow: "hidden",
+              },
+            }}
           >
-            <div className="user-section">
-              <Avatar size={40} src={user?.avatarUrl} />
-              <button className="privacy-button">
-                <Users size={16} />
-                Công khai
-              </button>
+            {/* Modal Header */}
+            <div className="bg-white border-b border-gray-200 px-4 py-3 relative">
+              <Title level={4} className="text-center text-gray-800 mb-0 font-semibold">
+                Create Post
+              </Title>
+              <Button
+                type="text"
+                icon={<X className="w-5 h-5" />}
+                onClick={() => setIsViewModal(false)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center"
+              />
             </div>
 
-            <div className="composer">
+            {/* User Info Section */}
+            <div className="p-4 bg-white">
+              <div className="flex items-center space-x-3 mb-4">
+                <Avatar size={40} src={user?.avatarUrl} className="border border-gray-200" />
+                <div>
+                  <Text className="font-semibold text-gray-800 block">{user?.fullName}</Text>
+                  <Button
+                    size="small"
+                    icon={<Globe className="w-3 h-3" />}
+                    className="bg-gray-100 border-gray-200 text-gray-600 text-xs rounded-md mt-1"
+                  >
+                    Public
+                  </Button>
+                </div>
+              </div>
+
+              {/* Text Input */}
               <Input.TextArea
-                placeholder={`${user?.fullName} ơi, bạn đang nghĩ gì thế?`}
+                placeholder={`What's on your mind, ${user?.fullName}?`}
                 autoSize={{ minRows: 3, maxRows: 8 }}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
+                className="border-none resize-none text-lg"
+                style={{
+                  fontSize: "18px",
+                  lineHeight: "1.4",
+                  padding: "0",
+                }}
               />
+
+              {/* Selected Image Preview */}
               {imageFile && (
-                <div className="selected-file">
-                  <ImageIcon size={16} />
-                  {imageFile.name}
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex items-center space-x-2 text-gray-600">
+                    <ImageIcon className="w-4 h-4" />
+                    <Text className="text-sm">{imageFile.name}</Text>
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<X className="w-3 h-3" />}
+                      onClick={() => setImageFile(null)}
+                      className="ml-auto"
+                    />
+                  </div>
                 </div>
               )}
             </div>
 
-            <div className="toolbar">
-              <div className="tools">
-                <button className="tool-button" onClick={handleUploadClick}>
-                  <ImageIcon size={20} />
-                </button>
-                <button className="tool-button">
-                  <Users size={20} />
-                </button>
-                <button className="tool-button">
-                  <SmileIcon size={20} />
-                </button>
-                <button className="tool-button">
-                  <MapPinIcon size={20} />
-                </button>
+            {/* Toolbar */}
+            <div className="px-4 py-3 bg-white border-t border-gray-100">
+              <div className="flex items-center justify-between mb-4">
+                <Text className="text-sm font-medium text-gray-700">Add to your post</Text>
+                <div className="flex space-x-2">
+                  <Tooltip title="Photo/Video">
+                    <Button
+                      type="text"
+                      icon={<ImageIcon className="w-5 h-5 text-[#469B74]" />}
+                      onClick={handleUploadClick}
+                      className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                    />
+                  </Tooltip>
+                  <Tooltip title="Tag People">
+                    <Button
+                      type="text"
+                      icon={<Users className="w-5 h-5 text-blue-500" />}
+                      className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                    />
+                  </Tooltip>
+                  <Tooltip title="Feeling/Activity">
+                    <Button
+                      type="text"
+                      icon={<SmileIcon className="w-5 h-5 text-yellow-500" />}
+                      className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                    />
+                  </Tooltip>
+                  <Tooltip title="Check In">
+                    <Button
+                      type="text"
+                      icon={<MapPinIcon className="w-5 h-5 text-red-500" />}
+                      className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                    />
+                  </Tooltip>
+                  <Tooltip title="More">
+                    <Button
+                      type="text"
+                      icon={<MoreHorizontal className="w-5 h-5 text-gray-500" />}
+                      className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                    />
+                  </Tooltip>
+                </div>
               </div>
+
+              {/* Post Button */}
+              <Button
+                type="primary"
+                size="large"
+                onClick={onCreatePost}
+                disabled={!content.trim() && !imageFile}
+                loading={createPost.isPending}
+                className="w-full bg-[#469B74] hover:bg-[#3d8a67] border-[#469B74] hover:border-[#3d8a67] font-semibold rounded-lg h-10"
+              >
+                {createPost.isPending ? "Posting..." : "Post"}
+              </Button>
             </div>
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={handleChangeImage}
-              accept="image/*"
-              className="file-input"
-            />
-
-            <Button
-              className="post-button"
-              onClick={onCreatePost}
-              disabled={!content.trim() && !imageFile}
-              loading={createPost.isPending}
-            >
-              Đăng
-            </Button>
-          </StyledModal>
+            {/* Hidden File Input */}
+            <input ref={fileInputRef} type="file" onChange={handleChangeImage} accept="image/*" className="hidden" />
+          </Modal>
         )}
       </div>
     </PostScreenStyle>
   )
 }
 
-export default PostScreen
-
+export default EnhancedPostScreen

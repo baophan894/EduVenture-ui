@@ -4,7 +4,8 @@ const Footer = () => {
       <div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
         <div className="md:flex md:justify-between">
           <div className="mb-6 md:mb-0">
-            <h2 className="font-shopee text-4xl font-bold text-[#FFFFFF] mb-4">Contact Us</h2>
+            <img src="/logo.png" className="w-30 h-20 mr-6" alt="Logo" />
+
             <div className="font-shopee text-white">
               <p className="mb-2">123-456-7890</p>
               <p className="mb-2">info@mysite.com</p>
