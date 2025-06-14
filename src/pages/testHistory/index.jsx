@@ -41,7 +41,7 @@ function TestSubmissionHistory() {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/test-submissions?sort=submittedAt,desc&page=${pagination.pageNumber}&size=${pagination.pageSize}`,
+        `http://baseURL/api/test-submissions?sort=submittedAt,desc&page=${pagination.pageNumber}&size=${pagination.pageSize}`,
         {
           headers: {
             Authorization: `${localStorage.getItem("token")}`,
@@ -77,7 +77,7 @@ function TestSubmissionHistory() {
     console.log("Deleting submission with ID:", submissionId);
     try {
       const response = await fetch(
-        `http://localhost:8080/api/test-submissions/${submissionId}`,
+        `http://baseURL/api/test-submissions/${submissionId}`,
         {
           method: "DELETE",
           headers: {

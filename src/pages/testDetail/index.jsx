@@ -27,8 +27,8 @@ const TestDetailPage = () => {
       try {
         setLoading(true);
         const [testResponse, reviewsResponse] = await Promise.all([
-          axios.get(`http://localhost:8080/api/tests/${testId}`),
-          axios.get(`http://localhost:8080/api/tests/${testId}/reviews`),
+          axios.get(`http://baseURL/api/tests/${testId}`),
+          axios.get(`http://baseURL/api/tests/${testId}/reviews`),
         ]);
         setTest(testResponse.data);
         setReviews(reviewsResponse.data);

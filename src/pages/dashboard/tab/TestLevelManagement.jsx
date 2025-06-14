@@ -31,8 +31,8 @@ export default function TestLevelManagement() {
   const fetchData = async () => {
     try {
       const [levelsResponse, languagesResponse] = await Promise.all([
-        fetch("http://localhost:8080/api/test-levels"),
-        fetch("http://localhost:8080/api/languages"),
+        fetch("http://baseURL/api/test-levels"),
+        fetch("http://baseURL/api/languages"),
       ]);
 
       const levelsData = await levelsResponse.json();
@@ -70,7 +70,7 @@ export default function TestLevelManagement() {
 
   const handleDelete = async (id) => {
     try {
-      await fetch(`http://localhost:8080/api/test-levels/${id}`, {
+      await fetch(`http://baseURL/api/test-levels/${id}`, {
         method: "DELETE",
       });
       message.success("Test level deleted successfully");
@@ -86,8 +86,8 @@ export default function TestLevelManagement() {
       const values = await form.validateFields();
       const method = editingId ? "PUT" : "POST";
       const url = editingId
-        ? `http://localhost:8080/api/test-levels/${editingId}`
-        : "http://localhost:8080/api/test-levels";
+        ? `http://baseURL/api/test-levels/${editingId}`
+        : "http://baseURL/api/test-levels";
 
       const requestBody = {
         id: editingId || null,

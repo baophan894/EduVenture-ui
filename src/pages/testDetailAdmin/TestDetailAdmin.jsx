@@ -128,7 +128,7 @@ const TestDetailAdmin = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:8080/api/tests/${id}`);
+      const response = await fetch(`http://baseURL/api/tests/${id}`);
       if (!response.ok) {
         throw new Error("Failed to fetch test data");
       }
@@ -157,10 +157,10 @@ const TestDetailAdmin = () => {
           levelsResponse,
           languagesResponse,
         ] = await Promise.all([
-          fetch("http://localhost:8080/api/question-types"),
-          fetch("http://localhost:8080/api/test-types"),
-          fetch("http://localhost:8080/api/test-levels"),
-          fetch("http://localhost:8080/api/languages"),
+          fetch("http://baseURL/api/question-types"),
+          fetch("http://baseURL/api/test-types"),
+          fetch("http://baseURL/api/test-levels"),
+          fetch("http://baseURL/api/languages"),
         ]);
 
         const questionTypesData = await questionTypesResponse.json();
@@ -790,7 +790,7 @@ const TestDetailAdmin = () => {
         }
       }
 
-      const response = await fetch(`http://localhost:8080/api/tests/${id}`, {
+      const response = await fetch(`http://baseURL/api/tests/${id}`, {
         method: "PUT",
         headers: {
           // Don't set Content-Type header - let the browser set it with the boundary
@@ -860,7 +860,7 @@ const TestDetailAdmin = () => {
       return path;
     }
     // Otherwise, assume it's a relative path and prepend the base URL
-    return path ? `http://localhost:8080${path}` : null;
+    return path ? `http://baseURL${path}` : null;
   };
 
   // Check if a question is a multiple choice question
@@ -962,7 +962,7 @@ const TestDetailAdmin = () => {
   const handleConfirmDelete = async () => {
     setDeleting(true);
     try {
-      const response = await fetch(`http://localhost:8080/api/tests/${id}`, {
+      const response = await fetch(`http://baseURL/api/tests/${id}`, {
         method: "DELETE",
       });
 
@@ -1063,7 +1063,7 @@ const TestDetailAdmin = () => {
   // Add refresh levels function
   const refreshLevels = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/test-levels");
+      const response = await fetch("http://baseURL/api/test-levels");
       if (!response.ok) {
         throw new Error("Failed to fetch levels");
       }

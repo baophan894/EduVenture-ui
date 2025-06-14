@@ -27,7 +27,7 @@ export default function LanguageManagement() {
 
   const fetchLanguages = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/languages");
+      const response = await fetch("http://baseURL/api/languages");
       const data = await response.json();
       setLanguages(data);
     } catch (error) {
@@ -52,7 +52,7 @@ export default function LanguageManagement() {
 
   const handleDelete = async (id) => {
     try {
-      await fetch(`http://localhost:8080/api/languages/${id}`, {
+      await fetch(`http://baseURL/api/languages/${id}`, {
         method: "DELETE",
       });
       message.success("Language deleted successfully");
@@ -68,8 +68,8 @@ export default function LanguageManagement() {
       const values = await form.validateFields();
       const method = editingId ? "PUT" : "POST";
       const url = editingId
-        ? `http://localhost:8080/api/languages/${editingId}`
-        : "http://localhost:8080/api/languages";
+        ? `http://baseURL/api/languages/${editingId}`
+        : "http://baseURL/api/languages";
 
       const requestBody = {
         id: editingId || null,

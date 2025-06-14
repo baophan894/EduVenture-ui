@@ -26,9 +26,9 @@ function TestLibraryScreen() {
       try {
         const [typesResponse, levelsResponse, languagesResponse] =
           await Promise.all([
-            fetch("http://localhost:8080/api/test-types"),
-            fetch("http://localhost:8080/api/test-levels"),
-            fetch("http://localhost:8080/api/languages"),
+            fetch("http://baseURL/api/test-types"),
+            fetch("http://baseURL/api/test-levels"),
+            fetch("http://baseURL/api/languages"),
           ]);
 
         const typesData = await typesResponse.json();
@@ -77,7 +77,7 @@ function TestLibraryScreen() {
       });
 
       const response = await fetch(
-        `http://localhost:8080/api/tests?${queryParams.toString()}`
+        `http://baseURL/api/tests?${queryParams.toString()}`
       );
 
       if (!response.ok) {

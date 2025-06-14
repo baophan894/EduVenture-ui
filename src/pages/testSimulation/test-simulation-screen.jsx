@@ -156,7 +156,7 @@ const TestSimulationScreen = ({
       }
 
       const response = await fetch(
-        "http://localhost:8080/api/test-submissions",
+        "http://baseURL/api/test-submissions",
         {
           method: "POST",
           headers,
