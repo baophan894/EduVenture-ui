@@ -140,10 +140,10 @@ const CreateTestAdmin = () => {
           levelsResponse,
           languagesResponse,
         ] = await Promise.all([
-          fetch("http://https://safeeduapi-dev.sit/api/question-types"),
-          fetch("http://https://safeeduapi-dev.sit/api/test-types"),
-          fetch("http://https://safeeduapi-dev.sit/api/test-levels"),
-          fetch("http://https://safeeduapi-dev.sit/api/languages"),
+          fetch("https://safeeduapi-dev.site/api/question-types"),
+          fetch("https://safeeduapi-dev.site/api/test-types"),
+          fetch("https://safeeduapi-dev.site/api/test-levels"),
+          fetch("https://safeeduapi-dev.site/api/languages"),
         ]);
 
         const questionTypesData = await questionTypesResponse.json();
@@ -609,7 +609,7 @@ const CreateTestAdmin = () => {
         }
       }
 
-      const response = await fetch("http://https://safeeduapi-dev.sit/api/tests", {
+      const response = await fetch("https://safeeduapi-dev.site/api/tests", {
         method: "POST",
         headers: {
           // Don't set Content-Type header - let the browser set it with the boundary
@@ -672,7 +672,7 @@ const CreateTestAdmin = () => {
       return path;
     }
     // Otherwise, assume it's a relative path and prepend the base URL
-    return path ? `http://https://safeeduapi-dev.sit${path}` : null;
+    return path ? `https://safeeduapi-dev.site${path}` : null;
   };
 
   // Check if a question is a multiple choice question
@@ -812,7 +812,7 @@ const CreateTestAdmin = () => {
   // Add refresh levels function
   const refreshLevels = async () => {
     try {
-      const response = await fetch("http://https://safeeduapi-dev.sit/api/test-levels");
+      const response = await fetch("https://safeeduapi-dev.site/api/test-levels");
       if (!response.ok) {
         throw new Error("Failed to fetch levels");
       }
@@ -908,7 +908,7 @@ const CreateTestAdmin = () => {
     setDeleting(true);
     try {
       const response = await fetch(
-        `http://https://safeeduapi-dev.sit/api/tests/${test.id}`,
+        `https://safeeduapi-dev.site/api/tests/${test.id}`,
         {
           method: "DELETE",
         }
