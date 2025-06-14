@@ -119,10 +119,10 @@ const CombinedScreen = () => {
     }))
   }
   const modeOptions = [
-    { label: "Basic", value: "basic" },
-    { label: "Advanced", value: "advanced" },
-    { label: "Premium", value: "premium" },
-    { label: "Free", value: "free" },
+    { label: "Public", value: "Public" },
+    { label: "Private", value: "private" },
+    { label: "Sell", value: "sell" },
+    
   ]
 
   // Document file handling - matching the original approach
