@@ -25,9 +25,10 @@ import FlashCard from "../flashcard/components/FlashCard"
 import useAllTopic from "../../hook/topic/useAllTopic"
 import useAllPublicCourse from "../../hook/course/useAllUserCourse"
 import useAllUser from "../../hook/user/useAllUser"
-import useAllFlashCard from "../../hook/flashcard/useAllFlashCard"
+
 import api from "../../api/http"
 import { ACTIVE_RESOURCE } from "../../common/constants"
+import useAllFlashCarPublic from "../../hook/flashcard/useAllFlashCardPublic"
 
 const { TabPane } = Tabs
 const ITEM_DISPLAY = 12
@@ -46,7 +47,7 @@ const CombinedScreen = () => {
   const experts = useAllUser()
   const { courses } = useAllPublicCourse()
   const topics = useAllTopic()
-  const flashcards = useAllFlashCard()
+  const flashcards = useAllFlashCarPublic()
 
   // Fetch documents
   const { data: documents, isLoading: documentsLoading } = useQuery({
@@ -117,6 +118,12 @@ const CombinedScreen = () => {
       label: <span>{topic.name}</span>,
     }))
   }
+  const modeOptions = [
+    { label: "Basic", value: "basic" },
+    { label: "Advanced", value: "advanced" },
+    { label: "Premium", value: "premium" },
+    { label: "Free", value: "free" },
+  ]
 
   // Document file handling - matching the original approach
   const handleChangeBanner = (info) => {
@@ -466,18 +473,19 @@ const CombinedScreen = () => {
 
       {/* Create flashcard modal */}
       <Modal
-        title={
-          <div className="flex items-center gap-2 text-[#469B74] py-1">
-            <div className="w-1.5 h-5 bg-[#469B74] rounded-full mr-1"></div>
-            <span className="font-bold">Create Flashcards</span>
-          </div>
-        }
-        open={isViewModal}
-        onCancel={() => setIsViewModal(false)}
-        footer={null}
-        width={700}
-      >
-        <Form onFinish={onSubmitForm} layout="vertical" className="mt-4">
+      title={
+        <div className="flex items-center gap-2 text-[#469B74] py-1">
+          <div className="w-1.5 h-5 bg-[#469B74] rounded-full mr-1"></div>
+          <span className="font-bold">Create Flashcards</span>
+        </div>
+      }
+      open={isViewModal}
+      onCancel={() => setIsViewModal(false)}
+      footer={null}
+      width={700}
+    >
+      <Form onFinish={onSubmitForm} layout="vertical" className="mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Form.Item name="name" label="Name" rules={[{ required: true }]}>
             <Input className="rounded-md" />
           </Form.Item>
@@ -485,107 +493,120 @@ const CombinedScreen = () => {
           <Form.Item name="topicId" label="Topic" rules={[{ required: true }]}>
             <Select placeholder="Select topic" options={topicOptions()} className="rounded-md" />
           </Form.Item>
+        </div>
 
-          <div className="bg-gray-50 p-4 rounded-lg mb-4">
-            <h3 className="font-medium text-gray-700 mb-4">Upload or Create Flashcards</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Form.Item name="mode" label="Mode" rules={[{ required: true }]}>
+            <Select placeholder="Select mode" options={modeOptions} className="rounded-md" />
+          </Form.Item>
 
-            <Form.Item name="csvFile" label="Upload CSV File">
-              <input
-                type="file"
-                accept=".csv"
-                onChange={(e) => {
-                  const file = e.target.files[0]
-                  if (file) {
-                    setCsvFile(file)
-                  }
-                }}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#469B74] file:text-white hover:file:bg-[#3a7d5e]"
-              />
-              {csvFile && <div className="mt-2 text-sm text-green-600">✓ File selected: {csvFile.name}</div>}
-            </Form.Item>
+          <Form.Item
+            name="price"
+            label="Price"
+            rules={[
+              { required: true, message: "Price is required" },
+              {
+                pattern: /^\d+(\.\d{1,2})?$/,
+                message: "Please enter a valid price",
+              },
+            ]}
+          >
+            <Input type="number" step="0.01" min="0" placeholder="0.00" className="rounded-md" addonBefore="$" />
+          </Form.Item>
+        </div>
 
-            {!csvFile && (
-              <Form.List name="questions">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <div key={key} className="mb-4 p-4 bg-white rounded-lg shadow-sm">
-                        <div className="flex justify-between items-center mb-2">
-                          <h4 className="font-medium">Card #{name + 1}</h4>
-                          <button
-                            type="button"
-                            onClick={() => remove(name)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <MinusCircleOutlined />
-                          </button>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <Form.Item
-                            {...restField}
-                            name={[name, "question"]}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Question is required",
-                              },
-                            ]}
-                            label="Question"
-                          >
-                            <Input.TextArea
-                              placeholder="Enter question"
-                              className="rounded-md"
-                              autoSize={{ minRows: 3 }}
-                            />
-                          </Form.Item>
-                          <Form.Item
-                            {...restField}
-                            name={[name, "answer"]}
-                            rules={[{ required: true, message: "Answer is required" }]}
-                            label="Answer"
-                          >
-                            <Input.TextArea
-                              placeholder="Enter answer"
-                              className="rounded-md"
-                              autoSize={{ minRows: 3 }}
-                            />
-                          </Form.Item>
-                        </div>
+        <div className="bg-gray-50 p-4 rounded-lg mb-4">
+          <h3 className="font-medium text-gray-700 mb-4">Upload or Create Flashcards</h3>
+
+          <Form.Item name="csvFile" label="Upload CSV File">
+            <input
+              type="file"
+              accept=".csv"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  setCsvFile(file)
+                }
+              }}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-[#469B74] file:text-white hover:file:bg-[#3a7d5e]"
+            />
+            {csvFile && <div className="mt-2 text-sm text-green-600">✓ File selected: {csvFile.name}</div>}
+          </Form.Item>
+
+          {!csvFile && (
+            <Form.List name="questions">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <div key={key} className="mb-4 p-4 bg-white rounded-lg shadow-sm">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium">Card #{name + 1}</h4>
+                        <button type="button" onClick={() => remove(name)} className="text-red-500 hover:text-red-700">
+                          <MinusCircleOutlined />
+                        </button>
                       </div>
-                    ))}
-                    <Form.Item>
-                      <Button
-                        type="dashed"
-                        onClick={() => add()}
-                        block
-                        icon={<PlusOutlined />}
-                        className="border-[#469B74] text-[#469B74] hover:text-[#469B74] hover:border-[#469B74]"
-                      >
-                        Add Flashcard
-                      </Button>
-                    </Form.Item>
-                  </>
-                )}
-              </Form.List>
-            )}
-          </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Form.Item
+                          {...restField}
+                          name={[name, "question"]}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Question is required",
+                            },
+                          ]}
+                          label="Question"
+                        >
+                          <Input.TextArea
+                            placeholder="Enter question"
+                            className="rounded-md"
+                            autoSize={{ minRows: 3 }}
+                          />
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "answer"]}
+                          rules={[{ required: true, message: "Answer is required" }]}
+                          label="Answer"
+                        >
+                          <Input.TextArea placeholder="Enter answer" className="rounded-md" autoSize={{ minRows: 3 }} />
+                        </Form.Item>
+                      </div>
+                    </div>
+                  ))}
+                  <Form.Item>
+                    <Button
+                      type="dashed"
+                      onClick={() => add()}
+                      block
+                      icon={<PlusOutlined />}
+                      className="border-[#469B74] text-[#469B74] hover:text-[#469B74] hover:border-[#469B74]"
+                    >
+                      Add Flashcard
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
+          )}
+        </div>
 
-          <Form.Item name="description" label="Description" rules={[{ required: true }]}>
-            <Input.TextArea className="rounded-md" autoSize={{ minRows: 3 }} />
-          </Form.Item>
+        <Form.Item name="description" label="Description" rules={[{ required: true }]}>
+          <Input.TextArea className="rounded-md" autoSize={{ minRows: 3 }} />
+        </Form.Item>
 
-          <Form.Item className="text-right">
-            <Button
-              loading={createFlashCard.isPending || uploadFlashCard.isPending}
-              type="primary"
-              htmlType="submit"
-              className="bg-[#469B74] hover:bg-[#3a7d5e] border-none rounded-md px-6"
-            >
-              {csvFile ? "Upload CSV" : "Create Flashcards"}
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
+        <Form.Item className="text-right">
+          <Button
+            loading={createFlashCard.isPending || uploadFlashCard.isPending}
+            type="primary"
+            htmlType="submit"
+            className="bg-[#469B74] hover:bg-[#3a7d5e] border-none rounded-md px-6"
+          >
+            {csvFile ? "Upload CSV" : "Create Flashcards"}
+          </Button>
+        </Form.Item>
+      </Form>
+    </Modal>
 
       {/* Upload document modal - Updated to match original approach */}
       <Modal
