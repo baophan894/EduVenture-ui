@@ -36,7 +36,7 @@ const TestReviews = ({ test, setTest }) => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:8080/api/tests/${id}/reviews`,
+        `http://baseURL/api/tests/${id}/reviews`,
         {
           params: {
             page: currentPage,
@@ -204,7 +204,7 @@ const TestReviews = ({ test, setTest }) => {
     setDeleting(true);
     try {
       await axios.delete(
-        `http://localhost:8080/api/tests/${id}/reviews/${selectedReview.id}`
+        `http://baseURL/api/tests/${id}/reviews/${selectedReview.id}`
       );
       toast.success("Review deleted successfully");
       setShowDeleteModal(false);

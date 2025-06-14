@@ -27,7 +27,7 @@ export default function TestTypeManagement() {
 
   const fetchTestTypes = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/test-types");
+      const response = await fetch("http://baseURL/api/test-types");
       const data = await response.json();
       setTestTypes(data);
     } catch (error) {
@@ -52,7 +52,7 @@ export default function TestTypeManagement() {
 
   const handleDelete = async (id) => {
     try {
-      await fetch(`http://localhost:8080/api/test-types/${id}`, {
+      await fetch(`http://baseURL/api/test-types/${id}`, {
         method: "DELETE",
       });
       message.success("Test type deleted successfully");
@@ -68,8 +68,8 @@ export default function TestTypeManagement() {
       const values = await form.validateFields();
       const method = editingId ? "PUT" : "POST";
       const url = editingId
-        ? `http://localhost:8080/api/test-types/${editingId}`
-        : "http://localhost:8080/api/test-types";
+        ? `http://baseURL/api/test-types/${editingId}`
+        : "http://baseURL/api/test-types";
 
       const requestBody = {
         id: editingId || null,

@@ -12,7 +12,7 @@ const useAllTest = (initialPage = 0, initialSize = 8) => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:8080/api/tests?page=${page}&size=${initialSize}`
+        `http://baseURL/api/tests?page=${page}&size=${initialSize}`
       );
 
       if (page === 0) {

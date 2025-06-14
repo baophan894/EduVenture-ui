@@ -62,9 +62,9 @@ export default function TestManagement() {
       try {
         const [typesResponse, levelsResponse, languagesResponse] =
           await Promise.all([
-            fetch("http://localhost:8080/api/test-types"),
-            fetch("http://localhost:8080/api/test-levels"),
-            fetch("http://localhost:8080/api/languages"),
+            fetch("http://baseURL/api/test-types"),
+            fetch("http://baseURL/api/test-levels"),
+            fetch("http://baseURL/api/languages"),
           ]);
 
         const typesData = await typesResponse.json();
@@ -113,7 +113,7 @@ export default function TestManagement() {
       });
 
       const response = await fetch(
-        `http://localhost:8080/api/tests?${queryParams.toString()}`
+        `http://baseURL/api/tests?${queryParams.toString()}`
       );
 
       if (!response.ok) {
@@ -290,7 +290,7 @@ export default function TestManagement() {
     try {
       // Replace with actual API call
       await fetch(
-        `http://localhost:8080/api/tests/${id}?typeId=${filterType || ""}`,
+        `http://baseURL/api/tests/${id}?typeId=${filterType || ""}`,
         {
           method: "DELETE",
         }
@@ -313,7 +313,7 @@ export default function TestManagement() {
       if (editingId) {
         // Update existing test
         await fetch(
-          `http://localhost:8080/api/tests/${editingId}?typeId=${
+          `http://baseURL/api/tests/${editingId}?typeId=${
             filterType || ""
           }`,
           {
@@ -331,7 +331,7 @@ export default function TestManagement() {
       } else {
         // Add new test
         const response = await fetch(
-          `http://localhost:8080/api/tests?typeId=${filterType || ""}`,
+          `http://baseURL/api/tests?typeId=${filterType || ""}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

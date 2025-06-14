@@ -140,10 +140,10 @@ const CreateTestAdmin = () => {
           levelsResponse,
           languagesResponse,
         ] = await Promise.all([
-          fetch("http://localhost:8080/api/question-types"),
-          fetch("http://localhost:8080/api/test-types"),
-          fetch("http://localhost:8080/api/test-levels"),
-          fetch("http://localhost:8080/api/languages"),
+          fetch("http://baseURL/api/question-types"),
+          fetch("http://baseURL/api/test-types"),
+          fetch("http://baseURL/api/test-levels"),
+          fetch("http://baseURL/api/languages"),
         ]);
 
         const questionTypesData = await questionTypesResponse.json();
@@ -609,7 +609,7 @@ const CreateTestAdmin = () => {
         }
       }
 
-      const response = await fetch("http://localhost:8080/api/tests", {
+      const response = await fetch("http://baseURL/api/tests", {
         method: "POST",
         headers: {
           // Don't set Content-Type header - let the browser set it with the boundary
@@ -672,7 +672,7 @@ const CreateTestAdmin = () => {
       return path;
     }
     // Otherwise, assume it's a relative path and prepend the base URL
-    return path ? `http://localhost:8080${path}` : null;
+    return path ? `http://baseURL${path}` : null;
   };
 
   // Check if a question is a multiple choice question
@@ -812,7 +812,7 @@ const CreateTestAdmin = () => {
   // Add refresh levels function
   const refreshLevels = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/test-levels");
+      const response = await fetch("http://baseURL/api/test-levels");
       if (!response.ok) {
         throw new Error("Failed to fetch levels");
       }
@@ -908,7 +908,7 @@ const CreateTestAdmin = () => {
     setDeleting(true);
     try {
       const response = await fetch(
-        `http://localhost:8080/api/tests/${test.id}`,
+        `http://baseURL/api/tests/${test.id}`,
         {
           method: "DELETE",
         }

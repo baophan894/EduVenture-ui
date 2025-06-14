@@ -41,7 +41,7 @@ const TestReviewScreen = () => {
         }
 
         const response = await fetch(
-          `http://localhost:8080/api/test-submissions/${id}`,
+          `http://baseURL/api/test-submissions/${id}`,
           {
             headers,
           }
