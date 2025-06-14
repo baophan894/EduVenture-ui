@@ -41,7 +41,7 @@ const TestReviewScreen = () => {
         }
 
         const response = await fetch(
-          `http://baseURL/api/test-submissions/${id}`,
+          `http://https://safeeduapi-dev.sit/api/test-submissions/${id}`,
           {
             headers,
           }
