@@ -27,7 +27,7 @@ export default function LanguageManagement() {
 
   const fetchLanguages = async () => {
     try {
-      const response = await fetch("http://https://safeeduapi-dev.site/api/languages");
+      const response = await fetch("https://safeeduapi-dev.site/api/languages");
       const data = await response.json();
       setLanguages(data);
     } catch (error) {
@@ -52,7 +52,7 @@ export default function LanguageManagement() {
 
   const handleDelete = async (id) => {
     try {
-      await fetch(`http://https://safeeduapi-dev.site/api/languages/${id}`, {
+      await fetch(`https://safeeduapi-dev.site/api/languages/${id}`, {
         method: "DELETE",
       });
       message.success("Language deleted successfully");
@@ -68,8 +68,8 @@ export default function LanguageManagement() {
       const values = await form.validateFields();
       const method = editingId ? "PUT" : "POST";
       const url = editingId
-        ? `http://https://safeeduapi-dev.site/api/languages/${editingId}`
-        : "http://https://safeeduapi-dev.site/api/languages";
+        ? `https://safeeduapi-dev.site/api/languages/${editingId}`
+        : "https://safeeduapi-dev.site/api/languages";
 
       const requestBody = {
         id: editingId || null,

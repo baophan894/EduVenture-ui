@@ -62,9 +62,9 @@ export default function TestManagement() {
       try {
         const [typesResponse, levelsResponse, languagesResponse] =
           await Promise.all([
-            fetch("http://https://safeeduapi-dev.site/api/test-types"),
-            fetch("http://https://safeeduapi-dev.site/api/test-levels"),
-            fetch("http://https://safeeduapi-dev.site/api/languages"),
+            fetch("https://safeeduapi-dev.site/api/test-types"),
+            fetch("https://safeeduapi-dev.site/api/test-levels"),
+            fetch("https://safeeduapi-dev.site/api/languages"),
           ]);
 
         const typesData = await typesResponse.json();
@@ -113,7 +113,7 @@ export default function TestManagement() {
       });
 
       const response = await fetch(
-        `http://https://safeeduapi-dev.site/api/tests?${queryParams.toString()}`
+        `https://safeeduapi-dev.site/api/tests?${queryParams.toString()}`
       );
 
       if (!response.ok) {
@@ -290,7 +290,7 @@ export default function TestManagement() {
     try {
       // Replace with actual API call
       await fetch(
-        `http://https://safeeduapi-dev.site/api/tests/${id}?typeId=${filterType || ""}`,
+        `https://safeeduapi-dev.site/api/tests/${id}?typeId=${filterType || ""}`,
         {
           method: "DELETE",
         }
@@ -313,7 +313,7 @@ export default function TestManagement() {
       if (editingId) {
         // Update existing test
         await fetch(
-          `http://https://safeeduapi-dev.site/api/tests/${editingId}?typeId=${
+          `https://safeeduapi-dev.site/api/tests/${editingId}?typeId=${
             filterType || ""
           }`,
           {
@@ -331,7 +331,7 @@ export default function TestManagement() {
       } else {
         // Add new test
         const response = await fetch(
-          `http://https://safeeduapi-dev.site/api/tests?typeId=${filterType || ""}`,
+          `https://safeeduapi-dev.site/api/tests?typeId=${filterType || ""}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

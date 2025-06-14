@@ -41,7 +41,7 @@ function TestSubmissionHistory() {
 
     try {
       const response = await fetch(
-        `http://https://safeeduapi-dev.site/api/test-submissions?sort=submittedAt,desc&page=${pagination.pageNumber}&size=${pagination.pageSize}`,
+        `https://safeeduapi-dev.site/api/test-submissions?sort=submittedAt,desc&page=${pagination.pageNumber}&size=${pagination.pageSize}`,
         {
           headers: {
             Authorization: `${localStorage.getItem("token")}`,
@@ -77,7 +77,7 @@ function TestSubmissionHistory() {
     console.log("Deleting submission with ID:", submissionId);
     try {
       const response = await fetch(
-        `http://https://safeeduapi-dev.site/api/test-submissions/${submissionId}`,
+        `https://safeeduapi-dev.site/api/test-submissions/${submissionId}`,
         {
           method: "DELETE",
           headers: {

@@ -26,9 +26,9 @@ function TestLibraryScreen() {
       try {
         const [typesResponse, levelsResponse, languagesResponse] =
           await Promise.all([
-            fetch("http://https://safeeduapi-dev.site/api/test-types"),
-            fetch("http://https://safeeduapi-dev.site/api/test-levels"),
-            fetch("http://https://safeeduapi-dev.site/api/languages"),
+            fetch("https://safeeduapi-dev.site/api/test-types"),
+            fetch("https://safeeduapi-dev.site/api/test-levels"),
+            fetch("https://safeeduapi-dev.site/api/languages"),
           ]);
 
         const typesData = await typesResponse.json();
@@ -77,7 +77,7 @@ function TestLibraryScreen() {
       });
 
       const response = await fetch(
-        `http://https://safeeduapi-dev.site/api/tests?${queryParams.toString()}`
+        `https://safeeduapi-dev.site/api/tests?${queryParams.toString()}`
       );
 
       if (!response.ok) {

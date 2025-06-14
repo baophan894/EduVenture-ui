@@ -45,7 +45,7 @@ const ReviewsTab = () => {
         return;
       }
       const response = await axios.get(
-        `http://https://safeeduapi-dev.site/api/tests/${testId}/reviews/check`,
+        `https://safeeduapi-dev.site/api/tests/${testId}/reviews/check`,
         {
           headers: {
             Authorization: token,
@@ -69,7 +69,7 @@ const ReviewsTab = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://https://safeeduapi-dev.site/api/tests/${testId}/reviews`,
+        `https://safeeduapi-dev.site/api/tests/${testId}/reviews`,
         {
           params: {
             page: currentPage,
@@ -232,7 +232,7 @@ const ReviewsTab = () => {
       setSubmitting(true);
       const token = localStorage.getItem("token");
       await axios.post(
-        `http://https://safeeduapi-dev.site/api/tests/${testId}/reviews`,
+        `https://safeeduapi-dev.site/api/tests/${testId}/reviews`,
         newReview,
         {
           headers: {

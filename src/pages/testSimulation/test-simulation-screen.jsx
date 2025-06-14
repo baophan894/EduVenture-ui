@@ -156,7 +156,7 @@ const TestSimulationScreen = ({
       }
 
       const response = await fetch(
-        "http://https://safeeduapi-dev.site/api/test-submissions",
+        "https://safeeduapi-dev.site/api/test-submissions",
         {
           method: "POST",
           headers,
