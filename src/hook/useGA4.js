@@ -6,8 +6,7 @@ export const useGA4 = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const fullPath = location.pathname + location.search;
-    trackPageView(fullPath);
-    console.log("GA4 Page View Tracked:", fullPath); // Optional debug log
-  }, [location]);
+    // Track page view whenever location changes
+    trackPageView(location);
+  }, [location]); // Re-run effect when location changes
 };
