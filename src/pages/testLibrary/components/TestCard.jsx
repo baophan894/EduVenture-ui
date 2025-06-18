@@ -6,14 +6,11 @@ import {
   StarOutlined,
 } from "@ant-design/icons";
 import PropTypes from "prop-types";
-import { trackTestStart } from "../../../../services/analytics";
 
 const TestCard = ({ test }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    // Track test view when user clicks on test card
-    trackTestStart(test.id, test.title);
     navigate(`/test-library/detail/${test.id}`);
   };
 

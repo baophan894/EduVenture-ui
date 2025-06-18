@@ -12,7 +12,6 @@ import QuestionHeader from "./question-header";
 import Timer from "./timer";
 import AudioPlayer from "./audio-player";
 import PropTypes from "prop-types";
-import { trackTestComplete } from "../../services/analytics";
 
 // Layout options
 const LAYOUTS = {
@@ -177,13 +176,6 @@ const TestSimulationScreen = ({
       const result = await response.json();
       console.log("Response data:", result);
       setTestResult(result);
-
-      // Track test completion with score
-      const scorePercentage = result.totalCorrectAnswers
-        ? Math.round((result.totalCorrectAnswers / result.totalQuestions) * 100)
-        : 0;
-      trackTestComplete(test.id, test.title, scorePercentage);
-
       setShowResultsModal(true);
     } catch (error) {
       console.error("Error submitting test:", error);

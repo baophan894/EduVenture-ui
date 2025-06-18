@@ -11,7 +11,6 @@ import {
 import useAllUser from "../../../hook/user/useAllUser";
 import getReviewStatus from "../../../helpers/getReviewStatus";
 import { ACTIVE_RESOURCE } from "../../../common/constants";
-import { trackFlashcardView } from "../../../services/analytics";
 
 const FlashCard = ({ flashcard }) => {
   const token = localStorage.getItem("token");
@@ -21,8 +20,6 @@ const FlashCard = ({ flashcard }) => {
     if (token == null) {
       navigate("/login");
     } else {
-      // Track flashcard view
-      trackFlashcardView(flashcard.id, flashcard.name);
       navigate(`/flashCard/detail/${flashcard.id}`);
     }
   };

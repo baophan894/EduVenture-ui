@@ -11,7 +11,6 @@ import ReviewsTab from "./components/reviews-tab";
 import Sidebar from "./components/sidebar";
 import TabNavigation from "./components/tab-navigation";
 import TestBanner from "./components/test-banner";
-import { trackTestStart } from "../../services/analytics";
 
 const TestDetailPage = () => {
   const { testId } = useParams();
@@ -46,10 +45,6 @@ const TestDetailPage = () => {
   }, [testId]);
 
   const handleStartTest = () => {
-    // Track test start
-    if (test) {
-      trackTestStart(test.id, test.title);
-    }
     setIsTesting(true);
   };
 

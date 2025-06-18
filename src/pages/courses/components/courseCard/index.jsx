@@ -4,7 +4,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
-import { trackCourseView } from "../../../../services/analytics";
 
 const CourseCard = ({ course, expert }) => {
   const token = localStorage.getItem("token");
@@ -14,11 +13,7 @@ const CourseCard = ({ course, expert }) => {
 
   const handleClick = () => {
     if (!token) navigate("/login");
-    else {
-      // Track course view when user clicks on course card
-      trackCourseView(course.id, course.name);
-      navigate(`/course/detail/${course.id}`);
-    }
+    else navigate(`/course/detail/${course.id}`);
   };
 
   const handleLikeClick = (e) => {

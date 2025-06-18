@@ -17,7 +17,6 @@ import useToken from "../../hook/user/useToken";
 import useAllPublicCourse from "../../hook/course/useAllUserCourse";
 import { useParams } from "react-router-dom";
 import useAllUser from "../../hook/user/useAllUser";
-import { trackCourseView, trackCoursePurchase } from "../../services/analytics";
 
 const CourseDetail = () => {
   const [selectedLesson, setSelectedLesson] = useState(null);
@@ -122,13 +121,6 @@ const CourseDetail = () => {
     },
   };
 
-  // Track course view when component mounts
-  useState(() => {
-    if (course) {
-      trackCourseView(course.id, course.name);
-    }
-  }, [course]);
-
   const toggleSection = (sectionTitle) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -144,14 +136,8 @@ const CourseDetail = () => {
   const onConfirmBuy = () => {
     const formData = new FormData();
     formData.append("courseId", course.id);
-
-    // Track course purchase attempt
-    trackCoursePurchase(course.id, course.name, course.price);
-
     buyMutation.mutate(formData, {
       onSuccess(data) {
-        // Track successful purchase
-        trackCoursePurchase(course.id, course.name, course.price);
         window.location.replace(data.data);
       },
       onError(data) {

@@ -5,7 +5,6 @@ import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import LoginWithGoogleButton from "../../components/loginWithGoogle";
 import api from "../../api/http";
-import { trackUserRegistration, trackNewUser } from "../../services/analytics";
 
 const SignUpWrapper = styled.div`
   min-height: 80vh;
@@ -79,24 +78,13 @@ const SignUpScreen = () => {
   const navigate = useNavigate();
 
   const onFinish = (body) => {
-    // Track registration attempt
-    trackUserRegistration("email");
-
     registerMutation.mutate(body, {
       onSuccess(data) {
-        // Track successful registration
-        trackUserRegistration("email_success");
-
-        // Track new user registration
-        trackNewUser(data.data?.id || "new_registration", "email_registration");
-
         navigate(`/verify?email=${data.data.email}`);
         notification.success({ message: "Register successfully" });
         queryClient.invalidateQueries("PUBLIC_USER");
       },
       onError(data) {
-        // Track failed registration
-        trackUserRegistration("email_failed");
         notification.error({ message: data.response.data.message });
       },
     });

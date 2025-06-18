@@ -5,7 +5,6 @@ import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import LoginWithGoogleButton from "../../components/loginWithGoogle";
 import api from "../../api/http";
-import { trackUserLogin, trackNewUser } from "../../services/analytics";
 
 const SignInWrapper = styled.div`
   min-height: 80vh;
@@ -91,23 +90,7 @@ const SignInScreen = () => {
   });
 
   const onFinish = (body) => {
-    // Track login attempt
-    trackUserLogin("email");
-
     loginMutation.mutate(body, {
-      onSuccess(data) {
-        // Track successful login
-        trackUserLogin("email_success");
-
-        // Check if this is a new user (first login)
-        const isFirstLogin = !localStorage.getItem("hasLoggedIn");
-        if (isFirstLogin) {
-          trackNewUser(data.data.id || "new_user", "email_login");
-          localStorage.setItem("hasLoggedIn", "true");
-        }
-
-        notification.success({ message: "Login successful!" });
-      },
       onError(data) {
         if (data.response.data.message === "not_verify_yet") {
           reverifyMutation.mutate(
@@ -119,8 +102,6 @@ const SignInScreen = () => {
             }
           );
         }
-        // Track failed login
-        trackUserLogin("email_failed");
         notification.error({ message: data.response.data.message });
       },
     });

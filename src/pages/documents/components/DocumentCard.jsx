@@ -11,7 +11,6 @@ import {
 import useAllUser from "../../../hook/user/useAllUser";
 import getReviewStatus from "../../../helpers/getReviewStatus";
 import { ACTIVE_RESOURCE } from "../../../common/constants";
-import { trackDocumentView } from "../../../services/analytics";
 
 const DocumentCard = ({ document }) => {
   const token = localStorage.getItem("token");
@@ -21,8 +20,6 @@ const DocumentCard = ({ document }) => {
     if (token == null) {
       navigate("/login");
     } else {
-      // Track document view
-      trackDocumentView(document.id, document.title);
       navigate(`/document/detail/${document.id}`);
     }
   };
