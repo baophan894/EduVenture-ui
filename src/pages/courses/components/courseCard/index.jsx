@@ -1,25 +1,30 @@
-"use client"
+"use client";
 
 /* eslint-disable react/prop-types */
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { FaEye } from "react-icons/fa"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaEye } from "react-icons/fa";
+import { trackCourseView } from "../../../../services/analytics";
 
 const CourseCard = ({ course, expert }) => {
-  const token = localStorage.getItem("token")
-  const navigate = useNavigate()
-  const [isHovered, setIsHovered] = useState(false)
-  const [isLiked, setIsLiked] = useState(false)
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+  const [isHovered, setIsHovered] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
 
   const handleClick = () => {
-    if (!token) navigate("/login")
-    else navigate(`/course/detail/${course.id}`)
-  }
+    if (!token) navigate("/login");
+    else {
+      // Track course view when user clicks on course card
+      trackCourseView(course.id, course.name);
+      navigate(`/course/detail/${course.id}`);
+    }
+  };
 
   const handleLikeClick = (e) => {
-    e.stopPropagation()
-    setIsLiked(!isLiked)
-  }
+    e.stopPropagation();
+    setIsLiked(!isLiked);
+  };
 
   // Calculate likes (using the total from reviews for now)
   // const likes = course?.reviews?.length || 0
@@ -33,7 +38,7 @@ const CourseCard = ({ course, expert }) => {
       style={{
         boxShadow: isHovered
           ? "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-          : "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+          : "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
       }}
     >
       {/* Course Image */}
@@ -41,37 +46,51 @@ const CourseCard = ({ course, expert }) => {
         <img
           alt={course.name}
           src={course.bannerUrl || "/placeholder.svg"}
-          className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`}
+          className={`w-full h-full object-cover transition-transform duration-700 ${
+            isHovered ? "scale-110" : "scale-100"
+          }`}
         />
         <div
-          className={`absolute inset-0 bg-black transition-opacity duration-300 ${isHovered ? 'opacity-20' : 'opacity-0'}`}
+          className={`absolute inset-0 bg-black transition-opacity duration-300 ${
+            isHovered ? "opacity-20" : "opacity-0"
+          }`}
         ></div>
       </div>
 
       {/* Course Content */}
       <div className="flex flex-col flex-1 p-4">
-        <h3 className={`text-lg font-semibold text-gray-900 mb-2 transition-colors duration-300 ${isHovered ? 'text-[#469B74]' : ''}`}>
+        <h3
+          className={`text-lg font-semibold text-gray-900 mb-2 transition-colors duration-300 ${
+            isHovered ? "text-[#469B74]" : ""
+          }`}
+        >
           {course.name}
         </h3>
         <p className="text-sm text-gray-600 mb-4 line-clamp-2 min-h-[40px]">
-          {course.description || "Learn amazing skills with this comprehensive course."}
+          {course.description ||
+            "Learn amazing skills with this comprehensive course."}
         </p>
 
         {/* Price Section */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-baseline">
             <span className="text-sm text-gray-500">$</span>
-            <span className={`text-xl font-semibold transition-all duration-300 ${isHovered ? 'text-[#469B74] scale-110' : 'text-gray-800'}`}>
+            <span
+              className={`text-xl font-semibold transition-all duration-300 ${
+                isHovered ? "text-[#469B74] scale-110" : "text-gray-800"
+              }`}
+            >
               {course.price.toLocaleString("vi-VN")}
             </span>
           </div>
           <button
             onClick={(e) => {
-              e.stopPropagation()
-              handleClick()
+              e.stopPropagation();
+              handleClick();
             }}
-            className={`bg-[#469B74] text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 ${isHovered ? 'bg-[#5bbd8b] shadow-lg scale-105' : ''
-              }`}
+            className={`bg-[#469B74] text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 ${
+              isHovered ? "bg-[#5bbd8b] shadow-lg scale-105" : ""
+            }`}
           >
             Order Now
           </button>
@@ -85,17 +104,16 @@ const CourseCard = ({ course, expert }) => {
             onClick={handleLikeClick}
           >
             <FaEye
-              className={`transition-all duration-300 ${isHovered
-                  ? 'scale-110 text-black' 
-                  : 'text-black'          
-                }`}
+              className={`transition-all duration-300 ${
+                isHovered ? "scale-110 text-black" : "text-black"
+              }`}
             />
             <span>100 View</span>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CourseCard
+export default CourseCard;

@@ -3,7 +3,7 @@ import api from "../../api/http";
 import { notification } from "antd";
 import { signInWithPopup } from "firebase/auth";
 import { GoogleProvider, auth } from "../../../firebase.config";
-import { trackUserLogin } from "../../services/analytics";
+import { trackUserLogin, trackNewUser } from "../../services/analytics";
 
 const LoginWithGoogleButton = () => {
   const socialLoginMutation = useMutation({
@@ -23,9 +23,18 @@ const LoginWithGoogleButton = () => {
       socialLoginMutation.mutate(
         { name, sid, picture, email },
         {
-          onSuccess() {
+          onSuccess(data) {
             // Track successful Google login
             trackUserLogin("google_success");
+
+            // Check if this is a new user (first Google login)
+            const isFirstGoogleLogin =
+              !localStorage.getItem("hasGoogleLoggedIn");
+            if (isFirstGoogleLogin) {
+              trackNewUser(data.data?.id || sid, "google_login");
+              localStorage.setItem("hasGoogleLoggedIn", "true");
+            }
+
             notification.success({ message: "Login successful!" });
           },
           onError() {

@@ -31,6 +31,56 @@ export const trackUserEngagement = (engagementTimeMs) => {
   });
 };
 
+// Track active users (users who perform actions)
+export const trackActiveUser = (userId, userType = "registered") => {
+  ReactGA.event({
+    category: "user",
+    action: "active_user",
+    label: userType,
+    value: userId,
+  });
+};
+
+// Track new users (first-time visitors/registrations)
+export const trackNewUser = (userId, source = "direct") => {
+  ReactGA.event({
+    category: "user",
+    action: "new_user",
+    label: source,
+    value: userId,
+  });
+};
+
+// Track returning users
+export const trackReturningUser = (userId, daysSinceLastVisit) => {
+  ReactGA.event({
+    category: "user",
+    action: "returning_user",
+    label: `${daysSinceLastVisit}_days`,
+    value: userId,
+  });
+};
+
+// Track user session start
+export const trackSessionStart = (userId, sessionDuration = 0) => {
+  ReactGA.event({
+    category: "session",
+    action: "session_start",
+    label: userId,
+    value: sessionDuration,
+  });
+};
+
+// Track user session end
+export const trackSessionEnd = (userId, sessionDuration) => {
+  ReactGA.event({
+    category: "session",
+    action: "session_end",
+    label: userId,
+    value: sessionDuration,
+  });
+};
+
 // Track course interactions
 export const trackCourseView = (courseId, courseName) => {
   trackEvent("course", "view", courseName, courseId);
@@ -83,6 +133,11 @@ export default {
   trackPageView,
   trackEvent,
   trackUserEngagement,
+  trackActiveUser,
+  trackNewUser,
+  trackReturningUser,
+  trackSessionStart,
+  trackSessionEnd,
   trackCourseView,
   trackCoursePurchase,
   trackTestStart,

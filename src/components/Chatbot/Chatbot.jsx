@@ -2,6 +2,7 @@ import { useChatbot } from "../../context/ChatbotContext";
 import useIsLogin from "../../hook/user/useIsLogin";
 import { useState, useEffect, useRef } from "react";
 import { getGeminiResponse } from "../../services/gemini";
+import { trackChatbotMessage } from "../../services/analytics";
 
 const Chatbot = () => {
   const { isOpen, toggleChat } = useChatbot();
@@ -28,6 +29,9 @@ const Chatbot = () => {
   const handleSendMessage = async () => {
     if (!message.trim()) return;
 
+    // Track user message
+    trackChatbotMessage("user_message");
+
     // Add user message
     setMessages((prev) => [...prev, { type: "user", content: message }]);
     setMessage("");
@@ -39,9 +43,15 @@ const Chatbot = () => {
       // Get response from Gemini
       const response = await getGeminiResponse(message);
 
+      // Track bot response
+      trackChatbotMessage("bot_response");
+
       // Add bot response
       setMessages((prev) => [...prev, { type: "bot", content: response }]);
     } catch (error) {
+      // Track error
+      trackChatbotMessage("bot_error");
+
       // Handle error
       setMessages((prev) => [
         ...prev,

@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import LoginWithGoogleButton from "../../components/loginWithGoogle";
 import api from "../../api/http";
-import { trackUserLogin } from "../../services/analytics";
+import { trackUserLogin, trackNewUser } from "../../services/analytics";
 
 const SignInWrapper = styled.div`
   min-height: 80vh;
@@ -95,9 +95,17 @@ const SignInScreen = () => {
     trackUserLogin("email");
 
     loginMutation.mutate(body, {
-      onSuccess() {
+      onSuccess(data) {
         // Track successful login
         trackUserLogin("email_success");
+
+        // Check if this is a new user (first login)
+        const isFirstLogin = !localStorage.getItem("hasLoggedIn");
+        if (isFirstLogin) {
+          trackNewUser(data.data.id || "new_user", "email_login");
+          localStorage.setItem("hasLoggedIn", "true");
+        }
+
         notification.success({ message: "Login successful!" });
       },
       onError(data) {

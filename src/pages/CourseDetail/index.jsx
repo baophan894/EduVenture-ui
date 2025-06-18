@@ -1,21 +1,29 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Avatar, Button, Card, Modal, notification } from "antd"
-import { useMutation } from "@tanstack/react-query"
-import { CheckCircle, Clock, BookOpen, GraduationCap, ChevronDown, ChevronUp } from "lucide-react"
-import CourseDetailStyle from "./CourseDetailStyle"
-import api from "../../api/http"
-import useToken from "../../hook/user/useToken"
+import { useState } from "react";
+import { Avatar, Button, Card, Modal, notification } from "antd";
+import { useMutation } from "@tanstack/react-query";
+import {
+  CheckCircle,
+  Clock,
+  BookOpen,
+  GraduationCap,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import CourseDetailStyle from "./CourseDetailStyle";
+import api from "../../api/http";
+import useToken from "../../hook/user/useToken";
 import useAllPublicCourse from "../../hook/course/useAllUserCourse";
 import { useParams } from "react-router-dom";
 import useAllUser from "../../hook/user/useAllUser";
+import { trackCourseView, trackCoursePurchase } from "../../services/analytics";
 
 const CourseDetail = () => {
-  const [selectedLesson, setSelectedLesson] = useState(null)
-  const [expandedSections, setExpandedSections] = useState({})
-  const [isShowConfirm, setIsShowConfirm] = useState(false)
-  const token = useToken()
+  const [selectedLesson, setSelectedLesson] = useState(null);
+  const [expandedSections, setExpandedSections] = useState({});
+  const [isShowConfirm, setIsShowConfirm] = useState(false);
+  const token = useToken();
   const { id } = useParams();
   // Payment mutation
   const buyMutation = useMutation({
@@ -27,7 +35,7 @@ const CourseDetail = () => {
         },
       });
     },
-  })
+  });
   const { courses } = useAllPublicCourse();
   const experts = useAllUser();
   const course = courses?.find((course) => course.id == id);
@@ -46,7 +54,12 @@ const CourseDetail = () => {
       {
         title: "Giới thiệu sơ lược về HSK",
         lessons: [
-          { id: 1, title: "HSK là gì", duration: "10:00", videoUrl: "https://www.youtube.com/embed/example1" },
+          {
+            id: 1,
+            title: "HSK là gì",
+            duration: "10:00",
+            videoUrl: "https://www.youtube.com/embed/example1",
+          },
           {
             id: 2,
             title: "Lợi ích của việc học HSK",
@@ -64,8 +77,18 @@ const CourseDetail = () => {
             duration: "20:00",
             videoUrl: "https://www.youtube.com/embed/example3",
           },
-          { id: 4, title: "Cấu trúc câu", duration: "18:00", videoUrl: "https://www.youtube.com/embed/example4" },
-          { id: 5, title: "Ngữ pháp cơ bản", duration: "25:00", videoUrl: "https://www.youtube.com/embed/example5" },
+          {
+            id: 4,
+            title: "Cấu trúc câu",
+            duration: "18:00",
+            videoUrl: "https://www.youtube.com/embed/example4",
+          },
+          {
+            id: 5,
+            title: "Ngữ pháp cơ bản",
+            duration: "25:00",
+            videoUrl: "https://www.youtube.com/embed/example5",
+          },
         ],
       },
     ],
@@ -97,32 +120,45 @@ const CourseDetail = () => {
       avatar: "/placeholder.svg",
       title: "Chinese Expert",
     },
-  }
+  };
+
+  // Track course view when component mounts
+  useState(() => {
+    if (course) {
+      trackCourseView(course.id, course.name);
+    }
+  }, [course]);
 
   const toggleSection = (sectionTitle) => {
     setExpandedSections((prev) => ({
       ...prev,
       [sectionTitle]: !prev[sectionTitle],
-    }))
-  }
+    }));
+  };
 
   const selectLesson = (lesson) => {
-    setSelectedLesson(lesson)
-  }
+    setSelectedLesson(lesson);
+  };
 
   // Handle buy confirmation
   const onConfirmBuy = () => {
-    const formData = new FormData()
-    formData.append("courseId", course.id)
+    const formData = new FormData();
+    formData.append("courseId", course.id);
+
+    // Track course purchase attempt
+    trackCoursePurchase(course.id, course.name, course.price);
+
     buyMutation.mutate(formData, {
       onSuccess(data) {
-        window.location.replace(data.data)
+        // Track successful purchase
+        trackCoursePurchase(course.id, course.name, course.price);
+        window.location.replace(data.data);
       },
       onError(data) {
-        notification.error({ message: data.response.data.message })
+        notification.error({ message: data.response.data.message });
       },
-    })
-  }
+    });
+  };
 
   return (
     <CourseDetailStyle>
@@ -133,17 +169,30 @@ const CourseDetail = () => {
             <h2>Mục lục khóa học</h2>
             {courseData.sections.map((section, index) => (
               <div key={index} className="course-section">
-                <div className="section-header" onClick={() => toggleSection(section.title)}>
+                <div
+                  className="section-header"
+                  onClick={() => toggleSection(section.title)}
+                >
                   <h3>{section.title}</h3>
-                  {expandedSections[section.title] ? <ChevronUp /> : <ChevronDown />}
+                  {expandedSections[section.title] ? (
+                    <ChevronUp />
+                  ) : (
+                    <ChevronDown />
+                  )}
                 </div>
                 {expandedSections[section.title] && (
                   <ul className="section-lessons">
                     {section.lessons.map((lesson) => (
                       <li
                         key={lesson.id}
-                        onClick={lesson.id === 1 ? () => selectLesson(lesson) : undefined}
-                        className={`${selectedLesson?.id === lesson.id ? "active" : ""} ${lesson.id !== 1 ? "disabled" : ""}`}
+                        onClick={
+                          lesson.id === 1
+                            ? () => selectLesson(lesson)
+                            : undefined
+                        }
+                        className={`${
+                          selectedLesson?.id === lesson.id ? "active" : ""
+                        } ${lesson.id !== 1 ? "disabled" : ""}`}
                       >
                         {lesson.title}
                       </li>
@@ -172,7 +221,9 @@ const CourseDetail = () => {
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center text-black">
                     <span className="mb-[4px]">$</span>{" "}
-                    <p className="text-4xl font-bold">{courseData.price.toLocaleString("vi-VN")}</p>
+                    <p className="text-4xl font-bold">
+                      {courseData.price.toLocaleString("vi-VN")}
+                    </p>
                   </div>
 
                   {/* Course benefits */}
@@ -202,7 +253,9 @@ const CourseDetail = () => {
                   </Button>
 
                   {/* Money-back guarantee */}
-                  <p className="text-center text-xs text-gray-500 mt-2">Đảm bảo hoàn tiền trong 30 ngày</p>
+                  <p className="text-center text-xs text-gray-500 mt-2">
+                    Đảm bảo hoàn tiền trong 30 ngày
+                  </p>
                 </div>
               </Card>
             </div>
@@ -230,7 +283,11 @@ const CourseDetail = () => {
 
             <div className="video-container">
               <iframe
-                src={selectedLesson ? selectedLesson.videoUrl : courseData.sections[0].lessons[0].videoUrl}
+                src={
+                  selectedLesson
+                    ? selectedLesson.videoUrl
+                    : courseData.sections[0].lessons[0].videoUrl
+                }
                 title="Course Preview"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -286,9 +343,13 @@ const CourseDetail = () => {
             </div>
 
             <div className="font-shopee instructor-section">
-              <Avatar size={64} src={courseData.instructor.avatar} alt={courseData.instructor.name} />
+              <Avatar
+                size={64}
+                src={courseData.instructor.avatar}
+                alt={courseData.instructor.name}
+              />
               <div className="instructor-info">
-                <h3>{expert?.fullName}{" "}</h3>
+                <h3>{expert?.fullName} </h3>
                 <p>{courseData.instructor.title}</p>
               </div>
             </div>
@@ -298,46 +359,54 @@ const CourseDetail = () => {
 
       {/* Payment Confirmation Modal */}
       <Modal
-      confirmLoading={buyMutation.isPending}
-      title={<span className="text-[#469B74] text-xl font-semibold flex items-center ">Are you sure to buy </span>}
-      open={isShowConfirm}
-      onCancel={() => setIsShowConfirm(false)}
-      onOk={onConfirmBuy}
-      className="rounded-lg overflow-hidden"
-      footer={[
-        <Button
-          key="cancel"
-          onClick={() => setIsShowConfirm(false)}
-          className="border border-[#469B74] text-[#469B74] hover:bg-[#469B74]/10 mr-2"
-        >
-          Cancel
-        </Button>,
-        <Button
-          key="buy"
-          onClick={onConfirmBuy}
-          loading={buyMutation.isPending}
-          type="primary"
-          
-        >
-          Confirm Purchase
-        </Button>,
-      ]}
-    >
-      <Card
-        className="w-full max-w-sm mx-auto border-2 border-[#469B74] rounded-lg overflow-hidden shadow-md"
-        cover={
-          <img alt={course?.name} src={course?.bannerUrl || "/placeholder.svg"} className="w-full h-40 object-cover" />
+        confirmLoading={buyMutation.isPending}
+        title={
+          <span className="text-[#469B74] text-xl font-semibold flex items-center ">
+            Are you sure to buy{" "}
+          </span>
         }
+        open={isShowConfirm}
+        onCancel={() => setIsShowConfirm(false)}
+        onOk={onConfirmBuy}
+        className="rounded-lg overflow-hidden"
+        footer={[
+          <Button
+            key="cancel"
+            onClick={() => setIsShowConfirm(false)}
+            className="border border-[#469B74] text-[#469B74] hover:bg-[#469B74]/10 mr-2"
+          >
+            Cancel
+          </Button>,
+          <Button
+            key="buy"
+            onClick={onConfirmBuy}
+            loading={buyMutation.isPending}
+            type="primary"
+          >
+            Confirm Purchase
+          </Button>,
+        ]}
       >
-        <div className="flex items-center p-4">
-          <span className=" text-xl font-bold">$</span>
-          <p className="text-4xl font-bold  ml-1">{course?.price.toLocaleString("vi-VN")}</p>
-        </div>
-      </Card>
-    </Modal>
+        <Card
+          className="w-full max-w-sm mx-auto border-2 border-[#469B74] rounded-lg overflow-hidden shadow-md"
+          cover={
+            <img
+              alt={course?.name}
+              src={course?.bannerUrl || "/placeholder.svg"}
+              className="w-full h-40 object-cover"
+            />
+          }
+        >
+          <div className="flex items-center p-4">
+            <span className=" text-xl font-bold">$</span>
+            <p className="text-4xl font-bold  ml-1">
+              {course?.price.toLocaleString("vi-VN")}
+            </p>
+          </div>
+        </Card>
+      </Modal>
     </CourseDetailStyle>
-  )
-}
+  );
+};
 
-export default CourseDetail
-
+export default CourseDetail;
