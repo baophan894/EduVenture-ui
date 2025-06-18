@@ -5,9 +5,21 @@ export const initGA4 = () => {
   ReactGA.initialize("G-XJ31C68KYK");
 };
 
-// Track page views
-export const trackPageView = (path) => {
-  ReactGA.send({ hitType: "pageview", page: path });
+// Track page views with full URL and title
+export const trackPageView = (location) => {
+  const pagePath = location.pathname + location.search;
+  ReactGA.send({
+    hitType: "pageview",
+    page: pagePath,
+    title: document.title,
+  });
+
+  // Also send to gtag for enhanced measurement
+  window.gtag("event", "page_view", {
+    page_path: pagePath,
+    page_title: document.title,
+    page_location: window.location.href,
+  });
 };
 
 // Track custom events (if needed in the future)
