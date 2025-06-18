@@ -3,6 +3,7 @@ import api from "../../api/http";
 import { notification } from "antd";
 import { signInWithPopup } from "firebase/auth";
 import { GoogleProvider, auth } from "../../../firebase.config";
+import { trackUserLogin } from "../../services/analytics";
 
 const LoginWithGoogleButton = () => {
   const socialLoginMutation = useMutation({
@@ -12,16 +13,33 @@ const LoginWithGoogleButton = () => {
   });
 
   const loginWithGoogle = async () => {
-    const { user } = await signInWithPopup(auth, GoogleProvider);
-    const { displayName: name, uid: sid, photoURL: picture, email } = user;
-    socialLoginMutation.mutate(
-      { name, sid, picture, email },
-      {
-        onError() {
-          notification.success({ message: "Can't login with google" });
-        },
-      }
-    );
+    try {
+      // Track Google login attempt
+      trackUserLogin("google");
+
+      const { user } = await signInWithPopup(auth, GoogleProvider);
+      const { displayName: name, uid: sid, photoURL: picture, email } = user;
+
+      socialLoginMutation.mutate(
+        { name, sid, picture, email },
+        {
+          onSuccess() {
+            // Track successful Google login
+            trackUserLogin("google_success");
+            notification.success({ message: "Login successful!" });
+          },
+          onError() {
+            // Track failed Google login
+            trackUserLogin("google_failed");
+            notification.error({ message: "Can't login with google" });
+          },
+        }
+      );
+    } catch (error) {
+      // Track Google login error
+      trackUserLogin("google_error");
+      notification.error({ message: "Google login failed" });
+    }
   };
 
   return (
