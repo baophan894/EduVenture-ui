@@ -1,6 +1,6 @@
 import ReactGA from "react-ga4";
 
-// Initialize GA4 with your Measurement ID
+// Initialize GA4
 export const initGA4 = () => {
   ReactGA.initialize("G-XJ31C68KYK");
 };
@@ -12,9 +12,14 @@ export const trackPageView = (path) => {
 
 // Track custom events (if needed in the future)
 export const trackEvent = (action, category, label) => {
-  ReactGA.event({
-    action: action,
-    category: category,
-    label: label,
-  });
+  try {
+    ReactGA.event({
+      action: action,
+      category: category,
+      label: label,
+    });
+    console.log("Event tracked:", { action, category, label });
+  } catch (error) {
+    console.error("Failed to track event:", error);
+  }
 };
