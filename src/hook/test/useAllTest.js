@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { baseURL } from "../../api/constants";
 
 const useAllTest = (initialPage = 0, initialSize = 8) => {
   const [tests, setTests] = useState([]);
@@ -12,7 +13,7 @@ const useAllTest = (initialPage = 0, initialSize = 8) => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://baseURL/api/tests?page=${page}&size=${initialSize}`
+        `${baseURL}/api/tests?page=${page}&size=${initialSize}`
       );
 
       if (page === 0) {
