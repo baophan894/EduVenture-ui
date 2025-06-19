@@ -6,7 +6,7 @@ const useAllStudent = (courseId) => {
   return useQuery({
     queryKey: ["STUDENTS"],
     queryFn: () =>
-      api.get(`/course/students?courseId=${courseId}`, {
+      api.get(`/courses/students?courseId=${courseId}`, {
         headers: {
           Authorization: token,
         },

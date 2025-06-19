@@ -6,7 +6,7 @@ const useAllBoughtCourse = () => {
   return useQuery({
     queryKey: ["BOUGHT_COURSE"],
     queryFn: () =>
-      api.get("/course/bought", {
+      api.get("/courses/bought", {
         headers: {
           Authorization: token,
         },
