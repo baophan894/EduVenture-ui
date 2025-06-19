@@ -6,7 +6,7 @@ const useAllPendingCourse = () => {
   return useQuery({
     queryKey: ["PENDING_COURSE"],
     queryFn: () =>
-      api.get("/course/pending", {
+      api.get("/courses/pending", {
         headers: {
           Authorization: token,
         },
