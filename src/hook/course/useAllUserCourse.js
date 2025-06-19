@@ -4,7 +4,7 @@ import api from "../../api/http";
 const useAllPublicCourse = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["PUBLIC_COURSE"],
-    queryFn: () => api.get("/public/courses"),
+    queryFn: () => api.get("/courses/public"),
   });
   return { courses: data?.data, isLoading };
 };

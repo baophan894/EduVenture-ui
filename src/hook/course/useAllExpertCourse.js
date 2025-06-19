@@ -6,7 +6,7 @@ const useAllExpertCourse = () => {
   return useQuery({
     queryKey: ["EXPERT_COURSE"],
     queryFn: () =>
-      api.get("/expert/courses", {
+      api.get("/courses/expert", {
         headers: {
           Authorization: token,
         },
