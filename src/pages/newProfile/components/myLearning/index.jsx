@@ -1,588 +1,467 @@
+/* eslint-disable react/prop-types */
 "use client"
 
-import { Card, Tabs, Progress, Button, Typography, Space } from "antd"
-import { CalendarOutlined, ClockCircleOutlined } from "@ant-design/icons"
-import styled from "styled-components"
-
-// Add these imports at the top
-import { motion } from "framer-motion"
 import { useState } from "react"
+import { Card, Button, Tag, Spin, Empty } from "antd"
+import { useQuery } from "@tanstack/react-query"
+import { BookOpen, Clock, Play, CreditCard, Users, Lock, Library } from "lucide-react"
 
-const { Title, Text } = Typography
-const { TabPane } = Tabs
+import { useNavigate } from "react-router-dom"
+import useToken from "antd/es/theme/useToken"
+import api from "../../../../api/http"
 
-// Custom theme colors
-const primaryColor = "#469B74" // Green
-const secondaryColor = "#FCB80B" // Yellow/Gold
-const whiteColor = "#FFFFFF" // White
-
-// Styled component for custom tab styling
-// Replace the StyledTabs styled component with this enhanced version
-const StyledTabs = styled(Tabs)`
-  .ant-tabs-tab {
-    border-radius: 6px 6px 0 0 !important;
-    margin: 0 4px 0 0 !important;
-    padding: 8px 16px !important;
-    transition: all 0.3s ease;
-    font-family:"font-shopee";
-
-    &:hover {
-      color: ${primaryColor} !important;
-      transform: translateY(-3px);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-  }
-
-  .ant-tabs-tab-active {
-    background-color: ${primaryColor} !important;
-    border-color: ${primaryColor} !important;
-    font-family: "font-shopee";
-    .ant-tabs-tab-btn {
-      color: ${whiteColor} !important;
-      font-family: "font-shopee"
-    }
-  }
-
-  .ant-tabs-nav {
-    margin-bottom: 16px;
-  }
-
-  .ant-tabs-nav-list {
-    border-bottom: 2px solid ${primaryColor};
-    font-family: "font-shopee";
-  }
-`
-
-// Modify the MyLearning component to include the useState hook
 const MyLearning = () => {
-  // Add this state for tab change animation
-  const [ setActiveKey] = useState("in-progress")
+  const token = useToken()
+  const navigate = useNavigate()
+  const [activeTab, setActiveTab] = useState("saved")
+
+  // Fetch bought courses (saved section)
+  const {
+    data: boughtCourses,
+    isLoading: boughtLoading,
+    error: boughtError,
+  } = useQuery({
+    queryKey: ["boughtCourses"],
+    queryFn: async () => {
+      const response = await api.get("/courses/bought", {
+        headers: { Authorization: token },
+      })
+      return response.data
+    },
+    enabled: !!token,
+  })
+
+  // Fetch public flashcards (library section)
+  const {
+    data: publicFlashcards,
+    isLoading: publicLoading,
+    error: publicError,
+  } = useQuery({
+    queryKey: ["publicFlashcards"],
+    queryFn: async () => {
+      const response = await api.get("/flashcards/public", {
+        headers: { Authorization: token },
+      })
+      return response.data
+    },
+    enabled: !!token,
+  })
+
+  // Fetch sold flashcards
+  const {
+    data: soldFlashcards,
+    isLoading: soldLoading,
+    error: soldError,
+  } = useQuery({
+    queryKey: ["soldFlashcards"],
+    queryFn: async () => {
+      const response = await api.get("/flashcards/sell", {
+        headers: { Authorization: token },
+      })
+      return response.data
+    },
+    enabled: !!token,
+  })
+
+  // Fetch private flashcards
+  const {
+    data: privateFlashcards,
+    isLoading: privateLoading,
+    error: privateError,
+  } = useQuery({
+    queryKey: ["privateFlashcards"],
+    queryFn: async () => {
+      const response = await api.get("/flashcards/private", {
+        headers: { Authorization: token },
+      })
+      return response.data
+    },
+    enabled: !!token,
+  })
+
+  const handleContinueLearning = (courseId) => {
+    navigate(`/coursepayment/detail/${courseId}`)
+  }
+
+  const handleViewFlashcard = (flashcardId) => {
+    navigate(`/flashCard/detail/${flashcardId}`)
+  }
+
+  const calculateTotalLessons = (mainSections) => {
+    return mainSections?.reduce((total, section) => total + (section.subSections?.length || 0), 0) || 0
+  }
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  }
+
+  const CourseCard = ({ course }) => {
+    const totalLessons = calculateTotalLessons(course.mainSections)
+    const estimatedDuration = `${Math.max(1, Math.floor(totalLessons * 0.5))}h`
+
+    return (
+      <Card
+        className="course-card hover:shadow-lg transition-all duration-300 border border-gray-200"
+        cover={
+          <div className="relative">
+            <img alt={course.name} src={course.bannerUrl || "/placeholder.svg"} className="w-full h-48 object-cover" />
+            <div className="absolute top-3 right-3">
+              <Tag color="green" className="font-medium">
+                Purchased
+              </Tag>
+            </div>
+            {course.orders?.[0]?.paymentStatus === "paid" && (
+              <div className="absolute top-3 left-3">
+                <Tag color="blue" className="font-medium">
+                  Paid
+                </Tag>
+              </div>
+            )}
+          </div>
+        }
+        actions={[
+          <Button
+            key="continue"
+            type="primary"
+            icon={<Play className="w-4 h-4" />}
+            onClick={() => handleContinueLearning(course.id)}
+            className="bg-[#469B74] border-[#469B74] hover:bg-[#3d8a67]"
+          >
+            Continue Learning
+          </Button>,
+        ]}
+      >
+        <div className="p-2">
+          <h3 className="text-lg font-semibold mb-2 line-clamp-2">{course.name}</h3>
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2">{course.description}</p>
+
+          {/* Price */}
+          <div className="mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold text-[#469B74]">${course.price?.toLocaleString() || "0"}</span>
+            </div>
+          </div>
+
+          {/* Course Info */}
+          <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
+            <div className="flex items-center gap-1">
+              <BookOpen className="w-4 h-4" />
+              <span>{totalLessons} lessons</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              <span>{estimatedDuration}</span>
+            </div>
+          </div>
+
+          {/* Purchase Date */}
+          <div className="text-xs text-gray-500">
+            Purchased: {formatDate(course.orders?.[0]?.createdAt || course.createdAt)}
+          </div>
+        </div>
+      </Card>
+    )
+  }
+
+  const FlashcardCard = ({ flashcard, showPrice = false }) => {
+    const getStateColor = (state) => {
+      switch (state) {
+        case "active":
+          return "green"
+        case "pending":
+          return "orange"
+        default:
+          return "gray"
+      }
+    }
+
+    const getModeIcon = (mode) => {
+      switch (mode) {
+        case "public":
+          return <Users className="w-4 h-4" />
+        case "sell":
+          return <CreditCard className="w-4 h-4" />
+        case "private":
+          return <Lock className="w-4 h-4" />
+        default:
+          return <BookOpen className="w-4 h-4" />
+      }
+    }
+
+    const getModeColor = (mode) => {
+      switch (mode) {
+        case "public":
+          return "blue"
+        case "sell":
+          return "gold"
+        case "private":
+          return "purple"
+        default:
+          return "gray"
+      }
+    }
+
+    return (
+      <Card
+        className="flashcard-card hover:shadow-lg transition-all duration-300 border border-gray-200"
+        actions={[
+          <Button
+            key="view"
+            type="primary"
+            icon={<BookOpen className="w-4 h-4" />}
+            onClick={() => handleViewFlashcard(flashcard.id)}
+            className="bg-[#469B74] border-[#469B74] hover:bg-[#3d8a67]"
+          >
+            Study Now
+          </Button>,
+        ]}
+      >
+        <div className="p-2">
+          {/* Header with tags */}
+          <div className="flex justify-between items-start mb-3">
+            <div className="flex gap-2">
+              <Tag color={getModeColor(flashcard.mode)} icon={getModeIcon(flashcard.mode)} className="font-medium">
+                {flashcard.mode.charAt(0).toUpperCase() + flashcard.mode.slice(1)}
+              </Tag>
+              <Tag color={getStateColor(flashcard.state)} className="font-medium">
+                {flashcard.state.charAt(0).toUpperCase() + flashcard.state.slice(1)}
+              </Tag>
+            </div>
+          </div>
+
+          <h3 className="text-lg font-semibold mb-2 line-clamp-2">{flashcard.name}</h3>
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2">{flashcard.description}</p>
+
+          {/* Price (for sell mode) */}
+          {showPrice && flashcard.price && (
+            <div className="mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-bold text-[#FCB80B]">${flashcard.price?.toLocaleString()}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Flashcard Info */}
+          <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
+            <div className="flex items-center gap-1">
+              <BookOpen className="w-4 h-4" />
+              <span>{flashcard.questions?.length || 0} cards</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              <span>{Math.max(1, Math.floor((flashcard.questions?.length || 0) * 0.1))}min</span>
+            </div>
+          </div>
+
+          {/* Created Date */}
+          <div className="text-xs text-gray-500">Created: {formatDate(flashcard.createdAt)}</div>
+        </div>
+      </Card>
+    )
+  }
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "saved":
+        if (boughtLoading) {
+          return (
+            <div className="flex justify-center items-center py-12">
+              <Spin size="large" />
+            </div>
+          )
+        }
+
+        if (boughtError) {
+          return (
+            <div className="text-center py-12">
+              <p className="text-red-600">Error loading purchased courses</p>
+            </div>
+          )
+        }
+
+        if (!boughtCourses || boughtCourses.length === 0) {
+          return (
+            <Empty description="No purchased courses yet" image={Empty.PRESENTED_IMAGE_SIMPLE} className="py-12">
+              <Button type="primary" onClick={() => navigate("/courses")} className="bg-[#469B74] border-[#469B74]">
+                Browse Courses
+              </Button>
+            </Empty>
+          )
+        }
+
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {boughtCourses.map((course) => (
+              <CourseCard key={course.id} course={course} />
+            ))}
+          </div>
+        )
+
+      case "library":
+        if (publicLoading) {
+          return (
+            <div className="flex justify-center items-center py-12">
+              <Spin size="large" />
+            </div>
+          )
+        }
+
+        if (publicError) {
+          return (
+            <div className="text-center py-12">
+              <p className="text-red-600">Error loading public flashcards</p>
+            </div>
+          )
+        }
+
+        if (!publicFlashcards || publicFlashcards.length === 0) {
+          return (
+            <Empty description="No public flashcards yet" image={Empty.PRESENTED_IMAGE_SIMPLE} className="py-12">
+              <Button type="primary" onClick={() => navigate("/flashcards")} className="bg-[#469B74] border-[#469B74]">
+                Create Flashcard
+              </Button>
+            </Empty>
+          )
+        }
+
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {publicFlashcards.map((flashcard) => (
+              <FlashcardCard key={flashcard.id} flashcard={flashcard} />
+            ))}
+          </div>
+        )
+
+      case "sold":
+        if (soldLoading) {
+          return (
+            <div className="flex justify-center items-center py-12">
+              <Spin size="large" />
+            </div>
+          )
+        }
+
+        if (soldError) {
+          return (
+            <div className="text-center py-12">
+              <p className="text-red-600">Error loading sold flashcards</p>
+            </div>
+          )
+        }
+
+        if (!soldFlashcards || soldFlashcards.length === 0) {
+          return (
+            <Empty description="No flashcards for sale yet" image={Empty.PRESENTED_IMAGE_SIMPLE} className="py-12">
+              <Button type="primary" onClick={() => navigate("/flashcards")} className="bg-[#469B74] border-[#469B74]">
+                Create Flashcard to Sell
+              </Button>
+            </Empty>
+          )
+        }
+
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {soldFlashcards.map((flashcard) => (
+              <FlashcardCard key={flashcard.id} flashcard={flashcard} showPrice={true} />
+            ))}
+          </div>
+        )
+
+      case "private":
+        if (privateLoading) {
+          return (
+            <div className="flex justify-center items-center py-12">
+              <Spin size="large" />
+            </div>
+          )
+        }
+
+        if (privateError) {
+          return (
+            <div className="text-center py-12">
+              <p className="text-red-600">Error loading private flashcards</p>
+            </div>
+          )
+        }
+
+        if (!privateFlashcards || privateFlashcards.length === 0) {
+          return (
+            <Empty description="No private flashcards yet" image={Empty.PRESENTED_IMAGE_SIMPLE} className="py-12">
+              <Button type="primary" onClick={() => navigate("/flashcards")} className="bg-[#469B74] border-[#469B74]">
+                Create Private Flashcard
+              </Button>
+            </Empty>
+          )
+        }
+
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {privateFlashcards.map((flashcard) => (
+              <FlashcardCard key={flashcard.id} flashcard={flashcard} />
+            ))}
+          </div>
+        )
+
+      default:
+        return null
+    }
+  }
 
   return (
-    <div className="font-shopee">
-       <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-      style={{ maxWidth: 1200, margin: "20px auto", padding: "0 16px" }}
-    >
-      <motion.div initial={{ x: -20 }} animate={{ x: 0 }} transition={{ duration: 0.5 }}>
-        <Title className=" font-shopee" level={3} style={{ color: primaryColor, marginBottom: 16 }}>
-          My Learning
-        </Title>
-      </motion.div>
+    <div className="my-learning-section bg-white rounded-lg shadow-md p-6 mt-6">
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">My Learning</h2>
+        <p className="text-gray-600">Manage your courses and flashcards</p>
+      </div>
 
-      <StyledTabs className="font-shopee" defaultActiveKey="library" type="card" onChange={(key) => setActiveKey(key)}>
-        <TabPane className="font-shopee" tab="Library" key="library">
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-          >
-            <Card
-              title="My Public Flashcards"
-              headStyle={{ backgroundColor: primaryColor, color: whiteColor }}
-              className="font-shopee hover:shadow-lg transition-shadow duration-300"
-            >
-              <Card
-                bodyStyle={{ padding: 16 }}
-                className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-              >
-                <div style={{ display: "flex", gap: 16 }}>
-                  <div
-                    style={{
-                      width: 80,
-                      height: 80,
-                      backgroundColor: `${primaryColor}20`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: 4,
-                    }}
-                    className="transition-transform duration-300 hover:scale-110 hover:rotate-3"
-                  >
-                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <Title className="font-shopee" level={5} style={{ margin: 0 }}>
-                      Digital Marketing Mid-Terms
-                    </Title>
-                    <Text className="font-shopee" type="secondary">50 cards</Text>
+      {/* Tabs */}
+      <div className="flex gap-4 mb-6 border-b border-gray-200 overflow-x-auto">
+        <button
+          onClick={() => setActiveTab("saved")}
+          className={`pb-3 px-1 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
+            activeTab === "saved" ? "text-[#469B74] border-b-2 border-[#469B74]" : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <CreditCard className="w-4 h-4" />
+          Purchased Courses ({boughtCourses?.length || 0})
+        </button>
+        <button
+          onClick={() => setActiveTab("library")}
+          className={`pb-3 px-1 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
+            activeTab === "library" ? "text-[#469B74] border-b-2 border-[#469B74]" : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <Library className="w-4 h-4" />
+          Public Library ({publicFlashcards?.length || 0})
+        </button>
+        <button
+          onClick={() => setActiveTab("sold")}
+          className={`pb-3 px-1 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
+            activeTab === "sold" ? "text-[#469B74] border-b-2 border-[#469B74]" : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <CreditCard className="w-4 h-4" />
+          For Sale ({soldFlashcards?.length || 0})
+        </button>
+        <button
+          onClick={() => setActiveTab("private")}
+          className={`pb-3 px-1 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
+            activeTab === "private" ? "text-[#469B74] border-b-2 border-[#469B74]" : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          <Lock className="w-4 h-4" />
+          Private ({privateFlashcards?.length || 0})
+        </button>
+      </div>
 
-                   
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <Button
-                      type="primary"
-                      style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
-                      className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
-                    >
-                      Practice
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-              <Card
-                bodyStyle={{ padding: 16 }}
-                className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-              >
-                <div style={{ display: "flex", gap: 16 }}>
-                  <div
-                    style={{
-                      width: 80,
-                      height: 80,
-                      backgroundColor: `${primaryColor}20`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: 4,
-                    }}
-                    className="transition-transform duration-300 hover:scale-110 hover:rotate-3"
-                  >
-                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <Title className="font-shopee" level={5} style={{ margin: 0 }}>
-                      Digital Marketing Terms
-                    </Title>
-                    <Text className="font-shopee" type="secondary">50 cards</Text>
-
-  
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <Button
-                      type="primary"
-                      style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
-                      className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
-                    >
-                      Practice
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            </Card>
-       
-              
-          </motion.div>
-        </TabPane>
-
-        <TabPane tab="Private" key="private">
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-          >
-            <Card
-            
-              title="My Flashcards"
-              headStyle={{ backgroundColor: primaryColor, color: whiteColor }}
-              className="font-shopee hover:shadow-lg transition-shadow duration-300"
-            >
-              <Card
-                bodyStyle={{ padding: 16 }}
-                className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-              >
-                <div style={{ display: "flex", gap: 16 }}>
-                  <div
-                    style={{
-                      width: 80,
-                      height: 80,
-                      backgroundColor: `${primaryColor}20`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: 4,
-                    }}
-                    className="transition-transform duration-300 hover:scale-110 hover:rotate-3"
-                  >
-                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <Title className="font-shopee" level={5} style={{ margin: 0 }}>
-                      Digital Marketing Mid-Terms
-                    </Title>
-                    <Text className="font-shopee" type="secondary">50 cards</Text>
-
-                   
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <Button
-                      type="primary"
-                      style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
-                      className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
-                    >
-                      Practice
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-              <Card
-                bodyStyle={{ padding: 16 }}
-                className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-              >
-                <div style={{ display: "flex", gap: 16 }}>
-                  <div
-                    style={{
-                      width: 80,
-                      height: 80,
-                      backgroundColor: `${primaryColor}20`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: 4,
-                    }}
-                    className="transition-transform duration-300 hover:scale-110 hover:rotate-3"
-                  >
-                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <Title className="font-shopee" level={5} style={{ margin: 0 }}>
-                      Digital Marketing Terms
-                    </Title>
-                    <Text className="font-shopee" type="secondary">50 cards</Text>
-
-  
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <Button
-                      type="primary"
-                      style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
-                      className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
-                    >
-                      Practice
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-              <Card
-                bodyStyle={{ padding: 16 }}
-                className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-              >
-                <div style={{ display: "flex", gap: 16 }}>
-                  <div
-                    style={{
-                      width: 80,
-                      height: 80,
-                      backgroundColor: `${primaryColor}20`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: 4,
-                    }}
-                    className="transition-transform duration-300 hover:scale-110 hover:rotate-3"
-                  >
-                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <Title className="font-shopee" level={5} style={{ margin: 0 }}>
-                      International Business
-                    </Title>
-                    <Text className="font-shopee" type="secondary">50 cards</Text>
-
-  
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <Button
-                      type="primary"
-                      style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
-                      className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
-                    >
-                      Practice
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-              <Card
-                bodyStyle={{ padding: 16 }}
-                className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-              >
-                <div style={{ display: "flex", gap: 16 }}>
-                  <div
-                    style={{
-                      width: 80,
-                      height: 80,
-                      backgroundColor: `${primaryColor}20`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: 4,
-                    }}
-                    className="transition-transform duration-300 hover:scale-110 hover:rotate-3"
-                  >
-                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <Title className="font-shopee" level={5} style={{ margin: 0 }}>
-                      Bussiness Law
-                    </Title>
-                    <Text className="font-shopee" type="secondary">50 cards</Text>
-
-  
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <Button
-                      type="primary"
-                      style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
-                      className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
-                    >
-                      Practice
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            </Card>
-       
-              
-          </motion.div>
-        </TabPane>
-
-        <TabPane tab="Saved" key="saved">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <Card
-            
-              title="Saved Courses"
-              style={{ marginBottom: 16 }}
-              headStyle={{ backgroundColor: primaryColor, color: whiteColor }}
-              className="font-shopee hover:shadow-lg transition-shadow duration-300"
-            >
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.5 }}>
-                <Card
-                  style={{ marginBottom: 16 }}
-                  bodyStyle={{ padding: 16 }}
-                  className="font-shopee-bold hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-                >
-                  <div style={{ display: "flex", gap: 16 }}>
-                    <img
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-JIk6sipvv1E2pQuxUTY0REIPHIN45O.png"
-                      alt="Digital Strategy course"
-                      style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 4 }}
-                      className="transition-transform duration-300 hover:scale-105"
-                    />
-                    <div style={{ flex: 1 }}>
-                      <Title className="font-shopee" level={5} style={{ margin: 0 }}>
-                        Digital Strategy and Business Opportunity
-                      </Title>
-                      <Text className="font-shopee" type="secondary">Digital Marketing (FPTU)</Text>
-
-                      <div style={{ marginTop: 12 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                          <Text className="font-shopee">Progress: 1.5/3</Text>
-                          <Text className="font-shopee">Ends on Mar 31, 2025</Text>
-                        </div>
-                        <Progress percent={50} size="small" strokeColor={primaryColor} />
-                      </div>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      <Text  className="font-shopee" style={{ display: "block", marginBottom: 8 }}>Week 1 of 3</Text>
-                      <Button
-                        type="primary"
-                        style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
-                        className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
-                      >
-                        Resume
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.5 }}>
-                <Card
-                  bodyStyle={{ padding: 16 }}
-                  style={{ marginBottom: 16 }}
-                  className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-                >
-                  <div style={{ display: "flex", gap: 16 }}>
-                    <img
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-JIk6sipvv1E2pQuxUTY0REIPHIN45O.png"
-                      alt="Digital Leadership course"
-                      style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 4 }}
-                      className="transition-transform duration-300 hover:scale-105"
-                    />
-                    <div style={{ flex: 1 }}>
-                      <Title className="font-shopee" level={5} style={{ margin: 0 }}>
-                        Digital Leadership and Digital Strategy Consultation
-                      </Title>
-                      <Text className="font-shopee" type="secondary">Digital Marketing (FPTU)</Text>
-
-                      <div style={{ marginTop: 12 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                          <Text className="font-shopee">Progress: 0/3</Text>
-                          <Text className="font-shopee">Ends on Mar 17, 2025</Text>
-                        </div>
-                        <Progress percent={0} size="small" strokeColor={primaryColor} />
-                      </div>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      <Text className="font-shopee" style={{ display: "block", marginBottom: 8 }}>Week 0 of 3</Text>
-                      <Button
-                        type="primary"
-                        style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
-                        className="font-shopee hover:scale-105 transition-transform duration-200 hover:shadow-md"
-                      >
-                        Start
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-
-              <Space>
-                <ClockCircleOutlined style={{ color: primaryColor }} />
-                <Text className="font-shopee" type="secondary">You can finish this time</Text>
-                <Button
-                  type="link"
-                  style={{ padding: 0, color: primaryColor }}
-                  className="font-shopee hover:underline transition-all duration-200"
-                >
-                  Reset the deadline
-                </Button>
-              </Space>
-            </Card>
-          </motion.div>
-
-  
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-          >
-            <Card
-              title="Saved Flashcards"
-              headStyle={{ backgroundColor: primaryColor, color: whiteColor }}
-              className="font-shopee hover:shadow-lg transition-shadow duration-300"
-            >
-              <Card
-                bodyStyle={{ padding: 16 }}
-                className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-              >
-                <div style={{ display: "flex", gap: 16 }}>
-                  <div
-                    style={{
-                      width: 80,
-                      height: 80,
-                      backgroundColor: `${primaryColor}20`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderRadius: 4,
-                    }}
-                    className="transition-transform duration-300 hover:scale-110 hover:rotate-3"
-                  >
-                    <CalendarOutlined style={{ fontSize: 32, color: primaryColor }} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <Title  className="font-shopee" level={5} style={{ margin: 0 }}>
-                      Digital Marketing Terms
-                    </Title>
-                    <Text className="font-shopee" type="secondary">50 cards</Text>
-
-                    <div style={{ marginTop: 12 }}>
-                      <div style={{ marginBottom: 4 }}>
-                        <Text className="font-shopee">Progress: 15/50</Text>
-                      </div>
-                      <Progress percent={30} size="small" strokeColor={primaryColor} />
-                    </div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <Button
-                      type="primary"
-                      style={{ backgroundColor: secondaryColor, borderColor: secondaryColor }}
-                      className="font-shopee-bold hover:scale-105 transition-transform duration-200 hover:shadow-md"
-                    >
-                      Practice
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            </Card>
-          </motion.div>
-        </TabPane>
-
-        <TabPane tab="Sold" key="sold">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <Card
-              title="Shared Library Content"
-              style={{ marginBottom: 16 }}
-              headStyle={{ backgroundColor: primaryColor, color: whiteColor }}
-              className="font-shopee hover:shadow-lg transition-shadow duration-300"
-            >
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.5 }}>
-                <Card
-                  style={{ marginBottom: 16 }}
-                  bodyStyle={{ padding: 16 }}
-                  className="font-shopee-bold hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-                >
-                  <div style={{ display: "flex", gap: 16 }}>
-                    <img
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-JIk6sipvv1E2pQuxUTY0REIPHIN45O.png"
-                      alt="Digital Strategy course"
-                      style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 4 }}
-                      className="transition-transform duration-300 hover:scale-105"
-                    />
-                    <div style={{ flex: 1 }}>
-                      <Title className="font-shopee" level={5} style={{ margin: 0 }}>
-                        Digital Strategy and Business Opportunity
-                      </Title>
-                      <Text className="font-shopee" type="secondary">Digital Marketing (FPTU)</Text>
-
-                      <div style={{ marginTop: 12 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                     
-                          <Text className="font-shopee">On Mar 31, 2025</Text>
-                        </div>
-                
-                      </div>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                  <Button style={{ borderColor: primaryColor, color: primaryColor}} className="font-shopee">View Course</Button>
-                </div>
-                  </div>
-                </Card>
-              </motion.div>
-
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.5 }}>
-                <Card
-                  bodyStyle={{ padding: 16 }}
-                  style={{ marginBottom: 16 }}
-                  className="hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-                >
-                  <div style={{ display: "flex", gap: 16 }}>
-                    <img
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-JIk6sipvv1E2pQuxUTY0REIPHIN45O.png"
-                      alt="Digital Leadership course"
-                      style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 4 }}
-                      className="transition-transform duration-300 hover:scale-105"
-                    />
-                    <div style={{ flex: 1 }}>
-                      <Title className="font-shopee" level={5} style={{ margin: 0 }}>
-                        Digital Leadership and Digital Strategy Consultation
-                      </Title>
-                      <Text className="font-shopee" type="secondary">Digital Marketing (FPTU)</Text>
-
-                      <div style={{ marginTop: 12 }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-            
-                          <Text className="font-shopee">On Mar 17, 2025</Text>
-                        </div>
-                      
-                      </div>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                  <Button style={{ borderColor: primaryColor, color: primaryColor }} className="font-shopee">View Course</Button>
-                </div>
-                  </div>
-                </Card>
-              </motion.div>
-
-             
-            </Card>
-          </motion.div>
-        </TabPane>
-      </StyledTabs>
-    </motion.div>
+      {/* Content */}
+      {renderContent()}
     </div>
-   
   )
 }
 
