@@ -24,7 +24,9 @@ const MyLearning = () => {
     queryKey: ["boughtCourses"],
     queryFn: async () => {
       const response = await api.get("/courses/bought", {
-        headers: { Authorization: token },
+        headers: {
+          Authorization: token,
+        },
       })
       return response.data
     },
@@ -40,7 +42,9 @@ const MyLearning = () => {
     queryKey: ["publicFlashcards"],
     queryFn: async () => {
       const response = await api.get("/flashcards/public", {
-        headers: { Authorization: token },
+        headers: {
+          Authorization: token,
+        },
       })
       return response.data
     },
@@ -56,7 +60,9 @@ const MyLearning = () => {
     queryKey: ["soldFlashcards"],
     queryFn: async () => {
       const response = await api.get("/flashcards/sell", {
-        headers: { Authorization: token },
+        headers: {
+          Authorization: token,
+        },
       })
       return response.data
     },
@@ -72,7 +78,9 @@ const MyLearning = () => {
     queryKey: ["privateFlashcards"],
     queryFn: async () => {
       const response = await api.get("/flashcards/private", {
-        headers: { Authorization: token },
+        headers: {
+          Authorization: token,
+        },
       })
       return response.data
     },
