@@ -1,7 +1,6 @@
 "use client"
 
 import { Button, Form, Input, Select, notification, Card, Typography, Tooltip } from "antd"
-import { useState } from "react"
 import {
   PlusOutlined,
   MinusCircleOutlined,
@@ -15,24 +14,22 @@ import {
   ShoppingOutlined,
   ReadOutlined,
   OrderedListOutlined,
-  PlayCircleOutlined,
-  ClockCircleOutlined,
 } from "@ant-design/icons"
 import useAllTopic from "../../../hook/topic/useAllTopic"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import api from "../../../api/http"
 
 const { Title, Text } = Typography
-const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024
+// const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024
 
 const CreateTab = () => {
   const token = localStorage.getItem("token")
   const queryClient = useQueryClient()
   const createCourse = useMutation({
-    mutationFn: (formData) => {
-      return api.post("/expert/course", formData, {
+    mutationFn: (courseData) => {
+      return api.post("/courses/create", courseData, {
         headers: {
-          "content-type": "multipart/form-data",
+          "Content-Type": "application/json",
           Authorization: token,
         },
       })
@@ -74,72 +71,41 @@ const CreateTab = () => {
     },
   ]
 
-  const [bannerFileList, setBannerFileList] = useState()
-  const [lessonList, setLessonList] = useState()
-  const isDisableCreate = bannerFileList && lessonList
+  // Remove these states:
+  // const [bannerFileList, setBannerFileList] = useState()
+  // const [lessonList, setLessonList] = useState()
+  // const isDisableCreate = bannerFileList && lessonList
 
-  const handleChangeLessons = (info) => {
-    const regex = /^\d+-[^.]+\.mp4$/
-    const list = info.files
-    for (let i = 0; i < list.length; i++) {
-      if (!list[i].type.includes("video")) {
-        notification.error({ message: "Lesson must be an mp4 video" })
-        setLessonList(null)
-        return
-      }
-      if (!regex.test(list[i].name)) {
-        notification.error({
-          message: "Please follow platform format <order>-<filename.mp4> ",
-        })
-        setLessonList(null)
-        return
-      }
-      if (list[i].size > MAX_FILE_SIZE_BYTES) {
-        notification.error({
-          message: "Maximum is 20MB ",
-        })
-        setLessonList(null)
-        return
-      }
-    }
-    setLessonList(list)
-  }
-
-  const handleChangeBanner = (info) => {
-    const file = info.files[0]
-    if (!file.type.includes("image")) {
-      notification.error({ message: "Banner must be an image" })
-      setBannerFileList(null)
-    } else {
-      setBannerFileList(info.files)
-    }
-  }
+  // Replace with simple validation or remove the disable logic
+  const isDisableCreate = true // Always enable the create button
 
   const onFinish = (values) => {
-    const formData = new FormData()
-    formData.append("banner", bannerFileList[0])
-    for (let i = 0; i < lessonList.length; i++) {
-      formData.append("files", lessonList[i])
+    const courseData = {
+      name: values.name,
+      description: values.description,
+      price: Number.parseFloat(values.price),
+      bannerUrl: values.bannerUrl, // Changed from file upload to URL
+      topicId: values.topic,
+      mainSections:
+        values.tableOfContents?.map((section) => ({
+          title: section.title,
+          videoUrl: section.videoUrl,
+          sectionOrder: Number.parseInt(section.sectionOrder),
+          subSections:
+            section.subSections?.map((subSection) => ({
+              title: subSection.title,
+              content: subSection.content,
+            })) || [],
+        })) || [],
     }
 
-    formData.append("topic_id", values.topic)
-    formData.append("description", values.description)
-    formData.append("price", values.price)
-    formData.append("name", values.name)
-    formData.append("mode", values.mode)
-
-    // Add table of contents data
-    if (values.tableOfContents) {
-      formData.append("tableOfContents", JSON.stringify(values.tableOfContents))
-    }
-
-    createCourse.mutate(formData, {
+    createCourse.mutate(courseData, {
       onSuccess() {
         queryClient.invalidateQueries("EXPERT_COURSE")
         notification.success({ message: "Created successfully" })
       },
       onError(data) {
-        notification.error({ message: data.response.data.message })
+        notification.error({ message: data.response?.data?.message || "Failed to create course" })
       },
     })
   }
@@ -247,59 +213,21 @@ const CreateTab = () => {
           className="shadow-md border-t-4 border-t-[#FCB80B]"
           headStyle={{ borderBottom: "1px solid #f0f0f0" }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <Form.Item
-                label={
-                  <span className="flex items-center gap-1">
-                    <FileImageOutlined /> Banner Image
-                  </span>
-                }
-                rules={[{ required: true }]}
-                tooltip="Upload an eye-catching banner for your course"
-              >
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#FCB80B] transition-colors">
-                  <input
-                    onChange={(e) => handleChangeBanner(e.target)}
-                    type="file"
-                    title="Choose course banner"
-                    className="w-full cursor-pointer"
-                  />
-                  <p className="text-gray-500 text-sm mt-2">
-                    {bannerFileList ? `Selected: ${bannerFileList[0]?.name}` : "Recommended size: 1280x720px"}
-                  </p>
-                </div>
-              </Form.Item>
-            </div>
-
-            <div>
-              <Form.Item
-                label={
-                  <span className="flex items-center gap-1">
-                    <VideoCameraOutlined /> Lesson Videos
-                  </span>
-                }
-                tooltip="Upload your lesson videos in the correct format"
-              >
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#FCB80B] transition-colors">
-                  <input
-                    multiple
-                    onChange={(e) => handleChangeLessons(e.target)}
-                    type="file"
-                    title="Choose lesson videos"
-                    className="w-full cursor-pointer"
-                  />
-                  <p className="text-gray-500 text-sm mt-2">
-                    Format: <code className="bg-gray-100 px-1 rounded">order-filename.mp4</code> (Ex: 1-Lesson1.mp4)
-                  </p>
-                  <p className="text-gray-500 text-sm">Maximum size: 20MB per video</p>
-                  <p className="text-gray-500 text-sm">
-                    {lessonList ? `Selected: ${lessonList.length} videos` : "No videos selected"}
-                  </p>
-                </div>
-              </Form.Item>
-            </div>
-          </div>
+          <Form.Item
+            name="bannerUrl"
+            label={
+              <span className="flex items-center gap-1">
+                <FileImageOutlined /> Banner Image URL
+              </span>
+            }
+            rules={[
+              { required: true, message: "Please input banner URL" },
+              { type: "url", message: "Please enter a valid URL" },
+            ]}
+            tooltip="Enter the URL of your course banner image"
+          >
+            <Input placeholder="Enter banner image URL (e.g., https://example.com/banner.jpg)" className="rounded-md" />
+          </Form.Item>
         </Card>
 
         {/* Table of Contents Card */}
@@ -354,6 +282,40 @@ const CreateTab = () => {
                       />
                     </Form.Item>
 
+                    <Form.Item
+                      {...mainField}
+                      name={[mainIndex, "sectionOrder"]}
+                      label="Section Order"
+                      rules={[{ required: true, message: "Please input section order" }]}
+                    >
+                      <Input
+                        type="number"
+                        placeholder="Enter section order (1, 2, 3...)"
+                        className="rounded-md"
+                        min={1}
+                      />
+                    </Form.Item>
+
+                    <Form.Item
+                      {...mainField}
+                      name={[mainIndex, "videoUrl"]}
+                      label={
+                        <span className="flex items-center gap-1">
+                          <VideoCameraOutlined /> Section Video URL
+                        </span>
+                      }
+                      rules={[
+                        { required: true, message: "Please input video URL for this section" },
+                        { type: "url", message: "Please enter a valid URL" },
+                      ]}
+                    >
+                      <Input
+                        placeholder="Enter video URL (e.g., https://example.com/video.mp4)"
+                        className="rounded-md"
+                        prefix={<VideoCameraOutlined className="text-[#FCB80B]" />}
+                      />
+                    </Form.Item>
+
                     {/* Sub-sections */}
                     <Form.List name={[mainIndex, "subSections"]}>
                       {(subFields, { add: addSubSection, remove: removeSubSection }) => (
@@ -398,77 +360,22 @@ const CreateTab = () => {
                                 />
                               </Form.Item>
 
-                              {/* Lessons/Content sections */}
-                              <Form.List name={[subIndex, "lessons"]}>
-                                {(lessonFields, { add: addLesson, remove: removeLesson }) => (
-                                  <div className="pl-6 border-l-2 border-[#469B74] ml-4 mt-6">
-                                    <div className="mb-4">
-                                      <Text strong className="text-[#FCB80B]">
-                                        Lessons
-                                      </Text>
-                                    </div>
-
-                                    {lessonFields.map(({ key: lessonKey, name: lessonIndex, ...lessonField }) => (
-                                      <div
-                                        key={lessonKey}
-                                        className="flex items-center gap-3 mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#FCB80B] transition-colors"
-                                      >
-                                        <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-[#FCB80B] text-white rounded-full">
-                                          {lessonIndex + 1}
-                                        </div>
-
-                                        <Form.Item
-                                          {...lessonField}
-                                          name={[lessonIndex, "title"]}
-                                          className="mb-0 flex-1"
-                                          rules={[{ required: true, message: "Lesson title required" }]}
-                                        >
-                                          <Input
-                                            placeholder="Lesson title"
-                                            className="rounded-md"
-                                            prefix={<PlayCircleOutlined className="text-[#FCB80B]" />}
-                                          />
-                                        </Form.Item>
-
-                                        <Form.Item
-                                          {...lessonField}
-                                          name={[lessonIndex, "duration"]}
-                                          className="mb-0 w-32"
-                                        >
-                                          <Input
-                                            placeholder="Duration"
-                                            className="rounded-md"
-                                            prefix={<ClockCircleOutlined className="text-[#469B74]" />}
-                                          />
-                                        </Form.Item>
-
-                                        <Button
-                                          type="text"
-                                          danger
-                                          icon={<MinusCircleOutlined />}
-                                          onClick={() => removeLesson(lessonIndex)}
-                                        />
-                                      </div>
-                                    ))}
-
-                                    <Form.Item>
-                                      <Button
-                                        type="dashed"
-                                        onClick={() => addLesson()}
-                                        icon={<PlusOutlined />}
-                                        className="w-full"
-                                        style={{
-                                          borderColor: "#FCB80B",
-                                          color: "#FCB80B",
-                                          borderRadius: "8px",
-                                        }}
-                                      >
-                                        Add Lesson
-                                      </Button>
-                                    </Form.Item>
-                                  </div>
-                                )}
-                              </Form.List>
+                              <Form.Item
+                                {...subField}
+                                name={[subIndex, "content"]}
+                                label={
+                                  <span className="flex items-center gap-1">
+                                    <ReadOutlined /> Content
+                                  </span>
+                                }
+                                rules={[{ required: true, message: "Please input content for this sub-section" }]}
+                              >
+                                <Input.TextArea
+                                  placeholder="Enter detailed content for this sub-section"
+                                  rows={4}
+                                  className="rounded-md"
+                                />
+                              </Form.Item>
                             </Card>
                           ))}
 
@@ -570,4 +477,3 @@ const CreateTab = () => {
 }
 
 export default CreateTab
-
