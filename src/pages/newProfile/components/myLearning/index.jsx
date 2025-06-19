@@ -7,11 +7,11 @@ import { useQuery } from "@tanstack/react-query"
 import { BookOpen, Clock, Play, CreditCard, Users, Lock, Library } from "lucide-react"
 
 import { useNavigate } from "react-router-dom"
-import useToken from "antd/es/theme/useToken"
+
 import api from "../../../../api/http"
 
 const MyLearning = () => {
-  const token = useToken()
+  const token = localStorage.getItem("token");
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState("saved")
 
