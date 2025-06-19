@@ -54,7 +54,7 @@ const RouterManagement = () => {
         <Route path="/courses" element={<CourseScreen />}></Route>
         <Route path="/documents" element={<Document />}></Route>
         <Route path="/course/detail/:id" element={<CourseDetail />}></Route>
-        <Route path="/coursepayment/detail" element={<CourseDetailPayment />}></Route>
+        <Route path="/coursepayment/detail/:id" element={<CourseDetailPayment />}></Route>
         <Route path="/learn/:id" element={<CourseBought />}></Route>
         <Route path="/payment/result" element={<PaymentResult />}></Route>
         <Route path="/document/detail/:id" element={<DocumentDetail />}></Route>
