@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { Button, Checkbox, Form, Input, notification } from "antd";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
@@ -10,12 +10,11 @@ const SignUpWrapper = styled.div`
   min-height: 80vh;
   display: flex;
   justify-content: flex-end;
-  background-image: url('/cover-login.png');
+  background-image: url("/cover-login.png");
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
   position: relative;
-
 
   .form-container {
     width: 100%;
@@ -28,7 +27,7 @@ const SignUpWrapper = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border: 2px solid #469B74;
+    border: 2px solid #469b74;
     border-radius: 8px;
     margin: 40px;
     margin-right: 200px;
@@ -37,24 +36,25 @@ const SignUpWrapper = styled.div`
   .form-title {
     font-size: 50px;
     font-weight: 800;
-    color: #469B74;
+    color: #469b74;
     margin-bottom: 10px;
   }
 
   .ant-form-item-label {
     text-align: left;
-    font-family: 'font-shopee';
+    font-family: "font-shopee";
   }
 
-  .ant-input, .ant-input-password {
+  .ant-input,
+  .ant-input-password {
     height: 50px;
-    font-family: 'font-shopee';
+    font-family: "font-shopee";
   }
 
   .ant-btn {
     height: 50px;
     font-size: 18px;
-    font-family: 'font-shopee';
+    font-family: "font-shopee";
   }
 
   @media (max-width: 768px) {
@@ -104,7 +104,12 @@ const SignUpScreen = () => {
 
         <div className="font-shopee text-center mb-6">Or Email</div>
 
-        <Form onFinish={onFinish} layout="vertical" name="signup" scrollToFirstError>
+        <Form
+          onFinish={onFinish}
+          layout="vertical"
+          name="signup"
+          scrollToFirstError
+        >
           <Form.Item
             className="font-shopee"
             name="full_name"
@@ -135,7 +140,7 @@ const SignUpScreen = () => {
             <Input placeholder="Enter your email" />
           </Form.Item>
           <Form.Item
-          className="font-shopee"
+            className="font-shopee"
             name="password"
             label="Password"
             rules={[
@@ -144,7 +149,8 @@ const SignUpScreen = () => {
                 message: "Please input your password!",
               },
               {
-                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};:"|,.<>\\/?]).{8,}$/,
+                pattern:
+                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};:"|,.<>\\/?]).{8,}$/,
                 message:
                   "Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one number, and one special character.",
               },
@@ -169,12 +175,17 @@ const SignUpScreen = () => {
                   if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error("The passwords do not match!"));
+                  return Promise.reject(
+                    new Error("The passwords do not match!")
+                  );
                 },
               }),
             ]}
           >
-            <Input.Password className="font-shopee" placeholder="Confirm your password" />
+            <Input.Password
+              className="font-shopee"
+              placeholder="Confirm your password"
+            />
           </Form.Item>
           <Form.Item
             name="agree"
@@ -183,11 +194,15 @@ const SignUpScreen = () => {
             rules={[
               {
                 validator: (_, value) =>
-                  value ? Promise.resolve() : Promise.reject(new Error("Please accept the policy!")),
+                  value
+                    ? Promise.resolve()
+                    : Promise.reject(new Error("Please accept the policy!")),
               },
             ]}
           >
-            <Checkbox className="font-shopee">I have read and accept all policy</Checkbox>
+            <Checkbox className="font-shopee">
+              I have read and accept all policy
+            </Checkbox>
           </Form.Item>
 
           <Form.Item>
@@ -202,7 +217,10 @@ const SignUpScreen = () => {
           </Form.Item>
           <Form.Item className="font-shopee text-center">
             <span>Already have an account? </span>
-            <Link className="font-shopee text-[#469B74] hover:underline" to="/login">
+            <Link
+              className="font-shopee text-[#469B74] hover:underline"
+              to="/login"
+            >
               Sign in
             </Link>
           </Form.Item>

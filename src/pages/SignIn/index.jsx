@@ -1,30 +1,29 @@
-'use client'
-import { Button, Form, Input, notification } from "antd"
-import { useMutation } from "@tanstack/react-query"
-import { Link, useNavigate } from "react-router-dom"
-import styled from "styled-components"
-import LoginWithGoogleButton from "../../components/loginWithGoogle"
-import api from "../../api/http"
+"use client";
+import { Button, Form, Input, notification } from "antd";
+import { useMutation } from "@tanstack/react-query";
+import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import LoginWithGoogleButton from "../../components/loginWithGoogle";
+import api from "../../api/http";
 
 const SignInWrapper = styled.div`
   min-height: 80vh;
   display: flex;
   justify-content: flex-end;
-  background-image: url('/cover-login.png');
- 
+  background-image: url("/cover-login.png");
+
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
   position: relative;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-  
   }
 
   .form-container {
@@ -38,18 +37,17 @@ const SignInWrapper = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border: 2px solid #469B74;
+    border: 2px solid #469b74;
     border-radius: 8px;
     margin: 40px;
     margin-right: 200px;
-    
   }
 
   .form-title {
     font-size: 50px;
     font-weight: 800;
-    
-    color: #469B74;
+
+    color: #469b74;
     margin-bottom: 20px;
   }
 
@@ -57,10 +55,9 @@ const SignInWrapper = styled.div`
     text-align: left;
   }
 
-  .ant-input, .ant-input-password {
-
+  .ant-input,
+  .ant-input-password {
     height: 50px;
-    
   }
 
   .ant-btn {
@@ -70,27 +67,27 @@ const SignInWrapper = styled.div`
 
   @media (max-width: 768px) {
     justify-content: center;
-    
+
     .form-container {
       max-width: 100%;
     }
   }
-`
+`;
 
 const SignInScreen = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const loginMutation = useMutation({
     mutationFn: (formData) => {
-      return api.post("login", formData)
+      return api.post("login", formData);
     },
-  })
+  });
 
   const reverifyMutation = useMutation({
     mutationFn: (formData) => {
-      return api.post("reverify", formData)
+      return api.post("reverify", formData);
     },
-  })
+  });
 
   const onFinish = (body) => {
     loginMutation.mutate(body, {
@@ -100,15 +97,15 @@ const SignInScreen = () => {
             { email: body.email },
             {
               onSuccess() {
-                navigate(`/verify?email=${body.email}`)
+                navigate(`/verify?email=${body.email}`);
               },
-            },
-          )
+            }
+          );
         }
-        notification.error({ message: data.response.data.message })
+        notification.error({ message: data.response.data.message });
       },
-    })
-  }
+    });
+  };
 
   return (
     <SignInWrapper>
@@ -124,11 +121,16 @@ const SignInScreen = () => {
 
         <div className="font-shopee text-center mb-6">Or Email</div>
 
-        <Form onFinish={onFinish} layout="vertical" name="signin" scrollToFirstError>
+        <Form
+          onFinish={onFinish}
+          layout="vertical"
+          name="signin"
+          scrollToFirstError
+        >
           <Form.Item
             name="email"
             label="E-mail"
-            style={{fontFamily: "font-shopee"}}
+            style={{ fontFamily: "font-shopee" }}
             rules={[
               {
                 type: "email",
@@ -156,7 +158,10 @@ const SignInScreen = () => {
             <Input.Password placeholder="Enter your password" />
           </Form.Item>
           <Form.Item className="text-right">
-            <Link className="font-shopee text-[#469B74] hover:underline" to="/forgot-password">
+            <Link
+              className="font-shopee text-[#469B74] hover:underline"
+              to="/forgot-password"
+            >
               Forgot password
             </Link>
           </Form.Item>
@@ -173,15 +178,17 @@ const SignInScreen = () => {
           </Form.Item>
           <Form.Item className=" font-shopee text-center">
             <span>You don`t have an account? </span>{" "}
-            <Link className="font-shopee text-[#469B74] hover:underline" to="/register">
+            <Link
+              className="font-shopee text-[#469B74] hover:underline"
+              to="/register"
+            >
               Sign up
             </Link>
           </Form.Item>
         </Form>
       </div>
     </SignInWrapper>
-  )
-}
+  );
+};
 
-export default SignInScreen
-
+export default SignInScreen;

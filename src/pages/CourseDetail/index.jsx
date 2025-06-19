@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 
 import { useState, useEffect } from "react"
 import { Avatar, Button, Card, Modal, notification, Spin } from "antd"
@@ -40,6 +41,7 @@ const CourseDetail = () => {
     enabled: !!courseData?.userId,
   })
 
+
   // Payment mutation
   const buyMutation = useMutation({
     mutationFn: (body) => {
@@ -50,6 +52,7 @@ const CourseDetail = () => {
         },
       })
     },
+
   })
 
   // Set default expanded sections when course data loads
@@ -63,12 +66,14 @@ const CourseDetail = () => {
     }
   }, [courseData])
 
+
   const toggleSection = (sectionTitle) => {
     setExpandedSections((prev) => ({
       ...prev,
       [sectionTitle]: !prev[sectionTitle],
-    }))
-  }
+    }));
+  };
+
 
   const selectLesson = (subSection, mainSection) => {
     setSelectedLesson({
@@ -82,15 +87,16 @@ const CourseDetail = () => {
   const onConfirmBuy = () => {
     const formData = new FormData()
     formData.append("courseId", courseData.id)
+
     buyMutation.mutate(formData, {
       onSuccess(data) {
-        window.location.replace(data.data)
+        window.location.replace(data.data);
       },
       onError(data) {
-        notification.error({ message: data.response.data.message })
+        notification.error({ message: data.response.data.message });
       },
-    })
-  }
+    });
+  };
 
   // Loading state
   if (isLoading) {
@@ -139,9 +145,16 @@ const CourseDetail = () => {
             <h2>Mục lục khóa học</h2>
             {courseData.mainSections?.map((section, index) => (
               <div key={index} className="course-section">
-                <div className="section-header" onClick={() => toggleSection(section.title)}>
+                <div
+                  className="section-header"
+                  onClick={() => toggleSection(section.title)}
+                >
                   <h3>{section.title}</h3>
-                  {expandedSections[section.title] ? <ChevronUp /> : <ChevronDown />}
+                  {expandedSections[section.title] ? (
+                    <ChevronUp />
+                  ) : (
+                    <ChevronDown />
+                  )}
                 </div>
                 {expandedSections[section.title] && (
                   <ul className="section-lessons">
@@ -152,6 +165,7 @@ const CourseDetail = () => {
                         className={`${
                           selectedLesson?.title === subSection.title ? "active" : ""
                         } cursor-pointer hover:bg-gray-100`}
+
                       >
                         {subSection.title}
                       </li>
@@ -179,8 +193,10 @@ const CourseDetail = () => {
               >
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center text-black">
+
                     <span className="mb-[4px]">$</span>
                     <p className="text-4xl font-bold">{courseData.price?.toLocaleString("vi-VN") || "0"}</p>
+
                   </div>
 
                   {/* Course benefits */}
@@ -210,7 +226,9 @@ const CourseDetail = () => {
                   </Button>
 
                   {/* Money-back guarantee */}
-                  <p className="text-center text-xs text-gray-500 mt-2">Đảm bảo hoàn tiền trong 30 ngày</p>
+                  <p className="text-center text-xs text-gray-500 mt-2">
+                    Đảm bảo hoàn tiền trong 30 ngày
+                  </p>
                 </div>
               </Card>
             </div>
@@ -241,7 +259,9 @@ const CourseDetail = () => {
                 src={
                   selectedLesson
                     ? selectedLesson.videoUrl
+
                     : courseData.mainSections?.[0]?.videoUrl || "https://www.youtube.com/embed/dQw4w9WgXcQ"
+
                 }
                 title="Course Preview"
                 frameBorder="0"
@@ -297,12 +317,14 @@ const CourseDetail = () => {
             <div className="font-shopee instructor-section">
               <Avatar
                 size={64}
+
                 src={instructorData?.avatar || "/placeholder.svg"}
                 alt={instructorData?.fullName || "Instructor"}
               />
               <div className="instructor-info">
                 <h3>{instructorData?.fullName || "Giảng viên"}</h3>
                 <p>{instructorData?.title || "Chuyên gia"}</p>
+
               </div>
             </div>
           </div>
@@ -312,7 +334,9 @@ const CourseDetail = () => {
       {/* Payment Confirmation Modal */}
       <Modal
         confirmLoading={buyMutation.isPending}
+
         title={<span className="text-[#469B74] text-xl font-semibold flex items-center">Xác nhận mua khóa học</span>}
+
         open={isShowConfirm}
         onCancel={() => setIsShowConfirm(false)}
         onOk={onConfirmBuy}
@@ -323,10 +347,12 @@ const CourseDetail = () => {
             onClick={() => setIsShowConfirm(false)}
             className="border border-[#469B74] text-[#469B74] hover:bg-[#469B74]/10 mr-2"
           >
+
             Hủy
           </Button>,
           <Button key="buy" onClick={onConfirmBuy} loading={buyMutation.isPending} type="primary">
             Xác nhận mua
+
           </Button>,
         ]}
       >
@@ -334,20 +360,26 @@ const CourseDetail = () => {
           className="w-full max-w-sm mx-auto border-2 border-[#469B74] rounded-lg overflow-hidden shadow-md"
           cover={
             <img
+
               alt={courseData?.name}
               src={courseData?.bannerUrl || "/placeholder.svg"}
+
               className="w-full h-40 object-cover"
             />
           }
         >
           <div className="flex items-center p-4">
+
             <span className="text-xl font-bold">$</span>
             <p className="text-4xl font-bold ml-1">{courseData?.price?.toLocaleString("vi-VN") || "0"}</p>
+
           </div>
         </Card>
       </Modal>
     </CourseDetailStyle>
+
   )
 }
 
 export default CourseDetail
+
