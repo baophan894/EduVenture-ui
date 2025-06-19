@@ -1,468 +1,678 @@
-/* eslint-disable react/prop-types */
-"use client"
+import {
+  Avatar,
+  Button,
+  DatePicker,
+  Divider,
+  Form,
+  Input,
+  Menu,
+  Modal,
+  Popover,
+  Select,
+  Space,
+  Tag,
+  Typography,
+  notification,
+} from "antd";
+import useUserInfo from "../../hook/user/useUserInfo";
+import ProfileStyle from "./profileStyle";
+import { useEffect, useState } from "react";
+import moment from "moment";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import api from "../../api/http";
+import { AppstoreOutlined, CalendarOutlined, CloseOutlined, EditOutlined, FileTextOutlined, MailOutlined, SaveOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import MyLearning from "./components/myLearning";
+import { useNavigate } from "react-router-dom";
+import Loading from "../../components/loading";
 
-import { useState } from "react"
-import { Card, Button, Tag, Spin, Empty } from "antd"
-import { useQuery } from "@tanstack/react-query"
-import { BookOpen, Clock, Play, CreditCard, Users, Lock, Library } from "lucide-react"
-import api from "../../api/http"
-import { useNavigate } from "react-router-dom"
-import useToken from "antd/es/theme/useToken"
+import { FaMoneyBillWave } from "react-icons/fa";
+import {
+  ADMIN,
+  EXPERT,
+  EXPERT_MARK_DEMAND,
+  USER,
+} from "../../common/constants";
 
-const MyLearning = () => {
-  const token = useToken()
-  const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState("saved")
-
-  // Fetch bought courses (saved section)
-  const {
-    data: boughtCourses,
-    isLoading: boughtLoading,
-    error: boughtError,
-  } = useQuery({
-    queryKey: ["boughtCourses"],
-    queryFn: async () => {
-      const response = await api.get("/courses/bought", {
-        headers: { Authorization: token },
-      })
-      return response.data
+const Profile = () => {
+  const role = localStorage.getItem("role");
+  const queryClient = useQueryClient();
+  const token = localStorage.getItem("token");
+  const updateProfile = useMutation({
+    mutationFn: (body) => {
+      return api.put("/user/profile", body, {
+        headers: {
+          Authorization: token,
+        },
+      });
     },
-    enabled: !!token,
-  })
+  });
+  const user = useUserInfo();
+  const [form] = Form.useForm();
+  const genderOptions = [
+    { value: "male", label: "Male" },
+    { value: "female", label: "Female" },
+    { value: "other", label: "Other" },
+  ];
+  const [_dob, setDob] = useState(null);
+  const [file, setFile] = useState();
+  useEffect(() => {
+    if (user) {
+      form.setFieldsValue({
+        fullName: user.fullName,
+        email: user.email,
+        gender: user.gender,
+        price: user.price,
+        about: user.about,
+        dob: user.dob ? moment(user.dob) : null,
+      });
+    }
+  }, [user, form]);
+  const userBalance = Number(user?.balance);
+  const onFinish = (values) => {
+    const body = { ...values, dob: new Date(_dob) };
+    updateProfile.mutate(body, {
+      onSuccess() {
+        queryClient.invalidateQueries("PROFILE");
+        notification.success({ message: "Update successfully" });
+      },
+      onError() {
+        notification.error({ message: "Update failed, try again" });
+      },
+    });
+  };
 
-  // Fetch public flashcards (library section)
-  const {
-    data: publicFlashcards,
-    isLoading: publicLoading,
-    error: publicError,
-  } = useQuery({
-    queryKey: ["publicFlashcards"],
-    queryFn: async () => {
-      const response = await api.get("/flashcards/public", {
-        headers: { Authorization: token },
-      })
-      return response.data
+  const uploadAvatar = useMutation({
+    mutationFn: (formData) => {
+      return api.patch("/update-avatar", formData, {
+        headers: {
+          "content-type": "multipart/form-data",
+          Authorization: token,
+        },
+      });
     },
-    enabled: !!token,
-  })
-
-  // Fetch sold flashcards
-  const {
-    data: soldFlashcards,
-    isLoading: soldLoading,
-    error: soldError,
-  } = useQuery({
-    queryKey: ["soldFlashcards"],
-    queryFn: async () => {
-      const response = await api.get("/flashcards/sell", {
-        headers: { Authorization: token },
-      })
-      return response.data
+  });
+  const sendExpertRequest = useMutation({
+    mutationFn: (formData) => {
+      return api.post("/expert-request", formData, {
+        headers: {
+          "content-type": "multipart/form-data",
+          Authorization: token,
+        },
+      });
     },
-    enabled: !!token,
-  })
-
-  // Fetch private flashcards
-  const {
-    data: privateFlashcards,
-    isLoading: privateLoading,
-    error: privateError,
-  } = useQuery({
-    queryKey: ["privateFlashcards"],
-    queryFn: async () => {
-      const response = await api.get("/flashcards/private", {
-        headers: { Authorization: token },
-      })
-      return response.data
+  });
+  const withdrawMutation = useMutation({
+    mutationFn: (amount) => {
+      return api.post("/transfer", amount, {
+        headers: {
+          Authorization: token,
+        },
+      });
     },
-    enabled: !!token,
-  })
-
-  const handleContinueLearning = (courseId) => {
-    navigate(`/coursepayment/detail/${courseId}`)
+  });
+  const handleSave = (values) => {
+    onFinish(values)
+    setIsEditing(false)
   }
-
-  const handleViewFlashcard = (flashcardId) => {
-    navigate(`/flashCard/detail/${flashcardId}`)
+  const [files, setFiles] = useState(null);
+  const handleChangeCV = (info) => {
+    const file = info.files[0];
+    if (!file.name.includes("pdf")) {
+      notification.error({ message: "CV must be pdf file" });
+      setFiles(null);
+    } else {
+      setFiles(info.files);
+    }
+  };
+  const getGenderLabel = (value) => {
+    const option = genderOptions.find((opt) => opt.value === value)
+    return option ? option.label : "Not specified"
   }
-
-  const calculateTotalLessons = (mainSections) => {
-    return mainSections?.reduce((total, section) => total + (section.subSections?.length || 0), 0) || 0
-  }
-
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    })
+    if (!dateString) return "Not specified"
+    return moment(dateString).format("MMMM DD, YYYY")
   }
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isShowExertRequest, setIsShowExertRequest] = useState(false);
+  const [isShowWithdrawModal, setIsShowWithdrawModal] = useState(false);
+  const handleCloseWithdrawModal = () => {
+    setIsShowWithdrawModal(false);
+  };
+  const handleOpenWithdrawModal = () => setIsShowWithdrawModal(true);
 
-  const CourseCard = ({ course }) => {
-    // eslint-disable-next-line react/prop-types
-    const totalLessons = calculateTotalLessons(course.mainSections)
-    const estimatedDuration = `${Math.max(1, Math.floor(totalLessons * 0.5))}h`
+  const handleWithdraw = () => {
+    withdrawMutation.mutate(withDrawAmount, {
+      onSuccess() {
+        notification.success({ message: "Successfully" });
+        setIsShowWithdrawModal(false);
+      },
+      onError() {
+        notification.error({
+          message:
+            "Withdraw failed, make sure you checked mail and provided wallet information, try again later",
+        });
+      },
+    });
+  };
+  const handleCancelRequestModal = () => {
+    setIsShowExertRequest(false);
+  };
+  const handleSendRequest = () => {
+    const formData = new FormData();
+    formData.append("cv", files[0]);
+    sendExpertRequest.mutate(formData, {
+      onSuccess() {
+        queryClient.invalidateQueries("documents");
+        notification.success({
+          message:
+            "Upload successfully, We will respond via your email within 2 days at the latest.",
+        });
+        setIsShowExertRequest(false);
+        setFiles(null);
+      },
+      onError(data) {
+        notification.error({ message: data.response.data.message });
+      },
+    });
+  };
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
 
-    return (
-      <Card
-        className="course-card hover:shadow-lg transition-all duration-300 border border-gray-200"
-        cover={
-          <div className="relative">
-            <img alt={course.name} src={course.bannerUrl || "/placeholder.svg"} className="w-full h-48 object-cover" />
-            <div className="absolute top-3 right-3">
-              <Tag color="green" className="font-medium">
-                Purchased
-              </Tag>
-            </div>
-            {course.orders?.[0]?.paymentStatus === "paid" && (
-              <div className="absolute top-3 left-3">
-                <Tag color="blue" className="font-medium">
-                  Paid
-                </Tag>
+  const handleOk = () => {
+    if (!file) {
+      return;
+    }
+    let formData = new FormData();
+    formData.append("image", file);
+    uploadAvatar.mutate(formData, {
+      onSuccess() {
+        queryClient.invalidateQueries("PROFILE");
+        notification.success({ message: "Update avatar successfully" });
+      },
+      onError() {
+        notification.error({ message: "Update avatar failed" });
+      },
+    });
+
+    setIsModalOpen(false);
+  };
+  const [withDrawAmount, setWithdrawAmount] = useState(0);
+  const handleChangeAmount = (amount) => {
+    setWithdrawAmount(amount);
+  };
+  const isDisableWithdrawButton =
+    withDrawAmount < 10 ||
+    withDrawAmount > userBalance ||
+    !Number.isInteger(Number(withDrawAmount));
+  const navigate = useNavigate();
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+  const menuOnclick = (e) => {
+    switch (e.key) {
+      case "logout": {
+        localStorage.clear();
+        window.location.replace("/login");
+        break;
+      }
+      case "changePassword": {
+        navigate("/update-password");
+        break;
+      }
+      case "dashboard": {
+        navigate("/dashboard");
+        break;
+      }
+      case "courseManagement": {
+        navigate("/expert");
+        break;
+      }
+      case "testHistory": {
+        navigate("/test-history");
+        break;
+      }
+    }
+  };
+  const { Title, Text } = Typography
+  const [isEditing, setIsEditing] = useState(false)
+  const handleEdit = () => {
+    setIsEditing(true)
+  }
+  const getManagement = () => {
+    switch (role) {
+      case ADMIN: {
+        return {
+          key: "sub1",
+          icon: <AppstoreOutlined />,
+          label: "Management",
+
+          children: [{ key: "dashboard", label: "Admin Dashboard" }],
+        };
+      }
+      case EXPERT: {
+        return {
+          key: "sub1",
+          icon: <AppstoreOutlined />,
+          label: "Management",
+          children: [{ key: "courseManagement", label: "Course management" }],
+        };
+      }
+    }
+  };
+
+  const getLegitMarkTag = (mark) => {
+    if (mark < 0) return <Tag color="black">Legit {mark}</Tag>;
+    if (mark == 0) return <Tag color="green">Legit {mark}</Tag>;
+    if (mark >= 0 && mark < 200) return <Tag color="purple">Legit {mark}</Tag>;
+    return <Tag color="gold">Legit {mark}</Tag>;
+  };
+  const getRoleTag = () => {
+    switch (role) {
+      case ADMIN: {
+        return <Tag color="gold">ADMIN</Tag>;
+      }
+      case EXPERT: {
+        return <Tag color="purple">EXPERT</Tag>;
+      }
+      case USER: {
+        return <Tag color="green">USER</Tag>;
+      }
+    }
+  };
+  const getLegitHoverContent = (mark) => {
+    if (mark < EXPERT_MARK_DEMAND) {
+      return (
+        <p className="font-shopee">
+          By contributing useful material and gaining 200 reputation points, you
+          can become an expert of the platform
+        </p>
+      );
+    } else if (role !== EXPERT)
+      return (
+        <div className="font-shopee">
+          <p>Let request to be an FU Records Expert</p>
+        </div>
+      );
+    return <p className="font-shopee">Keep your contribute</p>;
+  };
+  const isShowRequestButton =
+    user?.legitMark >= EXPERT_MARK_DEMAND && role == "USER";
+
+  const menuItems = [
+    getManagement(),
+    {
+      key: "sub2",
+      icon: <AppstoreOutlined />,
+      label: "Test History",
+      children: [{ key: "testHistory", label: "My Test Submissions" }],
+    },
+    {
+      key: "sub3",
+      label: "Security",
+      icon: <SettingOutlined />,
+      children: [
+        { key: "changePassword", label: "Change password" },
+        { key: "logout", label: "Logout" },
+      ],
+    },
+  ];
+  return !user ? (
+    <Loading />
+  ) : (
+    <ProfileStyle>
+      <div className="profile">
+        <div className="profile_avatar">
+          <div className="profile_avatar_top">
+            {uploadAvatar.isPending ? (
+              <div className="flex items-center justify-center w-32 h-32 bg-gray-200 rounded-full">
+                <span className="text-gray-500 font-shopee">Uploading...</span>
+              </div>
+            ) : (
+              <div className="relative group">
+                <Avatar
+                  className="profile_avatar_top_image"
+                  size={120}
+                  src={user?.avatarUrl}
+                />
+                <button
+                  onClick={showModal}
+                  className="font-shopee profile_avatar_top_update absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                >
+                  Update
+                </button>
               </div>
             )}
-          </div>
-        }
-        actions={[
-          <Button
-            key="continue"
-            type="primary"
-            icon={<Play className="w-4 h-4" />}
-            onClick={() => handleContinueLearning(course.id)}
-            className="bg-[#469B74] border-[#469B74] hover:bg-[#3d8a67]"
-          >
-            Continue Learning
-          </Button>,
-        ]}
-      >
-        <div className="p-2">
-          <h3 className="text-lg font-semibold mb-2 line-clamp-2">{course.name}</h3>
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">{course.description}</p>
-
-          {/* Price */}
-          <div className="mb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-[#469B74]">${course.price?.toLocaleString() || "0"}</span>
-            </div>
+            <p className=" font-shopee mt-3 text-lg font-semibold text-gray-800">
+              {user?.fullName}
+            </p>
           </div>
 
-          {/* Course Info */}
-          <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
-            <div className="flex items-center gap-1">
-              <BookOpen className="w-4 h-4" />
-              <span>{totalLessons} lessons</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              <span>{estimatedDuration}</span>
-            </div>
+          <div className="flex items-center gap-2 mb-3">
+            {getRoleTag()}
+            <Popover content={getLegitHoverContent(user?.legitMark)}>
+              <span className="cursor-pointer font-shopee ">
+                {getLegitMarkTag(user?.legitMark)}
+              </span>
+            </Popover>
           </div>
 
-          {/* Purchase Date */}
-          <div className="text-xs text-gray-500">
-            Purchased: {formatDate(course.orders?.[0]?.createdAt || course.createdAt)}
-          </div>
-        </div>
-      </Card>
-    )
-  }
-
-  const FlashcardCard = ({ flashcard, showPrice = false }) => {
-    const getStateColor = (state) => {
-      switch (state) {
-        case "active":
-          return "green"
-        case "pending":
-          return "orange"
-        default:
-          return "gray"
-      }
-    }
-
-    const getModeIcon = (mode) => {
-      switch (mode) {
-        case "public":
-          return <Users className="w-4 h-4" />
-        case "sell":
-          return <CreditCard className="w-4 h-4" />
-        case "private":
-          return <Lock className="w-4 h-4" />
-        default:
-          return <BookOpen className="w-4 h-4" />
-      }
-    }
-
-    const getModeColor = (mode) => {
-      switch (mode) {
-        case "public":
-          return "blue"
-        case "sell":
-          return "gold"
-        case "private":
-          return "purple"
-        default:
-          return "gray"
-      }
-    }
-
-    return (
-      <Card
-        className="flashcard-card hover:shadow-lg transition-all duration-300 border border-gray-200"
-        actions={[
-          <Button
-            key="view"
-            type="primary"
-            icon={<BookOpen className="w-4 h-4" />}
-            onClick={() => handleViewFlashcard(flashcard.id)}
-            className="bg-[#469B74] border-[#469B74] hover:bg-[#3d8a67]"
-          >
-            Study Now
-          </Button>,
-        ]}
-      >
-        <div className="p-2">
-          {/* Header with tags */}
-          <div className="flex justify-between items-start mb-3">
-            <div className="flex gap-2">
-              <Tag color={getModeColor(flashcard.mode)} icon={getModeIcon(flashcard.mode)} className="font-medium">
-                {flashcard.mode.charAt(0).toUpperCase() + flashcard.mode.slice(1)}
+          {!!userBalance && (
+            <div className="mb-4">
+              <Tag color="#FCB80B" className="font-shopee mb-2 py-1 px-2">
+                Balance: {Number(user.balance).toLocaleString()}$
               </Tag>
-              <Tag color={getStateColor(flashcard.state)} className="font-medium">
-                {flashcard.state.charAt(0).toUpperCase() + flashcard.state.slice(1)}
-              </Tag>
-            </div>
-          </div>
-
-          <h3 className="text-lg font-semibold mb-2 line-clamp-2">{flashcard.name}</h3>
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">{flashcard.description}</p>
-
-          {/* Price (for sell mode) */}
-          {showPrice && flashcard.price && (
-            <div className="mb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-bold text-[#FCB80B]">${flashcard.price?.toLocaleString()}</span>
-              </div>
+              {userBalance > 5 && (
+                <Button
+                  onClick={handleOpenWithdrawModal}
+                  className="font-shopee w-full flex items-center justify-center gap-2 border-[#469B74] text-[#469B74] hover:text-white hover:bg-[#469B74]"
+                >
+                  <FaMoneyBillWave />
+                  <span className="font-shopee ">Withdraw</span>
+                </Button>
+              )}
             </div>
           )}
 
-          {/* Flashcard Info */}
-          <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
-            <div className="flex items-center gap-1">
-              <BookOpen className="w-4 h-4" />
-              <span>{flashcard.questions?.length || 0} cards</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              <span>{Math.max(1, Math.floor((flashcard.questions?.length || 0) * 0.1))}min</span>
-            </div>
-          </div>
+          {isShowRequestButton && (
+            <Button
+              onClick={() => setIsShowExertRequest(true)}
+              type="primary"
+              className="font-shopee mb-4 w-full bg-[#FCB80B] border-[#FCB80B] hover:bg-[#e0a50a] hover:border-[#e0a50a]"
+            >
+              Apply to be Platform Expert
+            </Button>
+          )}
 
-          {/* Created Date */}
-          <div className="text-xs text-gray-500">Created: {formatDate(flashcard.createdAt)}</div>
+          <div className="font-shopee-bold w-full mt-2">
+            <Menu
+              onClick={menuOnclick}
+              mode="vertical"
+              items={menuItems}
+              className="font-shopee-bold rounded-lg menu-custom"
+            />
+          </div>
         </div>
-      </Card>
-    )
-  }
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case "saved":
-        if (boughtLoading) {
-          return (
-            <div className="flex justify-center items-center py-12">
-              <Spin size="large" />
+        <div className="bg-white rounded-lg shadow-md overflow-hidden profile_information">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-[#469B74] to-[#3d8a67] px-6 py-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <Title
+                  level={2}
+                  className="font-shopee mb-1"
+                  style={{ color: 'white' }}
+                >
+                  Public Profile
+                </Title>
+
+                <Text className="font-shopee text-white/90 text-sm">
+                  {isEditing ? "Update your information" : "Your personal information"}
+                </Text>
+              </div>
+              {!isEditing && (
+                <Button
+                  type="primary"
+                  icon={<EditOutlined />}
+                  onClick={handleEdit}
+                  style={{ color: 'white' }}
+                  className="font-shopee hover:bg-white/20 hover:border-white/30"
+                  ghost
+                >
+                  Edit Profile
+                </Button>
+              )}
             </div>
-          )
-        }
-
-        if (boughtError) {
-          return (
-            <div className="text-center py-12">
-              <p className="text-red-600">Error loading purchased courses</p>
-            </div>
-          )
-        }
-
-        if (!boughtCourses || boughtCourses.length === 0) {
-          return (
-            <Empty description="No purchased courses yet" image={Empty.PRESENTED_IMAGE_SIMPLE} className="py-12">
-              <Button type="primary" onClick={() => navigate("/courses")} className="bg-[#469B74] border-[#469B74]">
-                Browse Courses
-              </Button>
-            </Empty>
-          )
-        }
-
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {boughtCourses.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))}
           </div>
-        )
 
-      case "library":
-        if (publicLoading) {
-          return (
-            <div className="flex justify-center items-center py-12">
-              <Spin size="large" />
-            </div>
-          )
-        }
+          <div className="p-6 profile_information_content">
+            {!isEditing ? (
+              /* View Mode */
+              <div className="space-y-6">
+                {/* Full Name */}
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 bg-[#469B74]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <UserOutlined className="text-[#469B74] text-lg" />
+                  </div>
+                  <div className="flex-1">
+                    <Text className="font-shopee-bold text-gray-500 text-xs uppercase tracking-wide block mb-1">
+                      Full Name
+                    </Text>
+                    <Text className="font-shopee text-gray-900 text-lg font-medium">
+                      {user?.fullName || "Not specified"}
+                    </Text>
+                  </div>
+                </div>
 
-        if (publicError) {
-          return (
-            <div className="text-center py-12">
-              <p className="text-red-600">Error loading public flashcards</p>
-            </div>
-          )
-        }
+                <Divider className="my-4" />
 
-        if (!publicFlashcards || publicFlashcards.length === 0) {
-          return (
-            <Empty description="No public flashcards yet" image={Empty.PRESENTED_IMAGE_SIMPLE} className="py-12">
-              <Button type="primary" onClick={() => navigate("/flashcards")} className="bg-[#469B74] border-[#469B74]">
-                Create Flashcard
-              </Button>
-            </Empty>
-          )
-        }
+                {/* Email */}
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <MailOutlined className="text-blue-600 text-lg" />
+                  </div>
+                  <div className="flex-1">
+                    <Text className="font-shopee-bold text-gray-500 text-xs uppercase tracking-wide block mb-1">
+                      Email Address
+                    </Text>
+                    <Text className="font-shopee text-gray-900 text-lg">{user?.email}</Text>
+                    <div className="mt-2">
+                      <Tag color="green" className="font-shopee text-xs">
+                        Verified
+                      </Tag>
+                    </div>
+                  </div>
+                </div>
 
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {publicFlashcards.map((flashcard) => (
-              <FlashcardCard key={flashcard.id} flashcard={flashcard} />
-            ))}
+                <Divider className="my-4" />
+
+                {/* Gender */}
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <TeamOutlined className="text-purple-600 text-lg" />
+                  </div>
+                  <div className="flex-1">
+                    <Text className="font-shopee-bold text-gray-500 text-xs uppercase tracking-wide block mb-1">
+                      Gender
+                    </Text>
+                    <Text className="font-shopee text-gray-900 text-lg">{getGenderLabel(user?.gender)}</Text>
+                  </div>
+                </div>
+
+                <Divider className="my-4" />
+
+                {/* Birthday */}
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <CalendarOutlined className="text-orange-600 text-lg" />
+                  </div>
+                  <div className="flex-1">
+                    <Text className="font-shopee-bold text-gray-500 text-xs uppercase tracking-wide block mb-1">
+                      Birthday
+                    </Text>
+                    <Text className="font-shopee text-gray-900 text-lg">{formatDate(user?.dob)}</Text>
+                  </div>
+                </div>
+
+                <Divider className="my-4" />
+
+                {/* About */}
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <FileTextOutlined className="text-green-600 text-lg" />
+                  </div>
+                  <div className="flex-1">
+                    <Text className="font-shopee-bold text-gray-500 text-xs uppercase tracking-wide block mb-1">
+                      About You
+                    </Text>
+                    <Text className="font-shopee text-gray-900 text-base leading-relaxed">
+                      {user?.about || "No description provided"}
+                    </Text>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Edit Mode */
+              <Form onFinish={handleSave} form={form} layout="vertical">
+                <Form.Item
+                  label={<span className="font-shopee-bold text-gray-700 font-medium">Full Name</span>}
+                  name="fullName"
+                  rules={[{ required: true, message: "Please enter your full name" }]}
+                >
+                  <Input
+                    className="font-shopee border-gray-300 hover:border-[#469B74] focus:border-[#469B74]"
+                    placeholder="Enter your full name"
+                    size="large"
+                  />
+                </Form.Item>
+
+                <Form.Item label={<span className="font-shopee-bold text-gray-700 font-medium">Email</span>} name="email">
+                  <Input
+                    readOnly
+                    className="font-shopee bg-gray-50 border-gray-300"
+                    placeholder="Email"
+                    size="large"
+                    suffix={
+                      <Tag color="green" className="font-shopee">
+                        Verified
+                      </Tag>
+                    }
+                  />
+                </Form.Item>
+
+                <Form.Item label={<span className="font-shopee-bold text-gray-700 font-medium">Gender</span>} name="gender">
+                  <Select options={genderOptions} placeholder="Select your gender" className="font-shopee" size="large" />
+                </Form.Item>
+
+                <Form.Item label={<span className="font-shopee-bold text-gray-700 font-medium">Birthday</span>} name="dob">
+                  <DatePicker
+                    onChange={(_, dateString) => {
+                      setDob(dateString)
+                    }}
+                    placeholder="Select your birthday"
+                    className="font-shopee w-full"
+                    size="large"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  label={<span className="font-shopee-bold text-gray-700 font-medium">About you</span>}
+                  name="about"
+                >
+                  <Input.TextArea
+                    placeholder="Tell us about yourself..."
+                    className="font-shopee border-gray-300 hover:border-[#469B74] focus:border-[#469B74]"
+                    rows={4}
+                    size="large"
+                  />
+                </Form.Item>
+
+                {/* Action Buttons */}
+                <Form.Item className="mb-0">
+                  <Space className="w-full justify-end">
+                    <Button
+                      onClick={handleCancel}
+                      className="font-shopee border-gray-300 text-gray-700 hover:text-gray-900 hover:border-gray-400"
+                      size="large"
+                      icon={<CloseOutlined />}
+                    >
+                      Cancel
+                    </Button>
+                    {updateProfile.isPending ? (
+                      <Button
+                        loading
+                        className="font-shopee bg-[#469B74] hover:bg-[#3d8a67] border-[#469B74] hover:border-[#3d8a67] text-white"
+                        size="large"
+                      >
+                        Saving...
+                      </Button>
+                    ) : (
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        className="font-shopee-bold bg-[#FCB80B] hover:bg-[#e0a50a] border-[#FCB80B] hover:border-[#e0a50a] text-white"
+                        size="large"
+                        icon={<SaveOutlined />}
+                      >
+                        Save Changes
+                      </Button>
+                    )}
+                  </Space>
+                </Form.Item>
+              </Form>
+            )}
           </div>
-        )
-
-      case "sold":
-        if (soldLoading) {
-          return (
-            <div className="flex justify-center items-center py-12">
-              <Spin size="large" />
-            </div>
-          )
-        }
-
-        if (soldError) {
-          return (
-            <div className="text-center py-12">
-              <p className="text-red-600">Error loading sold flashcards</p>
-            </div>
-          )
-        }
-
-        if (!soldFlashcards || soldFlashcards.length === 0) {
-          return (
-            <Empty description="No flashcards for sale yet" image={Empty.PRESENTED_IMAGE_SIMPLE} className="py-12">
-              <Button type="primary" onClick={() => navigate("/flashcards")} className="bg-[#469B74] border-[#469B74]">
-                Create Flashcard to Sell
-              </Button>
-            </Empty>
-          )
-        }
-
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {soldFlashcards.map((flashcard) => (
-              <FlashcardCard key={flashcard.id} flashcard={flashcard} showPrice={true} />
-            ))}
-          </div>
-        )
-
-      case "private":
-        if (privateLoading) {
-          return (
-            <div className="flex justify-center items-center py-12">
-              <Spin size="large" />
-            </div>
-          )
-        }
-
-        if (privateError) {
-          return (
-            <div className="text-center py-12">
-              <p className="text-red-600">Error loading private flashcards</p>
-            </div>
-          )
-        }
-
-        if (!privateFlashcards || privateFlashcards.length === 0) {
-          return (
-            <Empty description="No private flashcards yet" image={Empty.PRESENTED_IMAGE_SIMPLE} className="py-12">
-              <Button type="primary" onClick={() => navigate("/flashcards")} className="bg-[#469B74] border-[#469B74]">
-                Create Private Flashcard
-              </Button>
-            </Empty>
-          )
-        }
-
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {privateFlashcards.map((flashcard) => (
-              <FlashcardCard key={flashcard.id} flashcard={flashcard} />
-            ))}
-          </div>
-        )
-
-      default:
-        return null
-    }
-  }
-
-  return (
-    <div className="my-learning-section bg-white rounded-lg shadow-md p-6 mt-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">My Learning</h2>
-        <p className="text-gray-600">Manage your courses and flashcards</p>
+        </div>
       </div>
+      <MyLearning />
+      <Modal
+        title="Update avatar ?"
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <input
+          onChange={(e) => {
+            setFile(e.target.files[0]);
+          }}
+          type="file"
+          placeholder="Choose avatar"
+        />
+      </Modal>
+      <Modal
+        title="Apply to be expert"
+        open={isShowExertRequest}
+        onCancel={handleCancelRequestModal}
+        onOk={handleSendRequest}
+        confirmLoading={sendExpertRequest.isPending}
+      >
+        <Form.Item label="Upload your cv" rules={[{ required: true }]}>
+          <input type="file" onChange={(e) => handleChangeCV(e.target)} />
+        </Form.Item>
+        <p className="text-[orange]">
+          If your request is pending, please do not resubmit
+        </p>
+      </Modal>
 
-      {/* Tabs */}
-      <div className="flex gap-4 mb-6 border-b border-gray-200 overflow-x-auto">
-        <button
-          onClick={() => setActiveTab("saved")}
-          className={`pb-3 px-1 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "saved" ? "text-[#469B74] border-b-2 border-[#469B74]" : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          <CreditCard className="w-4 h-4" />
-          Purchased Courses ({boughtCourses?.length || 0})
-        </button>
-        <button
-          onClick={() => setActiveTab("library")}
-          className={`pb-3 px-1 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "library" ? "text-[#469B74] border-b-2 border-[#469B74]" : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          <Library className="w-4 h-4" />
-          Public Library ({publicFlashcards?.length || 0})
-        </button>
-        <button
-          onClick={() => setActiveTab("sold")}
-          className={`pb-3 px-1 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "sold" ? "text-[#469B74] border-b-2 border-[#469B74]" : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          <CreditCard className="w-4 h-4" />
-          For Sale ({soldFlashcards?.length || 0})
-        </button>
-        <button
-          onClick={() => setActiveTab("private")}
-          className={`pb-3 px-1 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "private" ? "text-[#469B74] border-b-2 border-[#469B74]" : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          <Lock className="w-4 h-4" />
-          Private ({privateFlashcards?.length || 0})
-        </button>
-      </div>
-
-      {/* Content */}
-      {renderContent()}
-    </div>
-  )
-}
-
-export default MyLearning
+      <Modal
+        title="Withdraw money"
+        open={isShowWithdrawModal}
+        onCancel={handleCloseWithdrawModal}
+        onOk={handleWithdraw}
+        okButtonProps={{ disabled: isDisableWithdrawButton }}
+        confirmLoading={withdrawMutation.isPending}
+      >
+        <Form>
+          <Form.Item
+            label="Amount"
+            rules={[
+              {
+                type: "number",
+                message: "Amount must be a number",
+              },
+              {
+                required: true,
+              },
+            ]}
+          >
+            <Input
+              type="number"
+              placeholder="Amount"
+              value={withDrawAmount}
+              onChange={(e) => handleChangeAmount(e.target.value)}
+              suffix="USD"
+            />
+            <div className="mt-2">
+              {" "}
+              <Tag color="green">min: 10$</Tag>{" "}
+              <Tag color="green">max: {userBalance}$</Tag>
+              <Tag color="gold">Allow Integer</Tag>
+            </div>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </ProfileStyle>
+  );
+};
+export default Profile;
