@@ -1,3 +1,4 @@
+
 /* eslint-disable react/prop-types */
 "use client"
 
@@ -10,21 +11,18 @@ import {
   BookOutlined,
   DollarOutlined,
   LockOutlined,
-} from "@ant-design/icons"
-import getReviewStatus from "../../../helpers/getReviewStatus"
-import { ACTIVE_RESOURCE } from "../../../common/constants"
-import { useMutation } from "@tanstack/react-query"
-import { notification } from "antd"
-import api from "../../../api/http"
-
 const FlashCard = ({ flashcard, onFlashcardClick }) => {
   const token = localStorage.getItem("token")
   const navigate = useNavigate()
   const [userName, setUserName] = useState("Loading...")
   const [isLoadingUser, setIsLoadingUser] = useState(true)
 
-  // Check if flashcard is paid/locked
-  const isPaidFlashcard = flashcard.price !== null && flashcard.price !== undefined && flashcard.price > 0
+
+  // Use isBought property for access and UI
+  const isBought = flashcard.isBought === true;
+  const isPremium = flashcard.isBought === false;
+  const isFree =
+    flashcard.isBought === undefined || flashcard.isBought === null;
 
   // Payment mutation for direct purchase
   const buyFlashcardMutation = useMutation({
@@ -41,34 +39,37 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
   // Fetch user profile by ID
   const fetchUserProfile = async (userId) => {
     try {
-      setIsLoadingUser(true)
-      const response = await fetch(`/api/public/user-profile/${userId}`)
+      setIsLoadingUser(true);
+      const response = await fetch(`/api/public/user-profile/${userId}`);
       if (response.ok) {
-        const userProfile = await response.json()
-        setUserName(userProfile.fullName || "Unknown User")
+        const userProfile = await response.json();
+        setUserName(userProfile.fullName || "Unknown User");
       } else {
-        setUserName("Unknown User")
+        setUserName("Unknown User");
       }
     } catch (error) {
-      console.error("Error fetching user profile:", error)
-      setUserName("Unknown User")
+      console.error("Error fetching user profile:", error);
+      setUserName("Unknown User");
     } finally {
-      setIsLoadingUser(false)
+      setIsLoadingUser(false);
     }
-  }
+  };
 
-  // Fetch user profile when component mounts
   useEffect(() => {
     if (flashcard.userId) {
-      fetchUserProfile(flashcard.userId)
+      fetchUserProfile(flashcard.userId);
     }
-  }, [flashcard.userId])
+  }, [flashcard.userId]);
 
   const handleViewDocument = () => {
     if (token == null) {
-      navigate("/login")
-      return
+      navigate("/login");
+      return;
     }
+    // Always allow navigation to detail
+    navigate(`/flashCard/detail/${flashcard.id}`);
+  };
+
 
     // Check if flashcard requires purchase (locked)
     const requiresPurchase = isPaidFlashcard && !flashcard.isPurchased
@@ -115,21 +116,22 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
   // Format price display
   const formatPrice = (price) => {
     if (price === null || price === undefined || price === 0) {
-      return "Free"
+      return "Free";
     }
-    return `$${price.toFixed(2)}`
-  }
+    return `$${price.toFixed(2)}`;
+  };
 
   const getPriceStyle = (price) => {
     if (price === null || price === undefined || price === 0) {
-      return "bg-[#e6f7ef] text-[#469B74]" // Light green for free
+      return "bg-[#e6f7ef] text-[#469B74]"; // Light green for free
     }
-    return "bg-[#fff8e6] text-[#FCB80C]" // Light yellow for paid
-  }
+    return "bg-[#fff8e6] text-[#FCB80C]"; // Light yellow for paid
+  };
 
   return (
     <div
       onClick={handleViewDocument}
+
       className={`bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer w-[300px] h-[420px] flex flex-col border border-gray-100 relative ${
         isPaidFlashcard
           ? "hover:border-[#FCB80C] hover:shadow-orange-200"
@@ -147,19 +149,21 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
       )}
 
       {/* Card Header with colored accent */}
-      <div className={`h-2 ${isPaidFlashcard ? "bg-[#FCB80C]" : "bg-[#469B74]"}`}></div>
+      <div
+        className={`h-2 ${
+          isBought || isFree ? "bg-[#469B74]" : "bg-[#FCB80C]"
+        }`}
+      ></div>
 
       {/* Card Content */}
       <div className="p-5 flex flex-col h-full">
         {/* Title and Author */}
         <div className="mb-3">
-          <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 mb-2">
-            {flashcard?.name}
-            {isPaidFlashcard && <LockOutlined className="ml-2 text-[#FCB80C]" />}
-          </h3>
           <div className="flex items-center text-sm text-gray-500 mb-3">
             <UserOutlined className="mr-1" />
-            <span className="truncate">{isLoadingUser ? "Loading..." : userName}</span>
+            <span className="truncate">
+              {isLoadingUser ? "Loading..." : userName}
+            </span>
           </div>
         </div>
 
@@ -169,21 +173,29 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
             <BookOutlined className="mr-1" />
             {flashcard.questions?.length || 0} cards
           </span>
+
           {flashcard.state === ACTIVE_RESOURCE ? (
-            <span className="bg-[#e6f7ef] text-[#469B74] text-xs font-medium px-2.5 py-1 rounded-md">Active</span>
+            <span className="bg-[#e6f7ef] text-[#469B74] text-xs font-medium px-2.5 py-1 rounded-md">
+              Active
+            </span>
           ) : (
-            <span className="bg-[#fff8e6] text-[#FCB80C] text-xs font-medium px-2.5 py-1 rounded-md">Pending</span>
+            <span className="bg-[#fff8e6] text-[#FCB80C] text-xs font-medium px-2.5 py-1 rounded-md">
+              Pending
+            </span>
           )}
           <span
-            className={`${getPriceStyle(flashcard.price)} text-xs font-medium px-2.5 py-1 rounded-md flex items-center`}
+            className={`${getPriceStyle(
+              flashcard.price
+            )} text-xs font-medium px-2.5 py-1 rounded-md flex items-center`}
           >
-            {isPaidFlashcard && <DollarOutlined className="mr-1" />}
+            <DollarOutlined className="mr-1" />
             {formatPrice(flashcard.price)}
           </span>
         </div>
 
         {/* Description or Preview */}
         <div className="flex-grow">
+
           {isPaidFlashcard ? (
             <div className="space-y-2">
               <p className="text-sm text-gray-600 line-clamp-2">
@@ -204,6 +216,7 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
               {flashcard.description || "No description available for this flashcard set."}
             </p>
           )}
+
         </div>
 
         {/* Call to Action for Premium Cards */}
@@ -235,15 +248,17 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
 
           <div
             className={`text-xs px-2 py-1 rounded-full ${
-              isPaidFlashcard ? "bg-[#fff8e6] text-[#FCB80C]" : "bg-gray-100 text-gray-700"
+              isBought || isFree
+                ? "bg-[#469B74] text-white"
+                : "bg-[#fff8e6] text-[#FCB80C]"
             }`}
           >
-            {isPaidFlashcard ? "Premium" : "Flashcard"}
+            {isBought ? "Bought" : isPremium ? "Premium" : "Free"}
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default FlashCard
+export default FlashCard;

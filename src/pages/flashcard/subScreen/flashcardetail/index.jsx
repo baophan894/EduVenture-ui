@@ -23,14 +23,15 @@ import {
 import { useState } from "react";
 import { loginRequire } from "../../../../common/protectRoute";
 /* eslint-disable react/prop-types */
-const FlashCardDetailScreen = () => {
+const FlashCardDetailScreen = ({ mockFlashcard }) => {
   loginRequire();
   const user = useUserInfo();
   const topics = useAllTopic();
   const queryClient = useQueryClient();
   const { id } = useParams();
   const flashcards = useAllFlashCard();
-  const activeFlashcard = flashcards?.find((flashcard) => flashcard.id == id);
+  const activeFlashcard =
+    mockFlashcard || flashcards?.find((flashcard) => flashcard.id == id);
   const token = localStorage.getItem("token");
   const [isViewModal, setIsViewModal] = useState(false);
   const topicOptions = () => {
@@ -59,9 +60,13 @@ const FlashCardDetailScreen = () => {
   const isDisLike = activeFlashcard?.reviews.some((review) => {
     return review.userId == user.id && review.state == "unhelpful";
   });
+  const isBought = activeFlashcard?.isBought === true;
+  const isPremium = activeFlashcard?.isBought === false;
+  const previewQuestions = isPremium
+    ? activeFlashcard?.questions?.slice(0, 5)
+    : activeFlashcard?.questions;
   const renderCard = () => {
-    const questions = activeFlashcard?.questions;
-
+    const questions = previewQuestions;
     return questions?.map((question) => {
       return {
         id: 1,
@@ -183,7 +188,7 @@ const FlashCardDetailScreen = () => {
       <div className="max-w-4xl px-4">
         {activeFlashcard && (
           <div className="mb-12 flex justify-center">
-            <div className="w-full max-w-2xl">
+            <div className="w-full max-w-2xl relative">
               <FlashcardArray cards={renderCard()} />
             </div>
           </div>
@@ -192,45 +197,49 @@ const FlashCardDetailScreen = () => {
 
       {/* All FlashCard  */}
       <div className="w-full max-w-[1000px] px-4">
-        {activeFlashcard?.questions.length > 0 && (
+        {previewQuestions?.length > 0 && (
           <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-12 w-full">
             <div className="p-4 border-b border-gray-100 flex items-center">
               <div className="w-2 h-6 bg-[#469B74] rounded-full mr-3"></div>
               <h2 className="text-lg font-bold text-gray-800">
-                All Flashcards
+                {isPremium ? "Preview (First 5 Cards)" : "All Flashcards"}
               </h2>
             </div>
-            <div className="divide-y mb-4">
-              {activeFlashcard?.questions?.map((question, index) => (
+            <div className="divide-y">
+              {previewQuestions?.map((question, index) => (
                 <div
                   key={question?.id}
-                  className="mb-4 md:mb-0 hover:bg-gray-50 transition-colors border-b last:border-b-0 md:border-b-0 md:rounded-lg md:shadow-sm md:overflow-hidden md:mx-4 md:my-4"
+                  className="flex flex-col md:flex-row hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex flex-col md:flex-row">
-                    <div className="p-5 md:w-1/2 border-r border-gray-100">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-7 h-7 rounded-full bg-[#469B74] text-white flex items-center justify-center font-bold text-sm">
-                          Q
-                        </div>
-                        <div>
-                          <p className="text-gray-800">{question.question}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-5 md:w-1/2 bg-gray-50">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-7 h-7 rounded-full bg-[#FCB80C] text-black flex items-center justify-center font-bold text-sm">
-                          A
-                        </div>
-                        <div>
-                          <p className="text-gray-800">{question.answer}</p>
-                        </div>
-                      </div>
-                    </div>
+                  <div className="p-5 md:w-1/2 border-r border-gray-100">
+                    <span className="font-bold text-gray-800">
+                      Q{index + 1}:
+                    </span>{" "}
+                    {question.question}
+                  </div>
+                  <div className="p-5 md:w-1/2">
+                    <span className="font-bold text-[#469B74]">A:</span>{" "}
+                    {question.answer}
                   </div>
                 </div>
               ))}
             </div>
+            {isPremium && (
+              <div className="p-6 text-center text-[#FCB80C] font-semibold bg-[#fff8e6] flex flex-col items-center gap-4">
+                <div>
+                  This is a preview. Please purchase to unlock all flashcards.
+                </div>
+                <div className="text-lg text-gray-800 font-bold">
+                  Price: ${activeFlashcard?.price?.toFixed(2) ?? "N/A"}
+                </div>
+                <button
+                  className="mt-2 px-6 py-2 rounded-md bg-[#FCB80C] text-black font-bold text-base shadow hover:bg-[#ffd966] transition-colors"
+                  onClick={() => alert("Buy functionality coming soon!")}
+                >
+                  Buy Now
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
