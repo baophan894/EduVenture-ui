@@ -1,6 +1,6 @@
+/* eslint-disable react/prop-types */
 "use client"
 
-/* eslint-disable react/prop-types */
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import {
@@ -13,8 +13,11 @@ import {
 } from "@ant-design/icons"
 import getReviewStatus from "../../../helpers/getReviewStatus"
 import { ACTIVE_RESOURCE } from "../../../common/constants"
+import { useMutation } from "@tanstack/react-query"
+import { notification } from "antd"
+import api from "../../../api/http"
 
-const FlashCard = ({ flashcard }) => {
+const FlashCard = ({ flashcard, onFlashcardClick }) => {
   const token = localStorage.getItem("token")
   const navigate = useNavigate()
   const [userName, setUserName] = useState("Loading...")
@@ -22,6 +25,18 @@ const FlashCard = ({ flashcard }) => {
 
   // Check if flashcard is paid/locked
   const isPaidFlashcard = flashcard.price !== null && flashcard.price !== undefined && flashcard.price > 0
+
+  // Payment mutation for direct purchase
+  const buyFlashcardMutation = useMutation({
+    mutationFn: (body) => {
+      return api.post("/payment", body, {
+        headers: {
+          "content-type": "multipart/form-data",
+          Authorization: token,
+        },
+      })
+    },
+  })
 
   // Fetch user profile by ID
   const fetchUserProfile = async (userId) => {
@@ -55,16 +70,44 @@ const FlashCard = ({ flashcard }) => {
       return
     }
 
-    // If it's a paid flashcard, show purchase modal or redirect to purchase page
-    if (isPaidFlashcard) {
-      // For now, we'll just show an alert. You can replace this with a purchase modal
-      alert("This is a premium flashcard. Please purchase to access the content.")
-      // navigate(`/flashCard/purchase/${flashcard.id}`) // Uncomment when purchase page is ready
+    // Check if flashcard requires purchase (locked)
+    const requiresPurchase = isPaidFlashcard && !flashcard.isPurchased
+
+    if (requiresPurchase) {
+      // Show purchase modal for locked flashcards
+      if (onFlashcardClick) {
+        onFlashcardClick(flashcard)
+      } else {
+        alert("This is a premium flashcard. Please purchase to access the content.")
+      }
+    } else {
+      // Navigate to flashcard detail for free or purchased flashcards
+      navigate(`/flashCard/detail/${flashcard.id}`)
+    }
+  }
+
+  const handleDirectPurchase = (e) => {
+    e.stopPropagation() // Prevent card click event
+
+    if (!token) {
+      navigate("/login")
       return
     }
 
-    // Only allow access to free flashcards
-    navigate(`/flashCard/detail/${flashcard.id}`)
+    const formData = new FormData()
+    formData.append("flashcardId", flashcard.id)
+
+    buyFlashcardMutation.mutate(formData, {
+      onSuccess(data) {
+        window.location.replace(data.data)
+      },
+      onError(error) {
+        notification.error({
+          message: "Lỗi thanh toán",
+          description: error.response?.data?.message || "Có lỗi xảy ra khi thanh toán",
+        })
+      },
+    })
   }
 
   const { totalHelpful, totalUnhelpful } = getReviewStatus(flashcard.reviews)
@@ -87,15 +130,18 @@ const FlashCard = ({ flashcard }) => {
   return (
     <div
       onClick={handleViewDocument}
-      className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer w-[300px] h-[420px] flex flex-col border border-gray-100 ${
-        isPaidFlashcard ? "relative" : ""
-      }`}
+      className={`bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer w-[300px] h-[420px] flex flex-col border border-gray-100 relative ${
+        isPaidFlashcard
+          ? "hover:border-[#FCB80C] hover:shadow-orange-200"
+          : "hover:border-[#469B74] hover:shadow-green-200"
+      } transform hover:scale-105`}
     >
-      {/* Lock overlay for paid flashcards */}
+      {/* Premium badge for paid flashcards */}
       {isPaidFlashcard && (
-        <div className="absolute inset-0 bg-black bg-opacity-10 z-10 flex items-center justify-center">
-          <div className="bg-white rounded-full p-3 shadow-lg">
-            <LockOutlined className="text-2xl text-[#FCB80C]" />
+        <div className="absolute top-3 right-3 z-10">
+          <div className="bg-gradient-to-r from-[#FCB80C] to-[#FF8C00] text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
+            <LockOutlined className="text-xs" />
+            PREMIUM
           </div>
         </div>
       )}
@@ -105,7 +151,7 @@ const FlashCard = ({ flashcard }) => {
 
       {/* Card Content */}
       <div className="p-5 flex flex-col h-full">
-        {/* Title and Stats */}
+        {/* Title and Author */}
         <div className="mb-3">
           <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 mb-2">
             {flashcard?.name}
@@ -121,7 +167,7 @@ const FlashCard = ({ flashcard }) => {
         <div className="flex flex-wrap gap-2 mb-4">
           <span className="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-md flex items-center">
             <BookOutlined className="mr-1" />
-            {flashcard.questions.length} cards
+            {flashcard.questions?.length || 0} cards
           </span>
           {flashcard.state === ACTIVE_RESOURCE ? (
             <span className="bg-[#e6f7ef] text-[#469B74] text-xs font-medium px-2.5 py-1 rounded-md">Active</span>
@@ -138,12 +184,41 @@ const FlashCard = ({ flashcard }) => {
 
         {/* Description or Preview */}
         <div className="flex-grow">
-          <p className={`text-sm text-gray-600 line-clamp-3 ${isPaidFlashcard ? "opacity-70" : ""}`}>
-            {isPaidFlashcard
-              ? "This is a premium flashcard set. Purchase to view full content and description."
-              : flashcard.description || "No description available for this flashcard set."}
-          </p>
+          {isPaidFlashcard ? (
+            <div className="space-y-2">
+              <p className="text-sm text-gray-600 line-clamp-2">
+                {flashcard.description || "Premium flashcard set with exclusive content."}
+              </p>
+              <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <LockOutlined className="text-[#FCB80C] text-sm" />
+                  <span className="text-sm font-medium text-[#FCB80C]">Premium Content</span>
+                </div>
+                <p className="text-xs text-gray-600">
+                  Unlock advanced study materials, detailed explanations, and exclusive content.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600 line-clamp-3">
+              {flashcard.description || "No description available for this flashcard set."}
+            </p>
+          )}
         </div>
+
+        {/* Call to Action for Premium Cards */}
+        {isPaidFlashcard && (
+          <div className="mt-3 mb-2">
+            <button
+              onClick={handleDirectPurchase}
+              disabled={buyFlashcardMutation.isPending}
+              className="w-full bg-gradient-to-r from-[#FCB80C] to-[#FF8C00] text-white py-2 px-4 rounded-lg text-sm font-medium hover:from-[#FF8C00] hover:to-[#FCB80C] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <DollarOutlined />
+              {buyFlashcardMutation.isPending ? "Processing..." : `Buy Now - ${formatPrice(flashcard.price)}`}
+            </button>
+          </div>
+        )}
 
         {/* Footer with Reviews */}
         <div className="flex justify-between items-center pt-3 mt-auto border-t border-gray-100">
