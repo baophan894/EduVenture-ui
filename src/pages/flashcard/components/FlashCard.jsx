@@ -9,6 +9,7 @@ import {
   UserOutlined,
   BookOutlined,
   DollarOutlined,
+  LockOutlined,
 } from "@ant-design/icons";
 import getReviewStatus from "../../../helpers/getReviewStatus";
 import { ACTIVE_RESOURCE } from "../../../common/constants";
@@ -79,8 +80,15 @@ const FlashCard = ({ flashcard }) => {
   return (
     <div
       onClick={handleViewDocument}
-      className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer w-[300px] h-[420px] flex flex-col border border-gray-100`}
+      className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer w-[300px] h-[420px] flex flex-col border border-gray-100 relative`}
     >
+      {/* Lock Icon Overlay for Premium Content */}
+      {isPremium && (
+        <div className="absolute top-4 right-4 z-10 bg-[#FCB80C] text-white p-2 rounded-full shadow-lg">
+          <LockOutlined className="text-lg" />
+        </div>
+      )}
+
       {/* Card Header with colored accent */}
       <div
         className={`h-2 ${
@@ -92,24 +100,6 @@ const FlashCard = ({ flashcard }) => {
       <div className="p-5 flex flex-col h-full">
         {/* Title and Stats */}
         <div className="mb-3">
-          <h3 className="text-lg font-semibold text-gray-800 line-clamp-2 mb-2 flex items-center">
-            {flashcard?.name}
-            {isBought && (
-              <span className="ml-2 px-2 py-0.5 rounded bg-[#469B74] text-white text-xs font-semibold">
-                Bought
-              </span>
-            )}
-            {isPremium && (
-              <span className="ml-2 px-2 py-0.5 rounded bg-[#FCB80C] text-white text-xs font-semibold">
-                Premium
-              </span>
-            )}
-            {isFree && (
-              <span className="ml-2 px-2 py-0.5 rounded bg-[#469B74] text-white text-xs font-semibold">
-                Free
-              </span>
-            )}
-          </h3>
           <div className="flex items-center text-sm text-gray-500 mb-3">
             <UserOutlined className="mr-1" />
             <span className="truncate">
@@ -124,6 +114,7 @@ const FlashCard = ({ flashcard }) => {
             <BookOutlined className="mr-1" />
             {flashcard.questions.length} cards
           </span>
+
           {flashcard.state === ACTIVE_RESOURCE ? (
             <span className="bg-[#e6f7ef] text-[#469B74] text-xs font-medium px-2.5 py-1 rounded-md">
               Active
