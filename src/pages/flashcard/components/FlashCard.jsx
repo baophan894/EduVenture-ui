@@ -94,7 +94,7 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
     }
 
     const formData = new FormData()
-    formData.append("flashcardId", flashcard.id)
+    formData.append("courseId", flashcard.id)
 
     buyFlashcardMutation.mutate(formData, {
       onSuccess(data) {
