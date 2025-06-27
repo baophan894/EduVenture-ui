@@ -64,9 +64,9 @@ const FlashcardScreen = () => {
   // Payment mutation for flashcard purchase
   const purchaseFlashcard = useMutation({
     mutationFn: (body) => {
-      return api.post("/payment/flashcard", body, {
+      return api.post("/payment", body, {
         headers: {
-          "content-type": "application/json",
+          "content-type": "multipart/form-data",
           Authorization: token,
         },
       })
@@ -116,24 +116,12 @@ const FlashcardScreen = () => {
   const onConfirmPurchase = () => {
     if (!selectedFlashcard) return
 
-    const purchaseData = {
-      flashcardId: selectedFlashcard.id,
-      amount: selectedFlashcard.price || 0,
-    }
+    const formData = new FormData()
+    formData.append("flashcardId", selectedFlashcard.id)
 
-    purchaseFlashcard.mutate(purchaseData, {
+    purchaseFlashcard.mutate(formData, {
       onSuccess: (data) => {
-        // Redirect to payment gateway
-        if (data.data.paymentUrl) {
-          window.location.replace(data.data.paymentUrl)
-        } else {
-          notification.success({
-            message: "Mua thành công!",
-            description: "Bạn đã mua flashcard thành công.",
-          })
-          setIsPurchaseModal(false)
-          queryClient.invalidateQueries("flashcards")
-        }
+        window.location.replace(data.data)
       },
       onError: (error) => {
         notification.error({
@@ -253,9 +241,7 @@ const FlashcardScreen = () => {
           <Row gutter={[16, 40]}>
             {displayFlashcards?.map((flashcard) => (
               <Col key={flashcard.id} className="gutter-row" xs={24} sm={12} md={6}>
-                <div onClick={() => handleFlashcardClick(flashcard)}>
-                  <FlashCard flashcard={flashcard} />
-                </div>
+                <FlashCard flashcard={flashcard} onFlashcardClick={handleFlashcardClick} />
               </Col>
             ))}
           </Row>
