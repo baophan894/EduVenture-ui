@@ -28,7 +28,7 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
   // Payment mutation for direct purchase
   const buyFlashcardMutation = useMutation({
     mutationFn: (body) => {
-      return api.post("/payment", body, {
+      return api.post("//payment-flashcard", body, {
         headers: {
           "content-type": "multipart/form-data",
           Authorization: token,

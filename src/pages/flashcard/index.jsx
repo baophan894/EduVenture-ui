@@ -64,7 +64,7 @@ const FlashcardScreen = () => {
   // Payment mutation for flashcard purchase
   const purchaseFlashcard = useMutation({
     mutationFn: (body) => {
-      return api.post("/payment", body, {
+      return api.post("/payment-flashcard", body, {
         headers: {
           "content-type": "multipart/form-data",
           Authorization: token,
