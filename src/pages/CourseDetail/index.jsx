@@ -42,10 +42,9 @@ const CourseDetail = () => {
 
   // Payment mutation
   const buyMutation = useMutation({
-    mutationFn: (body) => {
-      return api.post("/payment", body, {
+    mutationFn: (courseId) => {
+      return api.post(`/payment?courseId=${courseId}`, null, {
         headers: {
-          "content-type": "multipart/form-data",
           Authorization: token,
         },
       })
@@ -104,21 +103,17 @@ const CourseDetail = () => {
     })
   }
 
-  // Handle buy confirmation
   const onConfirmBuy = () => {
-    const formData = new FormData()
-    formData.append("courseId", courseData.id)
-
-    buyMutation.mutate(formData, {
+    buyMutation.mutate(courseData.id, {
       onSuccess(data) {
-        window.location.replace(data.data)
+      
+        window.location.replace(data) // redirect sang PayOS
       },
-      onError(data) {
-        notification.error({ message: data.response.data.message })
+      onError(error) {
+        notification.error({ message: error.response.data.message })
       },
     })
   }
-
   // Loading state
   if (isLoading) {
     return (
@@ -178,11 +173,9 @@ const CourseDetail = () => {
                         <li
                           key={subSectionIndex}
                           onClick={() => selectLesson(subSection, section, sectionIndex, subSectionIndex)}
-                          className={`${
-                            selectedLesson?.title === subSection.title ? "active" : ""
-                          } cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
-                            !isAccessible ? "opacity-60" : ""
-                          }`}
+                          className={`${selectedLesson?.title === subSection.title ? "active" : ""
+                            } cursor-pointer hover:bg-gray-100 flex items-center justify-between ${!isAccessible ? "opacity-60" : ""
+                            }`}
                         >
                           <span>{subSection.title}</span>
                           {!isAccessible && <Lock className="w-4 h-4 text-gray-400" />}
