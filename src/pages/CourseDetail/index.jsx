@@ -121,7 +121,7 @@ const CourseDetail = () => {
   const onConfirmBuy = () => {
     buyMutation.mutate(courseData.id, {
       onSuccess(data) {
-        window.location.replace(data.data); // redirect sang PayOS
+        window.location.replace(data.data) // redirect sang PayOS
       },
       onError(error) {
         notification.error({ message: error.response.data.message });

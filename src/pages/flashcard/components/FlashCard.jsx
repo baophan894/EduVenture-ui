@@ -29,16 +29,15 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
     flashcard.price > 0;
 
   // Payment mutation for direct purchase
-  const buyFlashcardMutation = useMutation({
-    mutationFn: (body) => {
-      return api.post("/payment-flashcard", body, {
+  const buyMutation = useMutation({
+    mutationFn: (flashcardId) => {
+      return api.post(`/payment-flashcard?flashcardId=${flashcardId}`, null, {
         headers: {
-          "content-type": "multipart/form-data",
           Authorization: token,
         },
-      });
+      })
     },
-  });
+  })
 
   // Fetch user profile by ID
   const fetchUserProfile = async (userId) => {
@@ -90,30 +89,19 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
     }
   };
 
-  const handleDirectPurchase = (e) => {
-    e.stopPropagation(); // Prevent card click event
+  const onConfirmBuyFlashcard = () => {
+  buyMutation.mutate(flashcard.id, {
+    onSuccess(data) {
+      window.location.replace(data.data); // redirect sang PayOS
+    },
+    onError(error) {
+      notification.error({
+        message: error.response?.data?.message || "Có lỗi xảy ra khi thanh toán",
+      });
+    },
+  });
+};
 
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("courseId", flashcard.id);
-
-    buyFlashcardMutation.mutate(formData, {
-      onSuccess(data) {
-        window.location.replace(data.data);
-      },
-      onError(error) {
-        notification.error({
-          message: "Lỗi thanh toán",
-          description:
-            error.response?.data?.message || "Có lỗi xảy ra khi thanh toán",
-        });
-      },
-    });
-  };
 
   const { totalHelpful, totalUnhelpful } = getReviewStatus(flashcard.reviews);
 
@@ -135,11 +123,10 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
   return (
     <div
       onClick={handleViewDocument}
-      className={`bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer w-[300px] h-[420px] flex flex-col border border-gray-100 relative ${
-        isPaidFlashcard
+      className={`bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer w-[300px] h-[420px] flex flex-col border border-gray-100 relative ${isPaidFlashcard
           ? "hover:border-[#FCB80C] hover:shadow-orange-200"
           : "hover:border-[#469B74] hover:shadow-green-200"
-      } transform hover:scale-105`}
+        } transform hover:scale-105`}
     >
       {/* Premium badge for paid flashcards */}
       {isPaidFlashcard && (
@@ -232,12 +219,12 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
         {isPaidFlashcard && (
           <div className="mt-3 mb-2">
             <button
-              onClick={handleDirectPurchase}
-              disabled={buyFlashcardMutation.isPending}
+              onClick={onConfirmBuyFlashcard}
+              disabled={buyMutation.isPending}
               className="w-full bg-gradient-to-r from-[#FCB80C] to-[#FF8C00] text-white py-2 px-4 rounded-lg text-sm font-medium hover:from-[#FF8C00] hover:to-[#FCB80C] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <DollarOutlined />
-              {buyFlashcardMutation.isPending
+              {buyMutation.isPending
                 ? "Processing..."
                 : `Buy Now - ${formatPrice(flashcard.price)}`}
             </button>
@@ -258,11 +245,10 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
           </div>
 
           <div
-            className={`text-xs px-2 py-1 rounded-full ${
-              isPaidFlashcard
+            className={`text-xs px-2 py-1 rounded-full ${isPaidFlashcard
                 ? "bg-[#fff8e6] text-[#FCB80C]"
                 : "bg-gray-100 text-gray-700"
-            }`}
+              }`}
           >
             {isPaidFlashcard ? "Premium" : "Flashcard"}
           </div>
