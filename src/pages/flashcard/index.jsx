@@ -62,16 +62,16 @@ const FlashcardScreen = () => {
   })
 
   // Payment mutation for flashcard purchase
-  const purchaseFlashcard = useMutation({
-    mutationFn: (body) => {
-      return api.post("/payment-flashcard", body, {
-        headers: {
-          "content-type": "multipart/form-data",
-          Authorization: token,
-        },
-      })
-    },
-  })
+  const buyMutation = useMutation({
+  mutationFn: (flashcardId) => {
+    return api.post(`/payment-flashcard/${flashcardId}`, null, {
+      headers: {
+        Authorization: token,
+      },
+    });
+  },
+});
+
 
   const onSubmitForm = (body) => {
     if (csvFile) {
@@ -114,23 +114,21 @@ const FlashcardScreen = () => {
 
   // Handle flashcard purchase
   const onConfirmPurchase = () => {
-    if (!selectedFlashcard) return
+  if (!selectedFlashcard) return;
 
-    const formData = new FormData()
-    formData.append("flashcardId", selectedFlashcard.id)
+  buyMutation.mutate(selectedFlashcard.id, {
+    onSuccess: (data) => {
+      window.location.replace(data.data); // hoặc chỉ `data`, nếu backend trả trực tiếp URL
+    },
+    onError: (error) => {
+      notification.error({
+        message: "Lỗi thanh toán",
+        description: error.response?.data?.message || "Có lỗi xảy ra khi thanh toán",
+      });
+    },
+  });
+};
 
-    purchaseFlashcard.mutate(formData, {
-      onSuccess: (data) => {
-        window.location.replace(data.data)
-      },
-      onError: (error) => {
-        notification.error({
-          message: "Lỗi thanh toán",
-          description: error.response?.data?.message || "Có lỗi xảy ra khi thanh toán",
-        })
-      },
-    })
-  }
 
   // Handle flashcard click - check if purchase is needed
   const handleFlashcardClick = (flashcard) => {
@@ -519,13 +517,13 @@ const FlashcardScreen = () => {
               </Button>
               <Button
                 onClick={onConfirmPurchase}
-                loading={purchaseFlashcard.isPending}
+                loading={buyMutation.isPending}
                 type="primary"
                 size="large"
                 className="flex-1 h-12 bg-gradient-to-r from-[#469B74] to-[#5BAE88] border-none font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
                 icon={<ShoppingCartOutlined />}
               >
-                {purchaseFlashcard.isPending ? "Đang xử lý..." : "Mua ngay"}
+                {buyMutation.isPending ? "Đang xử lý..." : "Mua ngay"}
               </Button>
             </div>
 
