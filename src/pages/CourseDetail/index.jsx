@@ -121,7 +121,7 @@ const CourseDetail = () => {
   const onConfirmBuy = () => {
     buyMutation.mutate(courseData.id, {
       onSuccess(data) {
-        window.location.replace(data.data) // redirect sang PayOS
+        window.location.replace(data.data); // redirect sang PayOS
       },
       onError(error) {
         notification.error({ message: error.response.data.message });
@@ -254,7 +254,7 @@ const CourseDetail = () => {
               >
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center text-black">
-                    <span className="mb-[4px]">$</span>
+                    <span className="mb-[4px]">VNĐ</span>
                     <p className="text-4xl font-bold">
                       {courseData.price?.toLocaleString("vi-VN") || "0"}
                     </p>
@@ -492,7 +492,7 @@ const CourseDetail = () => {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-gray-500 text-sm line-through">$299</p>
+                <p className="text-gray-500 text-sm line-through">VNĐ 299000</p>
                 <p className="text-green-600 text-sm font-medium">
                   Tiết kiệm 40%
                 </p>

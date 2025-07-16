@@ -1,6 +1,15 @@
-"use client"
+"use client";
 
-import { Button, Form, Input, Select, notification, Card, Typography, Tooltip } from "antd"
+import {
+  Button,
+  Form,
+  Input,
+  Select,
+  notification,
+  Card,
+  Typography,
+  Tooltip,
+} from "antd";
 import {
   PlusOutlined,
   MinusCircleOutlined,
@@ -14,17 +23,17 @@ import {
   ShoppingOutlined,
   ReadOutlined,
   OrderedListOutlined,
-} from "@ant-design/icons"
-import useAllTopic from "../../../hook/topic/useAllTopic"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import api from "../../../api/http"
+} from "@ant-design/icons";
+import useAllTopic from "../../../hook/topic/useAllTopic";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import api from "../../../api/http";
 
-const { Title, Text } = Typography
+const { Title, Text } = Typography;
 // const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024
 
 const CreateTab = () => {
-  const token = localStorage.getItem("token")
-  const queryClient = useQueryClient()
+  const token = localStorage.getItem("token");
+  const queryClient = useQueryClient();
   const createCourse = useMutation({
     mutationFn: (courseData) => {
       return api.post("/courses/create", courseData, {
@@ -32,17 +41,17 @@ const CreateTab = () => {
           "Content-Type": "application/json",
           Authorization: token,
         },
-      })
+      });
     },
-  })
+  });
 
-  const topics = useAllTopic()
+  const topics = useAllTopic();
   const topicOptions = () => {
     return topics?.map((topic) => ({
       value: topic.id,
       label: <span>{topic.name}</span>,
-    }))
-  }
+    }));
+  };
 
   const modeOptions = [
     {
@@ -69,7 +78,7 @@ const CreateTab = () => {
         </>
       ),
     },
-  ]
+  ];
 
   // Remove these states:
   // const [bannerFileList, setBannerFileList] = useState()
@@ -77,7 +86,7 @@ const CreateTab = () => {
   // const isDisableCreate = bannerFileList && lessonList
 
   // Replace with simple validation or remove the disable logic
-  const isDisableCreate = true // Always enable the create button
+  const isDisableCreate = true; // Always enable the create button
 
   const onFinish = (values) => {
     const courseData = {
@@ -97,29 +106,41 @@ const CreateTab = () => {
               content: subSection.content,
             })) || [],
         })) || [],
-    }
+    };
 
     createCourse.mutate(courseData, {
       onSuccess() {
-        queryClient.invalidateQueries("EXPERT_COURSE")
-        notification.success({ message: "Created successfully" })
+        queryClient.invalidateQueries("EXPERT_COURSE");
+        notification.success({ message: "Created successfully" });
       },
       onError(data) {
-        notification.error({ message: data.response?.data?.message || "Failed to create course" })
+        notification.error({
+          message: data.response?.data?.message || "Failed to create course",
+        });
       },
-    })
-  }
+    });
+  };
 
   return (
     <div className="content bg-gray-50 p-6 rounded-lg">
       <div className="mb-6">
-        <Title level={2} className="text-[#469B74] flex items-center gap-2 my-4">
+        <Title
+          level={2}
+          className="text-[#469B74] flex items-center gap-2 my-4"
+        >
           <BookOutlined /> Create New Course
         </Title>
-        <Text className="text-gray-500">Fill in the details below to create your new course</Text>
+        <Text className="text-gray-500">
+          Fill in the details below to create your new course
+        </Text>
       </div>
 
-      <Form layout="vertical" onFinish={onFinish} initialValues={{ mode: "private" }} className="space-y-6">
+      <Form
+        layout="vertical"
+        onFinish={onFinish}
+        initialValues={{ mode: "private" }}
+        className="space-y-6"
+      >
         {/* Basic Information Card */}
         <Card
           title={
@@ -174,7 +195,11 @@ const CreateTab = () => {
               rules={[{ required: true }]}
               tooltip="Choose how your course will be available to students"
             >
-              <Select placeholder="Select course mode" options={modeOptions} className="rounded-md" />
+              <Select
+                placeholder="Select course mode"
+                options={modeOptions}
+                className="rounded-md"
+              />
             </Form.Item>
 
             <Form.Item
@@ -184,7 +209,6 @@ const CreateTab = () => {
                   <DollarOutlined /> Price (USD)
                 </span>
               }
-              rules={[{ required: true }]}
             >
               <Input placeholder="Enter course price" className="rounded-md" />
             </Form.Item>
@@ -199,7 +223,11 @@ const CreateTab = () => {
             }
             rules={[{ required: true }]}
           >
-            <Input.TextArea placeholder="Enter a detailed description of your course" rows={4} className="rounded-md" />
+            <Input.TextArea
+              placeholder="Enter a detailed description of your course"
+              rows={4}
+              className="rounded-md"
+            />
           </Form.Item>
         </Card>
 
@@ -226,7 +254,10 @@ const CreateTab = () => {
             ]}
             tooltip="Enter the URL of your course banner image"
           >
-            <Input placeholder="Enter banner image URL (e.g., https://example.com/banner.jpg)" className="rounded-md" />
+            <Input
+              placeholder="Enter banner image URL (e.g., https://example.com/banner.jpg)"
+              className="rounded-md"
+            />
           </Form.Item>
         </Card>
 
@@ -248,157 +279,197 @@ const CreateTab = () => {
           <Form.List name="tableOfContents">
             {(fields, { add: addMainSection, remove: removeMainSection }) => (
               <>
-                {fields.map(({ key: mainKey, name: mainIndex, ...mainField }) => (
-                  <Card
-                    key={mainKey}
-                    className="mb-6 border-l-4 border-l-[#FCB80B] shadow-sm hover:shadow-md transition-shadow"
-                    title={
-                      <div className="flex items-center gap-2 text-[#FCB80B]">
-                        <ReadOutlined />
-                        <span>Main Section {mainIndex + 1}</span>
-                      </div>
-                    }
-                    extra={
-                      <Button
-                        type="text"
-                        danger
-                        icon={<MinusCircleOutlined />}
-                        onClick={() => removeMainSection(mainIndex)}
-                      >
-                        Remove
-                      </Button>
-                    }
-                  >
-                    <Form.Item
-                      {...mainField}
-                      name={[mainIndex, "title"]}
-                      label="Section Title"
-                      rules={[{ required: true, message: "Please input section title" }]}
-                    >
-                      <Input
-                        placeholder="Enter main section title"
-                        className="rounded-md"
-                        prefix={<BookOutlined className="text-[#FCB80B]" />}
-                      />
-                    </Form.Item>
-
-                    <Form.Item
-                      {...mainField}
-                      name={[mainIndex, "sectionOrder"]}
-                      label="Section Order"
-                      rules={[{ required: true, message: "Please input section order" }]}
-                    >
-                      <Input
-                        type="number"
-                        placeholder="Enter section order (1, 2, 3...)"
-                        className="rounded-md"
-                        min={1}
-                      />
-                    </Form.Item>
-
-                    <Form.Item
-                      {...mainField}
-                      name={[mainIndex, "videoUrl"]}
-                      label={
-                        <span className="flex items-center gap-1">
-                          <VideoCameraOutlined /> Section Video URL
-                        </span>
-                      }
-                      rules={[
-                        { required: true, message: "Please input video URL for this section" },
-                        { type: "url", message: "Please enter a valid URL" },
-                      ]}
-                    >
-                      <Input
-                        placeholder="Enter video URL (e.g., https://example.com/video.mp4)"
-                        className="rounded-md"
-                        prefix={<VideoCameraOutlined className="text-[#FCB80B]" />}
-                      />
-                    </Form.Item>
-
-                    {/* Sub-sections */}
-                    <Form.List name={[mainIndex, "subSections"]}>
-                      {(subFields, { add: addSubSection, remove: removeSubSection }) => (
-                        <div className="pl-6 border-l-2 border-[#FCB80B] ml-4 mt-6">
-                          <div className="mb-4">
-                            <Text strong className="text-[#469B74]">
-                              Sub-sections
-                            </Text>
-                          </div>
-
-                          {subFields.map(({ key: subKey, name: subIndex, ...subField }) => (
-                            <Card
-                              key={subKey}
-                              className="mb-4 border-l-4 border-l-[#469B74] shadow-sm hover:shadow-md transition-shadow"
-                              title={
-                                <div className="flex items-center gap-2 text-[#469B74]">
-                                  <OrderedListOutlined />
-                                  <span>Sub-section {subIndex + 1}</span>
-                                </div>
-                              }
-                              extra={
-                                <Button
-                                  type="text"
-                                  danger
-                                  icon={<MinusCircleOutlined />}
-                                  onClick={() => removeSubSection(subIndex)}
-                                >
-                                  Remove
-                                </Button>
-                              }
-                            >
-                              <Form.Item
-                                {...subField}
-                                name={[subIndex, "title"]}
-                                label="Sub-section Title"
-                                rules={[{ required: true, message: "Please input sub-section title" }]}
-                              >
-                                <Input
-                                  placeholder="Enter sub-section title"
-                                  className="rounded-md"
-                                  prefix={<OrderedListOutlined className="text-[#469B74]" />}
-                                />
-                              </Form.Item>
-
-                              <Form.Item
-                                {...subField}
-                                name={[subIndex, "content"]}
-                                label={
-                                  <span className="flex items-center gap-1">
-                                    <ReadOutlined /> Content
-                                  </span>
-                                }
-                                rules={[{ required: true, message: "Please input content for this sub-section" }]}
-                              >
-                                <Input.TextArea
-                                  placeholder="Enter detailed content for this sub-section"
-                                  rows={4}
-                                  className="rounded-md"
-                                />
-                              </Form.Item>
-                            </Card>
-                          ))}
-
-                          <Form.Item>
-                            <Button
-                              type="dashed"
-                              onClick={() => addSubSection()}
-                              icon={<PlusOutlined />}
-                              className="w-full"
-                              style={{
-                                borderColor: "#469B74",
-                                color: "#469B74",
-                                borderRadius: "8px",
-                              }}
-                            >
-                              Add Sub-section
-                            </Button>
-                          </Form.Item>
+                {fields.map(
+                  ({ key: mainKey, name: mainIndex, ...mainField }) => (
+                    <Card
+                      key={mainKey}
+                      className="mb-6 border-l-4 border-l-[#FCB80B] shadow-sm hover:shadow-md transition-shadow"
+                      title={
+                        <div className="flex items-center gap-2 text-[#FCB80B]">
+                          <ReadOutlined />
+                          <span>Main Section {mainIndex + 1}</span>
                         </div>
-                      )}
-                    </Form.List>
-                  </Card>
-                ))}
+                      }
+                      extra={
+                        <Button
+                          type="text"
+                          danger
+                          icon={<MinusCircleOutlined />}
+                          onClick={() => removeMainSection(mainIndex)}
+                        >
+                          Remove
+                        </Button>
+                      }
+                    >
+                      <Form.Item
+                        {...mainField}
+                        name={[mainIndex, "title"]}
+                        label="Section Title"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please input section title",
+                          },
+                        ]}
+                      >
+                        <Input
+                          placeholder="Enter main section title"
+                          className="rounded-md"
+                          prefix={<BookOutlined className="text-[#FCB80B]" />}
+                        />
+                      </Form.Item>
+
+                      <Form.Item
+                        {...mainField}
+                        name={[mainIndex, "sectionOrder"]}
+                        label="Section Order"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please input section order",
+                          },
+                        ]}
+                      >
+                        <Input
+                          type="number"
+                          placeholder="Enter section order (1, 2, 3...)"
+                          className="rounded-md"
+                          min={1}
+                        />
+                      </Form.Item>
+
+                      <Form.Item
+                        {...mainField}
+                        name={[mainIndex, "videoUrl"]}
+                        label={
+                          <span className="flex items-center gap-1">
+                            <VideoCameraOutlined /> Section Video URL
+                          </span>
+                        }
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please input video URL for this section",
+                          },
+                          { type: "url", message: "Please enter a valid URL" },
+                        ]}
+                      >
+                        <Input
+                          placeholder="Enter video URL (e.g., https://example.com/video.mp4)"
+                          className="rounded-md"
+                          prefix={
+                            <VideoCameraOutlined className="text-[#FCB80B]" />
+                          }
+                        />
+                      </Form.Item>
+
+                      {/* Sub-sections */}
+                      <Form.List name={[mainIndex, "subSections"]}>
+                        {(
+                          subFields,
+                          { add: addSubSection, remove: removeSubSection }
+                        ) => (
+                          <div className="pl-6 border-l-2 border-[#FCB80B] ml-4 mt-6">
+                            <div className="mb-4">
+                              <Text strong className="text-[#469B74]">
+                                Sub-sections
+                              </Text>
+                            </div>
+
+                            {subFields.map(
+                              ({
+                                key: subKey,
+                                name: subIndex,
+                                ...subField
+                              }) => (
+                                <Card
+                                  key={subKey}
+                                  className="mb-4 border-l-4 border-l-[#469B74] shadow-sm hover:shadow-md transition-shadow"
+                                  title={
+                                    <div className="flex items-center gap-2 text-[#469B74]">
+                                      <OrderedListOutlined />
+                                      <span>Sub-section {subIndex + 1}</span>
+                                    </div>
+                                  }
+                                  extra={
+                                    <Button
+                                      type="text"
+                                      danger
+                                      icon={<MinusCircleOutlined />}
+                                      onClick={() => removeSubSection(subIndex)}
+                                    >
+                                      Remove
+                                    </Button>
+                                  }
+                                >
+                                  <Form.Item
+                                    {...subField}
+                                    name={[subIndex, "title"]}
+                                    label="Sub-section Title"
+                                    rules={[
+                                      {
+                                        required: true,
+                                        message:
+                                          "Please input sub-section title",
+                                      },
+                                    ]}
+                                  >
+                                    <Input
+                                      placeholder="Enter sub-section title"
+                                      className="rounded-md"
+                                      prefix={
+                                        <OrderedListOutlined className="text-[#469B74]" />
+                                      }
+                                    />
+                                  </Form.Item>
+
+                                  <Form.Item
+                                    {...subField}
+                                    name={[subIndex, "content"]}
+                                    label={
+                                      <span className="flex items-center gap-1">
+                                        <ReadOutlined /> Content
+                                      </span>
+                                    }
+                                    rules={[
+                                      {
+                                        required: true,
+                                        message:
+                                          "Please input content for this sub-section",
+                                      },
+                                    ]}
+                                  >
+                                    <Input.TextArea
+                                      placeholder="Enter detailed content for this sub-section"
+                                      rows={4}
+                                      className="rounded-md"
+                                    />
+                                  </Form.Item>
+                                </Card>
+                              )
+                            )}
+
+                            <Form.Item>
+                              <Button
+                                type="dashed"
+                                onClick={() => addSubSection()}
+                                icon={<PlusOutlined />}
+                                className="w-full"
+                                style={{
+                                  borderColor: "#469B74",
+                                  color: "#469B74",
+                                  borderRadius: "8px",
+                                }}
+                              >
+                                Add Sub-section
+                              </Button>
+                            </Form.Item>
+                          </div>
+                        )}
+                      </Form.List>
+                    </Card>
+                  )
+                )}
 
                 <Form.Item>
                   <Button
@@ -457,14 +528,17 @@ const CreateTab = () => {
               }}
               className="hover:bg-[#FCB80B]/90"
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "rgba(252, 184, 11, 0.9)"
-                e.currentTarget.style.borderColor = "rgba(252, 184, 11, 0.9)"
-                e.currentTarget.style.boxShadow = "0 6px 8px rgba(252, 184, 11, 0.3)"
+                e.currentTarget.style.backgroundColor =
+                  "rgba(252, 184, 11, 0.9)";
+                e.currentTarget.style.borderColor = "rgba(252, 184, 11, 0.9)";
+                e.currentTarget.style.boxShadow =
+                  "0 6px 8px rgba(252, 184, 11, 0.3)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#FCB80B"
-                e.currentTarget.style.borderColor = "#FCB80B"
-                e.currentTarget.style.boxShadow = "0 4px 6px rgba(252, 184, 11, 0.2)"
+                e.currentTarget.style.backgroundColor = "#FCB80B";
+                e.currentTarget.style.borderColor = "#FCB80B";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 6px rgba(252, 184, 11, 0.2)";
               }}
             >
               Create Course
@@ -473,7 +547,7 @@ const CreateTab = () => {
         </Form.Item>
       </Form>
     </div>
-  )
-}
+  );
+};
 
-export default CreateTab
+export default CreateTab;
