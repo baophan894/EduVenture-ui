@@ -1,9 +1,20 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import useAllTopic from "../../hook/topic/useAllTopic"
-import { Button, Col, Form, Input, Modal, Pagination, Row, Select, Upload, notification } from "antd"
-import Search from "../../components/search"
+import { useEffect, useState } from "react";
+import useAllTopic from "../../hook/topic/useAllTopic";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Pagination,
+  Row,
+  Select,
+  Upload,
+  notification,
+} from "antd";
+import Search from "../../components/search";
 import {
   PlusCircleOutlined,
   MinusCircleOutlined,
@@ -14,31 +25,31 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   BookOutlined,
-} from "@ant-design/icons"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import api from "../../api/http"
-import useAllFlashCard from "../../hook/flashcard/useAllFlashCard"
-import FlashCard from "./components/FlashCard"
-import Loading from "../../components/loading"
-import { ACTIVE_RESOURCE } from "../../common/constants"
+} from "@ant-design/icons";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import api from "../../api/http";
+import useAllFlashCard from "../../hook/flashcard/useAllFlashCard";
+import FlashCard from "./components/FlashCard";
+import Loading from "../../components/loading";
+import { ACTIVE_RESOURCE } from "../../common/constants";
 
-const ITEM_DISPLAY = 12
+const ITEM_DISPLAY = 12;
 
 const FlashcardScreen = () => {
-  const queryClient = useQueryClient()
-  const [isViewModal, setIsViewModal] = useState(false)
-  const [isPurchaseModal, setIsPurchaseModal] = useState(false)
-  const [selectedFlashcard, setSelectedFlashcard] = useState(null)
-  const [page, setPage] = useState(1)
-  const [csvFile, setCsvFile] = useState(null)
+  const queryClient = useQueryClient();
+  const [isViewModal, setIsViewModal] = useState(false);
+  const [isPurchaseModal, setIsPurchaseModal] = useState(false);
+  const [selectedFlashcard, setSelectedFlashcard] = useState(null);
+  const [page, setPage] = useState(1);
+  const [csvFile, setCsvFile] = useState(null);
 
-  const flashcards = useAllFlashCard()
-  const topics = useAllTopic()
-  const [topicFilter, setTopicFilter] = useState()
-  const [search, setSearch] = useState("")
-  const [displayFlashcards, setDisplayFlashcards] = useState([])
+  const flashcards = useAllFlashCard();
+  const topics = useAllTopic();
+  const [topicFilter, setTopicFilter] = useState();
+  const [search, setSearch] = useState("");
+  const [displayFlashcards, setDisplayFlashcards] = useState([]);
 
-  const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token");
 
   const createFlashCard = useMutation({
     mutationFn: (formData) => {
@@ -46,9 +57,9 @@ const FlashcardScreen = () => {
         headers: {
           Authorization: token,
         },
-      })
+      });
     },
-  })
+  });
 
   const uploadFlashCard = useMutation({
     mutationFn: (formData) => {
@@ -57,121 +68,128 @@ const FlashcardScreen = () => {
           "content-type": "multipart/form-data",
           Authorization: token,
         },
-      })
+      });
     },
-  })
+  });
 
   // Payment mutation for flashcard purchase
   const buyMutation = useMutation({
-  mutationFn: (flashcardId) => {
-    return api.post(`/payment-flashcard/${flashcardId}`, null, {
-      headers: {
-        Authorization: token,
-      },
-    });
-  },
-});
-
+    mutationFn: (flashcardId) => {
+      return api.post(`/payment-flashcard/${flashcardId}`, null, {
+        headers: {
+          Authorization: token,
+        },
+      });
+    },
+  });
 
   const onSubmitForm = (body) => {
     if (csvFile) {
-      const formData = new FormData()
-      formData.append("file", csvFile)
-      formData.append("name", body.name)
-      formData.append("topicId", body.topicId)
-      formData.append("description", body.description || "")
+      const formData = new FormData();
+      formData.append("file", csvFile);
+      formData.append("name", body.name);
+      formData.append("topicId", body.topicId);
+      formData.append("description", body.description || "");
 
       uploadFlashCard.mutate(formData, {
         onSuccess: () => {
-          queryClient.invalidateQueries("flashcards")
-          notification.success({ message: "CSV uploaded successfully" })
-          setIsViewModal(false)
-          setCsvFile(null)
+          queryClient.invalidateQueries("flashcards");
+          notification.success({ message: "CSV uploaded successfully" });
+          setIsViewModal(false);
+          setCsvFile(null);
         },
         onError: (error) => {
           notification.error({
             message: "Failed to upload CSV",
             description: error.response?.data || "Unexpected error occurred",
-          })
+          });
         },
-      })
+      });
     } else {
       createFlashCard.mutate(body, {
         onSuccess: () => {
-          queryClient.invalidateQueries("flashcards")
-          notification.success({ message: "Flashcard created successfully" })
-          setIsViewModal(false)
+          queryClient.invalidateQueries("flashcards");
+          notification.success({ message: "Flashcard created successfully" });
+          setIsViewModal(false);
         },
         onError: (error) => {
           notification.error({
             message: "Failed to create flashcard",
             description: error.response?.data || "Unexpected error occurred",
-          })
+          });
         },
-      })
+      });
     }
-  }
+  };
 
   // Handle flashcard purchase
   const onConfirmPurchase = () => {
-  if (!selectedFlashcard) return;
+    if (!selectedFlashcard) return;
 
-  buyMutation.mutate(selectedFlashcard.id, {
-    onSuccess: (data) => {
-      window.location.replace(data.data); // hoặc chỉ `data`, nếu backend trả trực tiếp URL
-    },
-    onError: (error) => {
-      notification.error({
-        message: "Lỗi thanh toán",
-        description: error.response?.data?.message || "Có lỗi xảy ra khi thanh toán",
-      });
-    },
-  });
-};
-
+    buyMutation.mutate(selectedFlashcard.id, {
+      onSuccess: (data) => {
+        window.location.replace(data.data); // hoặc chỉ `data`, nếu backend trả trực tiếp URL
+      },
+      onError: (error) => {
+        notification.error({
+          message: "Lỗi thanh toán",
+          description:
+            error.response?.data?.message || "Có lỗi xảy ra khi thanh toán",
+        });
+      },
+    });
+  };
 
   // Handle flashcard click - check if purchase is needed
   const handleFlashcardClick = (flashcard) => {
     // Check if flashcard requires purchase (you can modify this logic based on your requirements)
-    const requiresPurchase = flashcard.price && flashcard.price > 0 && !flashcard.isPurchased
+    const requiresPurchase =
+      flashcard.price && flashcard.price > 0 && !flashcard.isPurchased;
 
     if (requiresPurchase) {
-      setSelectedFlashcard(flashcard)
-      setIsPurchaseModal(true)
+      setSelectedFlashcard(flashcard);
+      setIsPurchaseModal(true);
     } else {
       // Navigate to flashcard detail or open flashcard
       // Add your navigation logic here
-      console.log("Opening flashcard:", flashcard)
+      console.log("Opening flashcard:", flashcard);
     }
-  }
+  };
 
   const onChangePage = (pageNumber) => {
-    setPage(pageNumber)
-  }
+    setPage(pageNumber);
+  };
 
   const topicOptions = () => {
     return topics?.map((topic) => ({
       value: topic.id,
       label: <span>{topic.name}</span>,
-    }))
-  }
+    }));
+  };
 
   useEffect(() => {
-    let filteredFlashcards = flashcards?.filter((flashcard) => flashcard.state === ACTIVE_RESOURCE)
+    let filteredFlashcards = flashcards?.filter(
+      (flashcard) => flashcard.state === ACTIVE_RESOURCE
+    );
     if (topicFilter) {
-      filteredFlashcards = filteredFlashcards.filter((document) => document.topicId == topicFilter)
+      filteredFlashcards = filteredFlashcards.filter(
+        (document) => document.topicId == topicFilter
+      );
     }
     if (search) {
       filteredFlashcards = filteredFlashcards.filter((flashcard) =>
-        flashcard.name.toLowerCase().trim().includes(search.toLowerCase().trim()),
-      )
+        flashcard.name
+          .toLowerCase()
+          .trim()
+          .includes(search.toLowerCase().trim())
+      );
     }
-    const startIndex = (page - 1) * ITEM_DISPLAY
-    const endIndex = startIndex + ITEM_DISPLAY
-    setDisplayFlashcards(filteredFlashcards?.slice(startIndex, endIndex))
-  }, [flashcards, page, topicFilter, search])
+    const startIndex = (page - 1) * ITEM_DISPLAY;
+    const endIndex = startIndex + ITEM_DISPLAY;
+    setDisplayFlashcards(filteredFlashcards?.slice(startIndex, endIndex));
+  }, [flashcards, page, topicFilter, search]);
 
-  const isDataReady = flashcards && topics
+  const isDataReady = flashcards && topics;
 
   return !isDataReady ? (
     <Loading />
@@ -185,7 +203,9 @@ const FlashcardScreen = () => {
               onClick={() => setTopicFilter("")}
               key="all"
               className={`p-[16px] whitespace-nowrap cursor-pointer transition-colors border-b-2 ${
-                !topicFilter ? "border-[#469B74] text-[#469B74] font-medium" : "border-transparent hover:bg-gray-50"
+                !topicFilter
+                  ? "border-[#469B74] text-[#469B74] font-medium"
+                  : "border-transparent hover:bg-gray-50"
               }`}
             >
               All
@@ -224,8 +244,12 @@ const FlashcardScreen = () => {
               <div className="text-[#469B74] flex justify-center mb-4">
                 <FileTextOutlined style={{ fontSize: "48px" }} />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No flashcards found</h3>
-              <p className="text-gray-500 mb-6">Create your first flashcard or try a different search.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No flashcards found
+              </h3>
+              <p className="text-gray-500 mb-6">
+                Create your first flashcard or try a different search.
+              </p>
               <button
                 onClick={() => setIsViewModal(true)}
                 className="inline-flex items-center gap-2 py-2 px-4 rounded-md bg-[#469B74] text-white hover:bg-[#3a7d5e] transition-colors"
@@ -238,8 +262,17 @@ const FlashcardScreen = () => {
         ) : (
           <Row gutter={[16, 40]}>
             {displayFlashcards?.map((flashcard) => (
-              <Col key={flashcard.id} className="gutter-row" xs={24} sm={12} md={6}>
-                <FlashCard flashcard={flashcard} onFlashcardClick={handleFlashcardClick} />
+              <Col
+                key={flashcard.id}
+                className="gutter-row"
+                xs={24}
+                sm={12}
+                md={6}
+              >
+                <FlashCard
+                  flashcard={flashcard}
+                  onFlashcardClick={handleFlashcardClick}
+                />
               </Col>
             ))}
           </Row>
@@ -277,18 +310,24 @@ const FlashcardScreen = () => {
           </Form.Item>
 
           <Form.Item name="topicId" label="Topic" rules={[{ required: true }]}>
-            <Select placeholder="Select topic" options={topicOptions()} className="rounded-md" />
+            <Select
+              placeholder="Select topic"
+              options={topicOptions()}
+              className="rounded-md"
+            />
           </Form.Item>
 
           <div className="bg-gray-50 p-4 rounded-lg mb-4">
-            <h3 className="font-medium text-gray-700 mb-4">Upload or Create Flashcards</h3>
+            <h3 className="font-medium text-gray-700 mb-4">
+              Upload or Create Flashcards
+            </h3>
 
             <Form.Item name="csvFile" label="Upload CSV File">
               <Upload
                 accept=".csv"
                 beforeUpload={(file) => {
-                  setCsvFile(file)
-                  return false
+                  setCsvFile(file);
+                  return false;
                 }}
                 maxCount={1}
                 onRemove={() => setCsvFile(null)}
@@ -300,7 +339,11 @@ const FlashcardScreen = () => {
                   Select CSV File
                 </Button>
               </Upload>
-              {csvFile && <div className="mt-2 text-sm text-gray-500">File selected: {csvFile.name}</div>}
+              {csvFile && (
+                <div className="mt-2 text-sm text-gray-500">
+                  File selected: {csvFile.name}
+                </div>
+              )}
             </Form.Item>
 
             {!csvFile && (
@@ -308,7 +351,10 @@ const FlashcardScreen = () => {
                 {(fields, { add, remove }) => (
                   <>
                     {fields.map(({ key, name, ...restField }) => (
-                      <div key={key} className="mb-4 p-4 bg-white rounded-lg shadow-sm">
+                      <div
+                        key={key}
+                        className="mb-4 p-4 bg-white rounded-lg shadow-sm"
+                      >
                         <div className="flex justify-between items-center mb-2">
                           <h4 className="font-medium">Card #{name + 1}</h4>
                           <button
@@ -340,7 +386,9 @@ const FlashcardScreen = () => {
                           <Form.Item
                             {...restField}
                             name={[name, "answer"]}
-                            rules={[{ required: true, message: "Answer is required" }]}
+                            rules={[
+                              { required: true, message: "Answer is required" },
+                            ]}
                             label="Answer"
                           >
                             <Input.TextArea
@@ -369,7 +417,11 @@ const FlashcardScreen = () => {
             )}
           </div>
 
-          <Form.Item name="description" label="Description" rules={[{ required: true }]}>
+          <Form.Item
+            name="description"
+            label="Description"
+            rules={[{ required: true }]}
+          >
             <Input.TextArea className="rounded-md" autoSize={{ minRows: 3 }} />
           </Form.Item>
 
@@ -406,7 +458,9 @@ const FlashcardScreen = () => {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold">Xác nhận mua Flashcard</h2>
-                  <p className="text-white/90 text-sm">Mở khóa toàn bộ nội dung học tập!</p>
+                  <p className="text-white/90 text-sm">
+                    Mở khóa toàn bộ nội dung học tập!
+                  </p>
                 </div>
               </div>
             </div>
@@ -419,8 +473,12 @@ const FlashcardScreen = () => {
                 </div>
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2 line-clamp-2">{selectedFlashcard.name}</h3>
-                <p className="text-gray-600 text-sm mb-3 line-clamp-2">{selectedFlashcard.description}</p>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2 line-clamp-2">
+                  {selectedFlashcard.name}
+                </h3>
+                <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                  {selectedFlashcard.description}
+                </p>
                 <div className="flex items-center gap-4 text-sm text-gray-500">
                   <div className="flex items-center gap-1">
                     <ClockCircleOutlined />
@@ -428,7 +486,9 @@ const FlashcardScreen = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <BookOutlined />
-                    <span>{selectedFlashcard.cardCount || "Nhiều"} thẻ học</span>
+                    <span>
+                      {selectedFlashcard.cardCount || "Nhiều"} thẻ học
+                    </span>
                   </div>
                 </div>
               </div>
@@ -441,7 +501,7 @@ const FlashcardScreen = () => {
                   <p className="text-gray-600 text-sm mb-1">Giá flashcard</p>
                   <div className="flex items-center gap-2">
                     <span className="text-3xl font-bold text-[#469B74]">
-                      ${selectedFlashcard.price?.toLocaleString() || "0"}
+                      VNĐ {formatVNNumber(selectedFlashcard.price)}
                     </span>
                     <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-medium">
                       Giá ưu đãi
@@ -450,9 +510,11 @@ const FlashcardScreen = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-gray-500 text-sm line-through">
-                    ${((selectedFlashcard.price || 0) * 1.4).toLocaleString()}
+                    VNĐ {formatVNNumber((selectedFlashcard.price || 0) * 1.4)}
                   </p>
-                  <p className="text-green-600 text-sm font-medium">Tiết kiệm 30%</p>
+                  <p className="text-green-600 text-sm font-medium">
+                    Tiết kiệm 30%
+                  </p>
                 </div>
               </div>
 
@@ -460,7 +522,9 @@ const FlashcardScreen = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex items-center gap-2">
                   <CheckCircleOutlined className="text-green-500" />
-                  <span className="text-sm text-gray-700">Truy cập trọn đời</span>
+                  <span className="text-sm text-gray-700">
+                    Truy cập trọn đời
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircleOutlined className="text-green-500" />
@@ -468,7 +532,9 @@ const FlashcardScreen = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircleOutlined className="text-green-500" />
-                  <span className="text-sm text-gray-700">Cập nhật miễn phí</span>
+                  <span className="text-sm text-gray-700">
+                    Cập nhật miễn phí
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircleOutlined className="text-green-500" />
@@ -484,14 +550,20 @@ const FlashcardScreen = () => {
               </div>
               <div>
                 <p className="font-medium text-gray-800">
-                  {topics?.find((t) => t.id === selectedFlashcard.topicId)?.name || "Chủ đề học tập"}
+                  {topics?.find((t) => t.id === selectedFlashcard.topicId)
+                    ?.name || "Chủ đề học tập"}
                 </p>
-                <p className="text-sm text-gray-600">Flashcard chất lượng cao</p>
+                <p className="text-sm text-gray-600">
+                  Flashcard chất lượng cao
+                </p>
               </div>
               <div className="ml-auto text-right">
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <CheckCircleOutlined key={star} className="text-yellow-400" />
+                    <CheckCircleOutlined
+                      key={star}
+                      className="text-yellow-400"
+                    />
                   ))}
                 </div>
                 <p className="text-xs text-gray-500">4.8/5 (892 đánh giá)</p>
@@ -502,7 +574,9 @@ const FlashcardScreen = () => {
             <div className="text-center mb-6">
               <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm">
                 <CheckCircleOutlined />
-                <span className="font-medium">Đảm bảo hoàn tiền 100% trong 30 ngày</span>
+                <span className="font-medium">
+                  Đảm bảo hoàn tiền 100% trong 30 ngày
+                </span>
               </div>
             </div>
 
@@ -530,14 +604,15 @@ const FlashcardScreen = () => {
             {/* Security Notice */}
             <div className="text-center mt-4">
               <p className="text-xs text-gray-500">
-                🔒 Thanh toán an toàn và bảo mật • Hỗ trợ 24/7 • Hoàn tiền dễ dàng
+                🔒 Thanh toán an toàn và bảo mật • Hỗ trợ 24/7 • Hoàn tiền dễ
+                dàng
               </p>
             </div>
           </div>
         )}
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default FlashcardScreen
+export default FlashcardScreen;

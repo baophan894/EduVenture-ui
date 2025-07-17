@@ -16,6 +16,7 @@ import CourseDetailStyle from "./CourseDetailStyle";
 import api from "../../api/http";
 import useToken from "../../hook/user/useToken";
 import { useParams } from "react-router-dom";
+import { formatVNPrice, formatVNNumber } from "../../helpers/formatPrice";
 
 const CourseDetail = () => {
   const [selectedLesson, setSelectedLesson] = useState(null);
@@ -256,7 +257,7 @@ const CourseDetail = () => {
                   <div className="flex items-center text-black">
                     <span className="mb-[4px]">VNĐ</span>
                     <p className="text-4xl font-bold">
-                      {courseData.price?.toLocaleString("vi-VN") || "0"}
+                      {formatVNNumber(courseData.price)}
                     </p>
                   </div>
 
@@ -484,7 +485,7 @@ const CourseDetail = () => {
                 <p className="text-gray-600 text-sm mb-1">Giá khóa học</p>
                 <div className="flex items-center gap-2">
                   <span className="text-3xl font-bold text-[#469B74]">
-                    ${courseData?.price?.toLocaleString("vi-VN") || "0"}
+                    VNĐ {formatVNNumber(courseData?.price)}
                   </span>
                   <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-medium">
                     Giá ưu đãi
@@ -492,7 +493,9 @@ const CourseDetail = () => {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-gray-500 text-sm line-through">VNĐ 299000</p>
+                <p className="text-gray-500 text-sm line-through">
+                  VNĐ {formatVNNumber(299000)}
+                </p>
                 <p className="text-green-600 text-sm font-medium">
                   Tiết kiệm 40%
                 </p>

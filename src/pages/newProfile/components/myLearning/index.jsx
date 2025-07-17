@@ -1,19 +1,27 @@
 /* eslint-disable react/prop-types */
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, Button, Tag, Spin, Empty } from "antd"
-import { useQuery } from "@tanstack/react-query"
-import { BookOpen, Clock, Play, CreditCard, Users, Lock, Library } from "lucide-react"
+import { useState } from "react";
+import { Card, Button, Tag, Spin, Empty } from "antd";
+import { useQuery } from "@tanstack/react-query";
+import {
+  BookOpen,
+  Clock,
+  Play,
+  CreditCard,
+  Users,
+  Lock,
+  Library,
+} from "lucide-react";
 
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 
-import api from "../../../../api/http"
+import api from "../../../../api/http";
 
 const MyLearning = () => {
   const token = localStorage.getItem("token");
-  const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState("saved")
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("saved");
 
   // Fetch bought courses (saved section)
   const {
@@ -27,11 +35,11 @@ const MyLearning = () => {
         headers: {
           Authorization: token,
         },
-      })
-      return response.data
+      });
+      return response.data;
     },
     enabled: !!token,
-  })
+  });
 
   // Fetch public flashcards (library section)
   const {
@@ -45,11 +53,11 @@ const MyLearning = () => {
         headers: {
           Authorization: token,
         },
-      })
-      return response.data
+      });
+      return response.data;
     },
     enabled: !!token,
-  })
+  });
 
   // Fetch sold flashcards
   const {
@@ -63,11 +71,11 @@ const MyLearning = () => {
         headers: {
           Authorization: token,
         },
-      })
-      return response.data
+      });
+      return response.data;
     },
     enabled: !!token,
-  })
+  });
 
   // Fetch private flashcards
   const {
@@ -81,42 +89,51 @@ const MyLearning = () => {
         headers: {
           Authorization: token,
         },
-      })
-      return response.data
+      });
+      return response.data;
     },
     enabled: !!token,
-  })
+  });
 
   const handleContinueLearning = (courseId) => {
-    navigate(`/coursepayment/detail/${courseId}`)
-  }
+    navigate(`/coursepayment/detail/${courseId}`);
+  };
 
   const handleViewFlashcard = (flashcardId) => {
-    navigate(`/flashCard/detail/${flashcardId}`)
-  }
+    navigate(`/flashCard/detail/${flashcardId}`);
+  };
 
   const calculateTotalLessons = (mainSections) => {
-    return mainSections?.reduce((total, section) => total + (section.subSections?.length || 0), 0) || 0
-  }
+    return (
+      mainSections?.reduce(
+        (total, section) => total + (section.subSections?.length || 0),
+        0
+      ) || 0
+    );
+  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
-    })
-  }
+    });
+  };
 
   const CourseCard = ({ course }) => {
-    const totalLessons = calculateTotalLessons(course.mainSections)
-    const estimatedDuration = `${Math.max(1, Math.floor(totalLessons * 0.5))}h`
+    const totalLessons = calculateTotalLessons(course.mainSections);
+    const estimatedDuration = `${Math.max(1, Math.floor(totalLessons * 0.5))}h`;
 
     return (
       <Card
         className="course-card hover:shadow-lg transition-all duration-300 border border-gray-200"
         cover={
           <div className="relative">
-            <img alt={course.name} src={course.bannerUrl || "/placeholder.svg"} className="w-full h-48 object-cover" />
+            <img
+              alt={course.name}
+              src={course.bannerUrl || "/placeholder.svg"}
+              className="w-full h-48 object-cover"
+            />
             <div className="absolute top-3 right-3">
               <Tag color="green" className="font-medium">
                 Purchased
@@ -144,13 +161,19 @@ const MyLearning = () => {
         ]}
       >
         <div className="p-2">
-          <h3 className="text-lg font-semibold mb-2 line-clamp-2">{course.name}</h3>
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">{course.description}</p>
+          <h3 className="text-lg font-semibold mb-2 line-clamp-2">
+            {course.name}
+          </h3>
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+            {course.description}
+          </p>
 
           {/* Price */}
           <div className="mb-3">
             <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-[#469B74]">${course.price?.toLocaleString() || "0"}</span>
+              <span className="text-xl font-bold text-[#469B74]">
+                VNĐ {formatVNNumber(course.price)}
+              </span>
             </div>
           </div>
 
@@ -168,50 +191,51 @@ const MyLearning = () => {
 
           {/* Purchase Date */}
           <div className="text-xs text-gray-500">
-            Purchased: {formatDate(course.orders?.[0]?.createdAt || course.createdAt)}
+            Purchased:{" "}
+            {formatDate(course.orders?.[0]?.createdAt || course.createdAt)}
           </div>
         </div>
       </Card>
-    )
-  }
+    );
+  };
 
   const FlashcardCard = ({ flashcard, showPrice = false }) => {
     const getStateColor = (state) => {
       switch (state) {
         case "active":
-          return "green"
+          return "green";
         case "pending":
-          return "orange"
+          return "orange";
         default:
-          return "gray"
+          return "gray";
       }
-    }
+    };
 
     const getModeIcon = (mode) => {
       switch (mode) {
         case "public":
-          return <Users className="w-4 h-4" />
+          return <Users className="w-4 h-4" />;
         case "sell":
-          return <CreditCard className="w-4 h-4" />
+          return <CreditCard className="w-4 h-4" />;
         case "private":
-          return <Lock className="w-4 h-4" />
+          return <Lock className="w-4 h-4" />;
         default:
-          return <BookOpen className="w-4 h-4" />
+          return <BookOpen className="w-4 h-4" />;
       }
-    }
+    };
 
     const getModeColor = (mode) => {
       switch (mode) {
         case "public":
-          return "blue"
+          return "blue";
         case "sell":
-          return "gold"
+          return "gold";
         case "private":
-          return "purple"
+          return "purple";
         default:
-          return "gray"
+          return "gray";
       }
-    }
+    };
 
     return (
       <Card
@@ -232,23 +256,38 @@ const MyLearning = () => {
           {/* Header with tags */}
           <div className="flex justify-between items-start mb-3">
             <div className="flex gap-2">
-              <Tag color={getModeColor(flashcard.mode)} icon={getModeIcon(flashcard.mode)} className="font-medium">
-                {flashcard.mode.charAt(0).toUpperCase() + flashcard.mode.slice(1)}
+              <Tag
+                color={getModeColor(flashcard.mode)}
+                icon={getModeIcon(flashcard.mode)}
+                className="font-medium"
+              >
+                {flashcard.mode.charAt(0).toUpperCase() +
+                  flashcard.mode.slice(1)}
               </Tag>
-              <Tag color={getStateColor(flashcard.state)} className="font-medium">
-                {flashcard.state.charAt(0).toUpperCase() + flashcard.state.slice(1)}
+              <Tag
+                color={getStateColor(flashcard.state)}
+                className="font-medium"
+              >
+                {flashcard.state.charAt(0).toUpperCase() +
+                  flashcard.state.slice(1)}
               </Tag>
             </div>
           </div>
 
-          <h3 className="text-lg font-semibold mb-2 line-clamp-2">{flashcard.name}</h3>
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">{flashcard.description}</p>
+          <h3 className="text-lg font-semibold mb-2 line-clamp-2">
+            {flashcard.name}
+          </h3>
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+            {flashcard.description}
+          </p>
 
           {/* Price (for sell mode) */}
           {showPrice && flashcard.price && (
             <div className="mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-xl font-bold text-[#FCB80B]">${flashcard.price?.toLocaleString()}</span>
+                <span className="text-xl font-bold text-[#FCB80B]">
+                  VNĐ {formatVNNumber(flashcard.price)}
+                </span>
               </div>
             </div>
           )}
@@ -261,16 +300,24 @@ const MyLearning = () => {
             </div>
             <div className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
-              <span>{Math.max(1, Math.floor((flashcard.questions?.length || 0) * 0.1))}min</span>
+              <span>
+                {Math.max(
+                  1,
+                  Math.floor((flashcard.questions?.length || 0) * 0.1)
+                )}
+                min
+              </span>
             </div>
           </div>
 
           {/* Created Date */}
-          <div className="text-xs text-gray-500">Created: {formatDate(flashcard.createdAt)}</div>
+          <div className="text-xs text-gray-500">
+            Created: {formatDate(flashcard.createdAt)}
+          </div>
         </div>
       </Card>
-    )
-  }
+    );
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -280,7 +327,7 @@ const MyLearning = () => {
             <div className="flex justify-center items-center py-12">
               <Spin size="large" />
             </div>
-          )
+          );
         }
 
         if (boughtError) {
@@ -288,17 +335,25 @@ const MyLearning = () => {
             <div className="text-center py-12">
               <p className="text-red-600">Error loading purchased courses</p>
             </div>
-          )
+          );
         }
 
         if (!boughtCourses || boughtCourses.length === 0) {
           return (
-            <Empty description="No purchased courses yet" image={Empty.PRESENTED_IMAGE_SIMPLE} className="py-12">
-              <Button type="primary" onClick={() => navigate("/courses")} className="bg-[#469B74] border-[#469B74]">
+            <Empty
+              description="No purchased courses yet"
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              className="py-12"
+            >
+              <Button
+                type="primary"
+                onClick={() => navigate("/courses")}
+                className="bg-[#469B74] border-[#469B74]"
+              >
                 Browse Courses
               </Button>
             </Empty>
-          )
+          );
         }
 
         return (
@@ -307,7 +362,7 @@ const MyLearning = () => {
               <CourseCard key={course.id} course={course} />
             ))}
           </div>
-        )
+        );
 
       case "library":
         if (publicLoading) {
@@ -315,7 +370,7 @@ const MyLearning = () => {
             <div className="flex justify-center items-center py-12">
               <Spin size="large" />
             </div>
-          )
+          );
         }
 
         if (publicError) {
@@ -323,17 +378,25 @@ const MyLearning = () => {
             <div className="text-center py-12">
               <p className="text-red-600">Error loading public flashcards</p>
             </div>
-          )
+          );
         }
 
         if (!publicFlashcards || publicFlashcards.length === 0) {
           return (
-            <Empty description="No public flashcards yet" image={Empty.PRESENTED_IMAGE_SIMPLE} className="py-12">
-              <Button type="primary" onClick={() => navigate("/flashcards")} className="bg-[#469B74] border-[#469B74]">
+            <Empty
+              description="No public flashcards yet"
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              className="py-12"
+            >
+              <Button
+                type="primary"
+                onClick={() => navigate("/flashcards")}
+                className="bg-[#469B74] border-[#469B74]"
+              >
                 Create Flashcard
               </Button>
             </Empty>
-          )
+          );
         }
 
         return (
@@ -342,7 +405,7 @@ const MyLearning = () => {
               <FlashcardCard key={flashcard.id} flashcard={flashcard} />
             ))}
           </div>
-        )
+        );
 
       case "sold":
         if (soldLoading) {
@@ -350,7 +413,7 @@ const MyLearning = () => {
             <div className="flex justify-center items-center py-12">
               <Spin size="large" />
             </div>
-          )
+          );
         }
 
         if (soldError) {
@@ -358,26 +421,38 @@ const MyLearning = () => {
             <div className="text-center py-12">
               <p className="text-red-600">Error loading sold flashcards</p>
             </div>
-          )
+          );
         }
 
         if (!soldFlashcards || soldFlashcards.length === 0) {
           return (
-            <Empty description="No flashcards for sale yet" image={Empty.PRESENTED_IMAGE_SIMPLE} className="py-12">
-              <Button type="primary" onClick={() => navigate("/flashcards")} className="bg-[#469B74] border-[#469B74]">
+            <Empty
+              description="No flashcards for sale yet"
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              className="py-12"
+            >
+              <Button
+                type="primary"
+                onClick={() => navigate("/flashcards")}
+                className="bg-[#469B74] border-[#469B74]"
+              >
                 Create Flashcard to Sell
               </Button>
             </Empty>
-          )
+          );
         }
 
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {soldFlashcards.map((flashcard) => (
-              <FlashcardCard key={flashcard.id} flashcard={flashcard} showPrice={true} />
+              <FlashcardCard
+                key={flashcard.id}
+                flashcard={flashcard}
+                showPrice={true}
+              />
             ))}
           </div>
-        )
+        );
 
       case "private":
         if (privateLoading) {
@@ -385,7 +460,7 @@ const MyLearning = () => {
             <div className="flex justify-center items-center py-12">
               <Spin size="large" />
             </div>
-          )
+          );
         }
 
         if (privateError) {
@@ -393,17 +468,25 @@ const MyLearning = () => {
             <div className="text-center py-12">
               <p className="text-red-600">Error loading private flashcards</p>
             </div>
-          )
+          );
         }
 
         if (!privateFlashcards || privateFlashcards.length === 0) {
           return (
-            <Empty description="No private flashcards yet" image={Empty.PRESENTED_IMAGE_SIMPLE} className="py-12">
-              <Button type="primary" onClick={() => navigate("/flashcards")} className="bg-[#469B74] border-[#469B74]">
+            <Empty
+              description="No private flashcards yet"
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              className="py-12"
+            >
+              <Button
+                type="primary"
+                onClick={() => navigate("/flashcards")}
+                className="bg-[#469B74] border-[#469B74]"
+              >
                 Create Private Flashcard
               </Button>
             </Empty>
-          )
+          );
         }
 
         return (
@@ -412,12 +495,12 @@ const MyLearning = () => {
               <FlashcardCard key={flashcard.id} flashcard={flashcard} />
             ))}
           </div>
-        )
+        );
 
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <div className="my-learning-section bg-white rounded-lg shadow-md p-6 mt-6">
@@ -432,7 +515,9 @@ const MyLearning = () => {
         <button
           onClick={() => setActiveTab("saved")}
           className={`pb-3 px-1 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "saved" ? "text-[#469B74] border-b-2 border-[#469B74]" : "text-gray-500 hover:text-gray-700"
+            activeTab === "saved"
+              ? "text-[#469B74] border-b-2 border-[#469B74]"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           <CreditCard className="w-4 h-4" />
@@ -441,7 +526,9 @@ const MyLearning = () => {
         <button
           onClick={() => setActiveTab("library")}
           className={`pb-3 px-1 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "library" ? "text-[#469B74] border-b-2 border-[#469B74]" : "text-gray-500 hover:text-gray-700"
+            activeTab === "library"
+              ? "text-[#469B74] border-b-2 border-[#469B74]"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           <Library className="w-4 h-4" />
@@ -450,7 +537,9 @@ const MyLearning = () => {
         <button
           onClick={() => setActiveTab("sold")}
           className={`pb-3 px-1 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "sold" ? "text-[#469B74] border-b-2 border-[#469B74]" : "text-gray-500 hover:text-gray-700"
+            activeTab === "sold"
+              ? "text-[#469B74] border-b-2 border-[#469B74]"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           <CreditCard className="w-4 h-4" />
@@ -459,7 +548,9 @@ const MyLearning = () => {
         <button
           onClick={() => setActiveTab("private")}
           className={`pb-3 px-1 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "private" ? "text-[#469B74] border-b-2 border-[#469B74]" : "text-gray-500 hover:text-gray-700"
+            activeTab === "private"
+              ? "text-[#469B74] border-b-2 border-[#469B74]"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           <Lock className="w-4 h-4" />
@@ -470,7 +561,7 @@ const MyLearning = () => {
       {/* Content */}
       {renderContent()}
     </div>
-  )
-}
+  );
+};
 
-export default MyLearning
+export default MyLearning;
