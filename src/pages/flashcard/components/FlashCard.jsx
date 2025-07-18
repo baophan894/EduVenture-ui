@@ -175,8 +175,10 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
               flashcard.price
             )} text-xs font-medium px-2.5 py-1 rounded-md flex items-center`}
           >
-            {isPaidFlashcard && <DollarOutlined className="mr-1" />}
-            {formatVNPrice(flashcard.price)}
+
+
+            {formatPrice(flashcard.price)}
+
           </span>
         </div>
 
@@ -217,7 +219,7 @@ const FlashCard = ({ flashcard, onFlashcardClick }) => {
               disabled={buyMutation.isPending}
               className="w-full bg-gradient-to-r from-[#FCB80C] to-[#FF8C00] text-white py-2 px-4 rounded-lg text-sm font-medium hover:from-[#FF8C00] hover:to-[#FCB80C] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <DollarOutlined />
+
               {buyMutation.isPending
                 ? "Processing..."
                 : `Buy Now - ${formatVNPrice(flashcard.price)}`}

@@ -674,9 +674,15 @@ const CombinedScreen = () => {
           </div>
 
           <Form.Item
-            name="description"
-            label="Description"
-            rules={[{ required: true }]}
+
+            name="price"
+            label="Price"
+            rules={[
+              {
+                pattern: /^\d+(\.\d{1,2})?$/,
+             
+              },
+            ]}
           >
             <Input.TextArea className="rounded-md" autoSize={{ minRows: 3 }} />
           </Form.Item>
