@@ -20,7 +20,18 @@ import { useEffect, useState } from "react";
 import moment from "moment";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/http";
-import { AppstoreOutlined, CalendarOutlined, CloseOutlined, EditOutlined, FileTextOutlined, MailOutlined, SaveOutlined, SettingOutlined, TeamOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  AppstoreOutlined,
+  CalendarOutlined,
+  CloseOutlined,
+  EditOutlined,
+  FileTextOutlined,
+  MailOutlined,
+  SaveOutlined,
+  SettingOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import MyLearning from "./components/myLearning";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../components/loading";
@@ -111,9 +122,9 @@ const Profile = () => {
     },
   });
   const handleSave = (values) => {
-    onFinish(values)
-    setIsEditing(false)
-  }
+    onFinish(values);
+    setIsEditing(false);
+  };
   const [files, setFiles] = useState(null);
   const handleChangeCV = (info) => {
     const file = info.files[0];
@@ -125,13 +136,13 @@ const Profile = () => {
     }
   };
   const getGenderLabel = (value) => {
-    const option = genderOptions.find((opt) => opt.value === value)
-    return option ? option.label : "Not specified"
-  }
+    const option = genderOptions.find((opt) => opt.value === value);
+    return option ? option.label : "Not specified";
+  };
   const formatDate = (dateString) => {
-    if (!dateString) return "Not specified"
-    return moment(dateString).format("MMMM DD, YYYY")
-  }
+    if (!dateString) return "Not specified";
+    return moment(dateString).format("MMMM DD, YYYY");
+  };
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isShowExertRequest, setIsShowExertRequest] = useState(false);
   const [isShowWithdrawModal, setIsShowWithdrawModal] = useState(false);
@@ -234,11 +245,11 @@ const Profile = () => {
       }
     }
   };
-  const { Title, Text } = Typography
-  const [isEditing, setIsEditing] = useState(false)
+  const { Title, Text } = Typography;
+  const [isEditing, setIsEditing] = useState(false);
   const handleEdit = () => {
-    setIsEditing(true)
-  }
+    setIsEditing(true);
+  };
   const getManagement = () => {
     switch (role) {
       case ADMIN: {
@@ -360,7 +371,7 @@ const Profile = () => {
           {!!userBalance && (
             <div className="mb-4">
               <Tag color="#FCB80B" className="font-shopee mb-2 py-1 px-2">
-                Balance: {Number(user.balance).toLocaleString()}$
+                Balance: {formatVNNumber(user.balance)} VNĐ
               </Tag>
               {userBalance > 5 && (
                 <Button
@@ -402,13 +413,15 @@ const Profile = () => {
                 <Title
                   level={2}
                   className="font-shopee mb-1"
-                  style={{ color: 'white' }}
+                  style={{ color: "white" }}
                 >
                   Public Profile
                 </Title>
 
                 <Text className="font-shopee text-white/90 text-sm">
-                  {isEditing ? "Update your information" : "Your personal information"}
+                  {isEditing
+                    ? "Update your information"
+                    : "Your personal information"}
                 </Text>
               </div>
               {!isEditing && (
@@ -416,7 +429,7 @@ const Profile = () => {
                   type="primary"
                   icon={<EditOutlined />}
                   onClick={handleEdit}
-                  style={{ color: 'white' }}
+                  style={{ color: "white" }}
                   className="font-shopee hover:bg-white/20 hover:border-white/30"
                   ghost
                 >
@@ -456,7 +469,9 @@ const Profile = () => {
                     <Text className="font-shopee-bold text-gray-500 text-xs uppercase tracking-wide block mb-1">
                       Email Address
                     </Text>
-                    <Text className="font-shopee text-gray-900 text-lg">{user?.email}</Text>
+                    <Text className="font-shopee text-gray-900 text-lg">
+                      {user?.email}
+                    </Text>
                     <div className="mt-2">
                       <Tag color="green" className="font-shopee text-xs">
                         Verified
@@ -476,7 +491,9 @@ const Profile = () => {
                     <Text className="font-shopee-bold text-gray-500 text-xs uppercase tracking-wide block mb-1">
                       Gender
                     </Text>
-                    <Text className="font-shopee text-gray-900 text-lg">{getGenderLabel(user?.gender)}</Text>
+                    <Text className="font-shopee text-gray-900 text-lg">
+                      {getGenderLabel(user?.gender)}
+                    </Text>
                   </div>
                 </div>
 
@@ -491,7 +508,9 @@ const Profile = () => {
                     <Text className="font-shopee-bold text-gray-500 text-xs uppercase tracking-wide block mb-1">
                       Birthday
                     </Text>
-                    <Text className="font-shopee text-gray-900 text-lg">{formatDate(user?.dob)}</Text>
+                    <Text className="font-shopee text-gray-900 text-lg">
+                      {formatDate(user?.dob)}
+                    </Text>
                   </div>
                 </div>
 
@@ -516,9 +535,15 @@ const Profile = () => {
               /* Edit Mode */
               <Form onFinish={handleSave} form={form} layout="vertical">
                 <Form.Item
-                  label={<span className="font-shopee-bold text-gray-700 font-medium">Full Name</span>}
+                  label={
+                    <span className="font-shopee-bold text-gray-700 font-medium">
+                      Full Name
+                    </span>
+                  }
                   name="fullName"
-                  rules={[{ required: true, message: "Please enter your full name" }]}
+                  rules={[
+                    { required: true, message: "Please enter your full name" },
+                  ]}
                 >
                   <Input
                     className="font-shopee border-gray-300 hover:border-[#469B74] focus:border-[#469B74]"
@@ -527,7 +552,14 @@ const Profile = () => {
                   />
                 </Form.Item>
 
-                <Form.Item label={<span className="font-shopee-bold text-gray-700 font-medium">Email</span>} name="email">
+                <Form.Item
+                  label={
+                    <span className="font-shopee-bold text-gray-700 font-medium">
+                      Email
+                    </span>
+                  }
+                  name="email"
+                >
                   <Input
                     readOnly
                     className="font-shopee bg-gray-50 border-gray-300"
@@ -541,14 +573,33 @@ const Profile = () => {
                   />
                 </Form.Item>
 
-                <Form.Item label={<span className="font-shopee-bold text-gray-700 font-medium">Gender</span>} name="gender">
-                  <Select options={genderOptions} placeholder="Select your gender" className="font-shopee" size="large" />
+                <Form.Item
+                  label={
+                    <span className="font-shopee-bold text-gray-700 font-medium">
+                      Gender
+                    </span>
+                  }
+                  name="gender"
+                >
+                  <Select
+                    options={genderOptions}
+                    placeholder="Select your gender"
+                    className="font-shopee"
+                    size="large"
+                  />
                 </Form.Item>
 
-                <Form.Item label={<span className="font-shopee-bold text-gray-700 font-medium">Birthday</span>} name="dob">
+                <Form.Item
+                  label={
+                    <span className="font-shopee-bold text-gray-700 font-medium">
+                      Birthday
+                    </span>
+                  }
+                  name="dob"
+                >
                   <DatePicker
                     onChange={(_, dateString) => {
-                      setDob(dateString)
+                      setDob(dateString);
                     }}
                     placeholder="Select your birthday"
                     className="font-shopee w-full"
@@ -557,7 +608,11 @@ const Profile = () => {
                 </Form.Item>
 
                 <Form.Item
-                  label={<span className="font-shopee-bold text-gray-700 font-medium">About you</span>}
+                  label={
+                    <span className="font-shopee-bold text-gray-700 font-medium">
+                      About you
+                    </span>
+                  }
                   name="about"
                 >
                   <Input.TextArea
@@ -661,12 +716,12 @@ const Profile = () => {
               placeholder="Amount"
               value={withDrawAmount}
               onChange={(e) => handleChangeAmount(e.target.value)}
-              suffix="USD"
+              suffix="VNĐ"
             />
             <div className="mt-2">
               {" "}
-              <Tag color="green">min: 10$</Tag>{" "}
-              <Tag color="green">max: {userBalance}$</Tag>
+              <Tag color="green">min: 10 VNĐ</Tag>{" "}
+              <Tag color="green">max: {formatVNNumber(userBalance)} VNĐ</Tag>
               <Tag color="gold">Allow Integer</Tag>
             </div>
           </Form.Item>

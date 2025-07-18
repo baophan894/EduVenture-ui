@@ -206,7 +206,9 @@ const CreateTab = () => {
               name="price"
               label={
                 <span className="flex items-center gap-1">
+
                   Price (VND)
+
                 </span>
               }
             >

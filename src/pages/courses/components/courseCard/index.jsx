@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
+import { formatVNNumber } from "../../../helpers/formatPrice";
 
 const CourseCard = ({ course, expert }) => {
   const token = localStorage.getItem("token");
@@ -69,13 +70,13 @@ const CourseCard = ({ course, expert }) => {
         {/* Price Section */}
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-baseline">
-            <span className="text-sm text-gray-500">$</span>
+            <span className="text-sm text-gray-500">VNĐ</span>
             <span
-              className={`text-xl font-semibold transition-all duration-300 ${
+              className={`text-xl font-semibold transition-all duration-300 ml-1 ${
                 isHovered ? "text-[#469B74] scale-110" : "text-gray-800"
               }`}
             >
-              {course.price.toLocaleString("vi-VN")}
+              {formatVNNumber(course.price)}
             </span>
           </div>
           <button
