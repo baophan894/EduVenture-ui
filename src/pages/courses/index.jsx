@@ -504,7 +504,6 @@ const CombinedScreen = () => {
             name="price"
             label="Price"
             rules={[
-              { required: true, message: "Price is required" },
               {
                 pattern: /^\d+(\.\d{1,2})?$/,
                 message: "Please enter a valid price",
