@@ -230,7 +230,7 @@ const FlashCardDetailScreen = ({ mockFlashcard }) => {
                   This is a preview. Please purchase to unlock all flashcards.
                 </div>
                 <div className="text-lg text-gray-800 font-bold">
-                  Price: ${activeFlashcard?.price?.toFixed(2) ?? "N/A"}
+                  Price: {activeFlashcard?.price?.toFixed(2) ?? "N/A"}
                 </div>
                 <button
                   className="mt-2 px-6 py-2 rounded-md bg-[#FCB80C] text-black font-bold text-base shadow hover:bg-[#ffd966] transition-colors"
