@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
-import { formatVNNumber } from "../../../helpers/formatPrice";
+import { formatVNNumber } from "../../../../helpers/formatPrice";
 
 const CourseCard = ({ course, expert }) => {
   const token = localStorage.getItem("token");
