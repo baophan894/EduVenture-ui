@@ -128,7 +128,9 @@ const TestDetailAdmin = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`https://safeeduapi-dev.site/api/tests/${id}`);
+      const response = await fetch(
+        `https://safeeduapi-dev.site/api/tests/${id}`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch test data");
       }
@@ -790,14 +792,17 @@ const TestDetailAdmin = () => {
         }
       }
 
-      const response = await fetch(`https://safeeduapi-dev.site/api/tests/${id}`, {
-        method: "PUT",
-        headers: {
-          // Don't set Content-Type header - let the browser set it with the boundary
-          Accept: "application/json",
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `https://safeeduapi-dev.site/api/tests/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            // Don't set Content-Type header - let the browser set it with the boundary
+            Accept: "application/json",
+          },
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -962,9 +967,12 @@ const TestDetailAdmin = () => {
   const handleConfirmDelete = async () => {
     setDeleting(true);
     try {
-      const response = await fetch(`https://safeeduapi-dev.site/api/tests/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `https://safeeduapi-dev.site/api/tests/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete test");
@@ -1063,7 +1071,9 @@ const TestDetailAdmin = () => {
   // Add refresh levels function
   const refreshLevels = async () => {
     try {
-      const response = await fetch("https://safeeduapi-dev.site/api/test-levels");
+      const response = await fetch(
+        "https://safeeduapi-dev.site/api/test-levels"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch levels");
       }
