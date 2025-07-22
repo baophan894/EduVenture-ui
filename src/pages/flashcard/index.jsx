@@ -15,6 +15,7 @@ import {
   notification,
 } from "antd";
 import Search from "../../components/search";
+import { formatVNNumber } from "../../helpers/formatPrice";
 import {
   PlusCircleOutlined,
   MinusCircleOutlined,

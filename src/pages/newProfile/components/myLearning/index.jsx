@@ -17,6 +17,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import api from "../../../../api/http";
+import { formatVNNumber } from "../../../../helpers/formatPrice";
 
 const MyLearning = () => {
   const token = localStorage.getItem("token");
