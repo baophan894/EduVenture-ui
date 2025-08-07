@@ -16,7 +16,7 @@ const CourseDetailPayment = () => {
   const token = useToken()
   const { id } = useParams()
 
-  // Fetch course data from API
+  // tesst testt testttttt
   const {
     data: courseData,
     isLoading,
