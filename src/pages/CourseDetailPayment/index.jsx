@@ -114,7 +114,7 @@ const CourseDetailPayment = () => {
     )
   }
 
-  // Error hêhheheheheadwawdawawdada132312312312321
+  // Error hêhheheheheadwawdawawdada132331231231212123123123112312312321 tets ătewadeas d
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen">
