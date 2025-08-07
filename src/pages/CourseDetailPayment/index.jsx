@@ -16,7 +16,7 @@ const CourseDetailPayment = () => {
   const token = useToken()
   const { id } = useParams()
 
-  // tesst testt testttttt
+  //13123123123
   const {
     data: courseData,
     isLoading,
