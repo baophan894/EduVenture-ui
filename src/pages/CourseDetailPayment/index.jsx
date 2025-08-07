@@ -114,7 +114,7 @@ const CourseDetailPayment = () => {
     )
   }
 
-  // Error state
+  // Error hêhhehehehe
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen">
